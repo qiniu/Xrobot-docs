@@ -1,0 +1,28 @@
+.medium-zoom-overlay {
+  z-index: 20;
+}
+
+.medium-zoom-image {
+  z-index: 21;
+}
+
+/* 图片居中样式 */
+.img-center {
+  display: block;
+  /* 转为块级元素，确保 margin 生效 */
+  margin: 0 auto;
+  /* 水平居中核心 */
+  /* 可附加其他样式 */
+  max-width: 100%;
+  /* 避免图片超出容器 */
+  /* border: 1px solid #e5e7eb; */
+}
+
+div[class="VPContent is-home"] {
+  /* todo 移除测试背景-该背景被应用到整个页面 */
+  background: linear-gradient(to bottom right, #dce8ff, #e4eeff, #e6cbfd);
+}
+
+html.dark div[class="VPContent is-home"] {
+  background: none;
+}
