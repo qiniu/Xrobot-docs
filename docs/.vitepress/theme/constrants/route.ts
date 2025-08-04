@@ -5,7 +5,7 @@ export type ChapterItem = {
   link: string;
   // 初始时是否折叠, 如果未指定，侧边栏组不可折叠
   collapsed?: boolean;
-  // 子项
+  // 子项，元素顺序影响页面、章节顺序
   items?: ChapterItem[];
   // 返回上级章节
   goback?: boolean;
@@ -19,15 +19,18 @@ export enum Chapters {
   xrobot_device = "/xrobot/device/",
   xrobot_api = "/xrobot/api/",
   xrobot_faq = "/xrobot/faq/",
+  xrobot_guide = "/xrobot/guide",
+  xrobot_guide_mp = "/xrobot/guide/mini-program",
 }
 
-// 判断一个link是否是章节link
+// 判断一个link 字符串是否是章节link
 export function isChapter<T extends Record<string, string>>(
   link: string
 ): link is T[keyof T] {
-  return Object.values(Chapters).includes(link);
+  return Object.values(Chapters).includes(link as Chapters);
 }
 
+// 给 ChapterItem 的 link 字段追加当前章节的 link 前缀
 function apply_prefix(item: ChapterItem, prefix: Chapters) {
   if (item?.link.startsWith("/") && prefix.endsWith("/")) {
     return { ...item, link: prefix.slice(0, -1) + item.link };
@@ -53,7 +56,7 @@ const items_xrobot_api = [
 
 const items_xrobot_device = [
   {
-    text: "设备指南",
+    text: "设备使用",
     items: [
       { text: "设备使用指南", link: "device-intro" },
       { text: "设备绑定", link: "device-bind" },
@@ -61,7 +64,7 @@ const items_xrobot_device = [
       { text: "智能体连接指南", link: "device-connection" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_device)),
     link: Chapters.xrobot_device,
-    collapsed: false,
+    collapsed: true,
   },
   // 子章节
 ];
@@ -73,18 +76,46 @@ const items_xrobot_faq = [
       apply_prefix(item, Chapters.xrobot_faq)
     ),
     link: Chapters.xrobot_faq,
-    collapsed: false,
+    // collapsed: false,
   },
   // 子章节
+];
+
+const items_xrobot_guide_mp = [
+  {
+    text: "微信小程序",
+    link: Chapters.xrobot_guide_mp,
+    collapsed: true,
+    items: [
+      { text: "智能体管理", link: "agent-management" },
+      { text: "角色配置", link: "role-config" },
+      { text: "设备管理", link: "device-management" },
+      { text: "设备配网", link: "device-net-config" },
+    ].map((item) => apply_prefix(item, Chapters.xrobot_guide_mp)),
+  },
+];
+
+const items_xrobot_guide = [
+  {
+    text: "操作指南",
+    link: Chapters.xrobot_guide,
+    collapsed: false,
+    items: [...items_xrobot_guide_mp, ...items_xrobot_device],
+  },
 ];
 
 // xrobot章节整体
 const items_xrobot = [
   {
-    text: "Xrobot",
-    items: [...items_xrobot_api, ...items_xrobot_device, ...items_xrobot_faq],
+    text: "",
+    items: [
+      ...items_xrobot_guide,
+      ...items_xrobot_api,
+      // ...items_xrobot_device,
+      ...items_xrobot_faq,
+    ],
     link: Chapters.xrobot,
-    collapsed: false,
+    // collapsed: false,
   },
 ];
 
@@ -105,4 +136,9 @@ export const ChapterItems: Record<Chapters, ChapterItem[]> = {
   ],
   [Chapters.xrobot_api]: [gobackItem(Chapters.xrobot), ...items_xrobot_api],
   [Chapters.xrobot_faq]: [gobackItem(Chapters.xrobot), ...items_xrobot_faq],
+  [Chapters.xrobot_guide]: [gobackItem(Chapters.xrobot), ...items_xrobot_guide],
+  [Chapters.xrobot_guide_mp]: [
+    gobackItem(Chapters.xrobot_guide),
+    ...items_xrobot_guide_mp,
+  ],
 };
