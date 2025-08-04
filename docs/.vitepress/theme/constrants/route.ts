@@ -19,15 +19,18 @@ export enum Chapters {
   xrobot_device = "/xrobot/device/",
   xrobot_api = "/xrobot/api/",
   xrobot_faq = "/xrobot/faq/",
+  xrobot_guide = "/xrobot/guide",
+  xrobot_guide_mp = "/xrobot/guide/mini-program",
 }
 
-// 判断一个link是否是章节link
+// 判断一个link 字符串是否是章节link
 export function isChapter<T extends Record<string, string>>(
   link: string
 ): link is T[keyof T] {
-  return Object.values(Chapters).includes(link);
+  return Object.values(Chapters).includes(link as Chapters);
 }
 
+// 给 ChapterItem 的 link 字段追加当前章节的 link 前缀
 function apply_prefix(item: ChapterItem, prefix: Chapters) {
   if (item?.link.startsWith("/") && prefix.endsWith("/")) {
     return { ...item, link: prefix.slice(0, -1) + item.link };
@@ -78,11 +81,39 @@ const items_xrobot_faq = [
   // 子章节
 ];
 
+const items_xrobot_guide_mp = [
+  {
+    text: "微信小程序",
+    link: Chapters.xrobot_guide_mp,
+    collapsed: true,
+    items: [
+      { text: "智能体管理", link: "agent-management" },
+      { text: "角色配置", link: "role-config" },
+      { text: "设备管理", link: "device-management" },
+      { text: "设备配网", link: "device-net-config" },
+    ].map((item) => apply_prefix(item, Chapters.xrobot_guide_mp)),
+  },
+];
+
+const items_xrobot_guide = [
+  {
+    text: "操作指南",
+    link: Chapters.xrobot_guide,
+    collapsed: false,
+    items: [...items_xrobot_guide_mp],
+  },
+];
+
 // xrobot章节整体
 const items_xrobot = [
   {
     text: "Xrobot",
-    items: [...items_xrobot_api, ...items_xrobot_device, ...items_xrobot_faq],
+    items: [
+      ...items_xrobot_api,
+      ...items_xrobot_device,
+      ...items_xrobot_faq,
+      ...items_xrobot_guide,
+    ],
     link: Chapters.xrobot,
     collapsed: false,
   },
@@ -105,4 +136,9 @@ export const ChapterItems: Record<Chapters, ChapterItem[]> = {
   ],
   [Chapters.xrobot_api]: [gobackItem(Chapters.xrobot), ...items_xrobot_api],
   [Chapters.xrobot_faq]: [gobackItem(Chapters.xrobot), ...items_xrobot_faq],
+  [Chapters.xrobot_guide]: [gobackItem(Chapters.xrobot), ...items_xrobot_guide],
+  [Chapters.xrobot_guide_mp]: [
+    gobackItem(Chapters.xrobot_guide),
+    ...items_xrobot_guide_mp,
+  ],
 };
