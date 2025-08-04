@@ -13,10 +13,6 @@ title: 设备使用指南
 
 2. 下载固件后，可参考 Flash 工具/Web 端烧录固件（无 IDF 开发环境）中的 3 种烧录方式进行烧录，推荐使用第 2 种，比较方便。
 
-3. 操作视频
-
-   <video src="https://xrobot-storage.qnaigc.com/%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E7%B4%A0%E6%9D%90%28%E5%8B%BF%E5%88%A0%29/%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B.mov" controls="controls"></video>
-
 ## 2.七牛云服务
 
 | 服务         | 网址                                 |
@@ -155,10 +151,6 @@ bin 固件烧录后，设备保持接通电源状态，重启设备，设备进�
 <img src="./imgs/device-intro/4-6.png" class="img-center"/>
 
 设备添加后将自动激活，并显示在“设备管理”列表页面上，如上图示，就可以正常使用了。
-
-## 5.成语接龙体验
-
-<video src="https://xrobot-storage.qnaigc.com/%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E7%B4%A0%E6%9D%90%28%E5%8B%BF%E5%88%A0%29/%E6%88%90%E8%AF%AD%E6%8E%A5%E9%BE%99%E4%BD%93%E9%AA%8C.mov" controls="controls"></video>
 
 ## 6.通信协议
 

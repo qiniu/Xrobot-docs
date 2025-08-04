@@ -25,6 +25,7 @@ export default defineConfig({
       { text: "主页", link: "/" },
       { text: "设备操作指南", link: Chapters.xrobot_device },
       { text: "API参考", link: Chapters.xrobot_api },
+      { text: "FAQ", link: Chapters.xrobot_faq },
     ],
     sidebar: {
       "/": [
