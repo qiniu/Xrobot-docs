@@ -4,8 +4,8 @@ import autoH1 from "./plugins/autoH1";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Xrobot Docs",
-  description: "A Xrobot Documentation Project",
+  title: "灵矽文档中心",
+  description: "A 灵矽 Documentation Project",
   lastUpdated: true,
   cleanUrls: true,
   locales: {
