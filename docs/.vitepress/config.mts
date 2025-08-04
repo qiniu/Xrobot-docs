@@ -43,7 +43,7 @@ export default defineConfig({
     socialLinks: [
       {
         icon: "github",
-        link: "https://github.com/realdream-ai/xrobot-miniprogram",
+        link: "https://github.com/qiniu/Xrobot-docs",
       },
     ],
   },
