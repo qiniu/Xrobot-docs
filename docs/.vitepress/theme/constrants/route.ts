@@ -18,6 +18,7 @@ export enum Chapters {
   xrobot = "/xrobot/",
   xrobot_device = "/xrobot/device/",
   xrobot_api = "/xrobot/api/",
+  xrobot_qa = "/xrobot/qa/",
 }
 
 // 判断一个link是否是章节link
@@ -40,9 +41,10 @@ const items_xrobot_api = [
   {
     text: "API参考",
     items: [
-      // { text: "章节目录", link: "" },
-      { text: "绑定设备", link: "api" },
-      { text: "音色克隆", link: "voice-clone" },
+      { text: "用户API", link: "user" },
+      { text: "智能体API", link: "agent" },
+      { text: "设备API", link: "device" },
+      { text: "音色克隆API", link: "voice-clone" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_api)),
     collapsed: false,
     link: Chapters.xrobot_api,
@@ -53,7 +55,6 @@ const items_xrobot_device = [
   {
     text: "设备指南",
     items: [
-      // { text: "章节目录", link: "" },
       { text: "设备使用指南", link: "device-intro" },
       { text: "设备绑定", link: "device-bind" },
       { text: "设备服务通信协议", link: "device-protocol" },
@@ -65,11 +66,23 @@ const items_xrobot_device = [
   // 子章节
 ];
 
+const items_xrobot_qa = [
+  {
+    text: "常见问题",
+    items: [
+      { text: "Q & A", link: "qa" },
+    ].map((item) => apply_prefix(item, Chapters.xrobot_qa)),
+    link: Chapters.xrobot_qa,
+    collapsed: false,
+  },
+  // 子章节
+];
+
 // xrobot章节整体
 const items_xrobot = [
   {
     text: "Xrobot",
-    items: [...items_xrobot_api, ...items_xrobot_device],
+    items: [...items_xrobot_api, ...items_xrobot_device, ...items_xrobot_qa],
     link: Chapters.xrobot,
     collapsed: false,
   },
@@ -91,4 +104,5 @@ export const ChapterItems: Record<Chapters, ChapterItem[]> = {
     ...items_xrobot_device,
   ],
   [Chapters.xrobot_api]: [gobackItem(Chapters.xrobot), ...items_xrobot_api],
+  [Chapters.xrobot_qa]: [gobackItem(Chapters.xrobot), ...items_xrobot_qa],
 };

@@ -3,7 +3,7 @@
 layout: home
 
 hero:
-  name: "Xrobot 文档中心"
+  name: "灵矽文档中心"
   text: "Xrobot Docs"
   # tagline: ddddddddddddddddddddddddd
   actions:
@@ -13,6 +13,9 @@ hero:
     - theme: brand
       text: API参考
       link: /xrobot/api/
+    - theme: brand
+      text: 常见问题
+      link: /xrobot/qa/
     - theme: alt
       text: 去体验-七牛小智
       link: https://xrobo.qiniu.com/#/home

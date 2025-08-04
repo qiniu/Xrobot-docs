@@ -1,66 +1,9 @@
 ---
-title: 通过 API 来绑定设备
+title: 智能体API
 ---
 
-## 1. 用户注册
 
-```plain
-请求：
-POST https://xrobo.qiniu.com/xiaozhi/user/register
-Content-Type: application/json
-{
-"username": "",
-"password": "",
-"captcha": "etnjx", 【下面的方法获取】
-"mobileCaptcha": "", 【否】
-"captchaId": "" 【uuid：cfa94872-48b6-425b-8e6a-17b912b6b6f4"】
-}
-响应：
-{
-"code": 0,
-"msg": "",
-"data": {}
-}
-
-```
-
-```
-// 如何获取 captcha
-GET https://xrobo.qiniu.com/xiaozhi/user/captcha?uuid=cfa94872-48b6-425b-8e6a-17b912b6b6f4 [uuid 随机生成]
-```
-
-响应：
-<img src="../device/imgs/device-bind/4.captcha-eg.png" class="img-center">
-
-## 2. 用户登录
-
-```
-
-请求：
-POST https://xrobo.qiniuapi.com/xiaozhi/user/login
-Content-Type: application/json
-{
-areaCode: "+86"
-captcha: "xxxxx"
-captchaId: "d4224c42-a0a2-4e38-87a5-edc3ad03c014"
-mobile: ""
-password: "xxxx"
-username: "xxx"
-}
-响应：
-{
-"code": 0,
-"msg": "success",
-"data": {
-"token": "4fxxxxxxxxxxxxxxxxxxxxxxx", 【后续创建 agent 等操作，需要带上 token】
-"expire": 43200,
-"clientHash": "xxxxxx"
-}
-}
-
-```
-
-## 3. 创建智能体
+## 1. 创建智能体
 
 ```
 
@@ -80,65 +23,9 @@ authorization Bearer 4fxxxxxxxxxxxxxxxxxxxxxxx
 
 ```
 
-## 4. 设备绑定【设备激活码】
 
-```
 
-请求：
-POST https://xrobo.qiniu.com/xiaozhi/device/bind/dfbea67edc2340708a03084d5b578387/605192 【605192 就是激活码】
-Content-Type: application/json
-authorization Bearer 4fxxxxxxxxxxxxxxxxxxxxxxx
-{
-
-}
-响应：
-{
-"code":0,"msg":"success","data":null
-}
-```
-
-## 5. 设备绑定【设备 MAC 地址】
-
-```
-请求：
-POST https://xrobo.qiniu.com/xiaozhi/device/preregister
-Content-Type: application/json
-authorization Bearer 4fxxxxxxxxxxxxxxxxxxxxxxx
-{
-
-agent_id: "dfbea67edc2340708a03084d5b578387"
-mac_addresses: ["0e:8e:18:32:ec:22"] 【设备 mac 地址】
-serial_numbers: []
-}
-响应：
-{
-"success_count":0,
-"failed":[{"value":"0e:8e:18:32:ec:22","reason":"已存在"}] 【错误响应】
-}
-```
-
-## 6. 通话
-
-见 [七牛云灵芯平台-设备服务通信协议](../device/device-protocol.md)
-
-## 7. 解除绑定
-
-```
-请求：
-POST https://xrobo.qiniu.com/xiaozhi/device/unbind
-Content-Type: application/json
-authorization Bearer 4fxxxxxxxxxxxxxxxxxxxxxxx
-{
-deviceId: "8c:bf:ea:8f:38:28"
-}
-响应：
-{
-"code":0,"msg":"success","data":null
-}
-
-```
-
-## 8. 获取智能体列表
+## 2. 获取智能体列表
 
 ```
 
@@ -172,7 +59,7 @@ authorization Bearer 4fxxxxxxxxxxxxxxxxxxxxxxx
 
 ```
 
-## 9. 保存智能体配置
+## 3. 保存智能体配置
 
 ```
 
@@ -208,7 +95,7 @@ vllmModelId: "VLLM_ChatGLMVLLM"
 
 ```
 
-## 10. 删除智能体
+## 4. 删除智能体
 
 ```
 
@@ -227,7 +114,3 @@ authorization Bearer 4fxxxxxxxxxxxxxxxxxxxxxxx
 }
 
 ```
-
-## 11. 声音复刻
-
-见 [声音复刻](./voice-clone.md)
