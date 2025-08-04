@@ -8,6 +8,7 @@ export default defineConfig({
   description: "A 灵矽 Documentation Project",
   lastUpdated: true,
   cleanUrls: true,
+  base: "/Xrobot-docs/",
   locales: {
     root: {
       label: "简体中文",
