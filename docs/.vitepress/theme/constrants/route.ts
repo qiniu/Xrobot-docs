@@ -5,7 +5,7 @@ export type ChapterItem = {
   link: string;
   // 初始时是否折叠, 如果未指定，侧边栏组不可折叠
   collapsed?: boolean;
-  // 子项
+  // 子项，元素顺序影响页面、章节顺序
   items?: ChapterItem[];
   // 返回上级章节
   goback?: boolean;
@@ -56,7 +56,7 @@ const items_xrobot_api = [
 
 const items_xrobot_device = [
   {
-    text: "设备指南",
+    text: "设备使用",
     items: [
       { text: "设备使用指南", link: "device-intro" },
       { text: "设备绑定", link: "device-bind" },
@@ -64,7 +64,7 @@ const items_xrobot_device = [
       { text: "智能体连接指南", link: "device-connection" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_device)),
     link: Chapters.xrobot_device,
-    collapsed: false,
+    collapsed: true,
   },
   // 子章节
 ];
@@ -76,7 +76,7 @@ const items_xrobot_faq = [
       apply_prefix(item, Chapters.xrobot_faq)
     ),
     link: Chapters.xrobot_faq,
-    collapsed: false,
+    // collapsed: false,
   },
   // 子章节
 ];
@@ -100,22 +100,22 @@ const items_xrobot_guide = [
     text: "操作指南",
     link: Chapters.xrobot_guide,
     collapsed: false,
-    items: [...items_xrobot_guide_mp],
+    items: [...items_xrobot_guide_mp, ...items_xrobot_device],
   },
 ];
 
 // xrobot章节整体
 const items_xrobot = [
   {
-    text: "Xrobot",
+    text: "",
     items: [
-      ...items_xrobot_api,
-      ...items_xrobot_device,
-      ...items_xrobot_faq,
       ...items_xrobot_guide,
+      ...items_xrobot_api,
+      // ...items_xrobot_device,
+      ...items_xrobot_faq,
     ],
     link: Chapters.xrobot,
-    collapsed: false,
+    // collapsed: false,
   },
 ];
 
