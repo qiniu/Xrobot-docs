@@ -4,7 +4,7 @@ layout: home
 
 hero:
   name: "灵矽文档中心"
-  text: "Xrobot Docs"
+  # text: "Xrobot Docs"
   # tagline: ddddddddddddddddddddddddd
   actions:
     - theme: brand
@@ -17,7 +17,7 @@ hero:
       text: 常见问题
       link: /xrobot/faq/
     - theme: alt
-      text: 去体验-七牛小智
+      text: 去体验-灵矽
       link: https://xrobo.qiniu.com/#/home
 features:
   - title: 操作流程
