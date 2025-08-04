@@ -1,5 +1,6 @@
 import { defineConfig } from "vitepress";
 import { ChapterItems, Chapters } from "./theme/constrants/route";
+import autoH1 from "./plugins/autoH1";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -47,6 +48,9 @@ export default defineConfig({
   markdown: {
     toc: {
       level: [1, 2, 3, 4],
+    },
+    config: (md) => {
+      md.use(autoH1);
     },
   },
 });

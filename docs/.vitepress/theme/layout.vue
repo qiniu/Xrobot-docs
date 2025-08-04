@@ -6,6 +6,7 @@ const { Layout } = DefaultTheme;
 
 <template>
   <Layout>
+    <!-- <template #not-found> 404 not-found </template> -->
     <!-- <template #home-hero-image>  </template> -->
   </Layout>
 </template>

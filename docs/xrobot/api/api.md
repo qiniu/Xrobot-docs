@@ -1,6 +1,7 @@
 ---
 title: 通过 API 来绑定设备
 ---
+
 ## 1. 用户注册
 
 ```plain
@@ -227,6 +228,6 @@ authorization Bearer 4fxxxxxxxxxxxxxxxxxxxxxxx
 
 ```
 
-# 11. 声音复刻
+## 11. 声音复刻
 
 见 [声音复刻](./voice-clone.md)

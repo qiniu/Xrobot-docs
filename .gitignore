@@ -5,7 +5,7 @@ yarn.lock
 /dist
 
 docs/.vitepress/cache/
-
+docs/.vitepress/dist/
 *.mov
 
 test/
