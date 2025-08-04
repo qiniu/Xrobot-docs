@@ -15,7 +15,7 @@ hero:
       link: /xrobot/api/
     - theme: brand
       text: 常见问题
-      link: /xrobot/qa/
+      link: /xrobot/faq/
     - theme: alt
       text: 去体验-七牛小智
       link: https://xrobo.qiniu.com/#/home
