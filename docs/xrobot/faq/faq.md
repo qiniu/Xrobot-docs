@@ -29,8 +29,8 @@ title: Q & A
 
 | 芯片     | 说明图片                                                    |
 | -------- | ----------------------------------------------------------- |
-| ESP32-C3 | <img src="./imgs/faq/3.2 esp32-c3.png" alt="3.2 esp32-c3"/> |
-| ESP32-S3 | <img src="./imgs/faq/3.2 esp32-s3.png" alt="3.2 esp32-s3"/> |
+| ESP32-C3 | <img src="./imgs/faq/3.1 esp32-c3.png" alt="3.1 esp32-c3"/> |
+| ESP32-S3 | <img src="./imgs/faq/3.1 esp32-s3.png" alt="3.1 esp32-s3"/> |
 
 ## 6. 智能体更新角色配置后未生效？
 
