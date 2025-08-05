@@ -14,13 +14,18 @@ export type ChapterItem = {
 // 章节路由，注意，首尾都要有 `/`
 // 不在其中的章节不会正确生成目录
 export enum Chapters {
-  // xrobot 分章
+  // xrobot 主章节
   xrobot = "/xrobot/",
-  xrobot_device = "/xrobot/device/",
-  xrobot_api = "/xrobot/api/",
-  xrobot_faq = "/xrobot/faq/",
+
   xrobot_guide = "/xrobot/guide",
   xrobot_guide_mp = "/xrobot/guide/mini-program",
+  xrobot_guide_device = "/xrobot/device/",
+
+  xrobot_api = "/xrobot/api/",
+  xrobot_api_server = "/xrobot/api/server",
+  xrobot_api_client = "/xrobot/api/client",
+
+  xrobot_faq = "/xrobot/faq/",
 }
 
 // 判断一个link 字符串是否是章节link
@@ -43,28 +48,31 @@ function apply_prefix(item: ChapterItem, prefix: Chapters) {
 const items_xrobot_api = [
   {
     text: "API参考",
+    collapsed: false,
+    link: Chapters.xrobot_api,
     items: [
       { text: "用户API", link: "user" },
       { text: "智能体API", link: "agent" },
       { text: "设备API", link: "device" },
       { text: "音色克隆API", link: "voice-clone" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_api)),
-    collapsed: false,
-    link: Chapters.xrobot_api,
   },
 ];
 
-const items_xrobot_device = [
+const items_xrobot_api_server = [];
+const items_xrobot_api_client = [];
+
+const items_xrobot_guide_device = [
   {
     text: "设备使用",
+    link: Chapters.xrobot_guide_device,
+    collapsed: true,
     items: [
       { text: "设备使用指南", link: "device-intro" },
       { text: "设备绑定", link: "device-bind" },
       { text: "设备服务通信协议", link: "device-protocol" },
       { text: "智能体连接指南", link: "device-connection" },
-    ].map((item) => apply_prefix(item, Chapters.xrobot_device)),
-    link: Chapters.xrobot_device,
-    collapsed: true,
+    ].map((item) => apply_prefix(item, Chapters.xrobot_guide_device)),
   },
   // 子章节
 ];
@@ -72,11 +80,11 @@ const items_xrobot_device = [
 const items_xrobot_faq = [
   {
     text: "常见问题",
+    link: Chapters.xrobot_faq,
+    // collapsed: false,
     items: [{ text: "FAQ", link: "faq" }].map((item) =>
       apply_prefix(item, Chapters.xrobot_faq)
     ),
-    link: Chapters.xrobot_faq,
-    // collapsed: false,
   },
   // 子章节
 ];
@@ -97,10 +105,10 @@ const items_xrobot_guide_mp = [
 
 const items_xrobot_guide = [
   {
-    text: "操作指南",
+    text: "厂商接入指南",
     link: Chapters.xrobot_guide,
     collapsed: false,
-    items: [...items_xrobot_guide_mp, ...items_xrobot_device],
+    items: [...items_xrobot_guide_mp, ...items_xrobot_guide_device],
   },
 ];
 
@@ -108,13 +116,8 @@ const items_xrobot_guide = [
 const items_xrobot = [
   {
     text: "",
-    items: [
-      ...items_xrobot_guide,
-      ...items_xrobot_api,
-      // ...items_xrobot_device,
-      ...items_xrobot_faq,
-    ],
     link: Chapters.xrobot,
+    items: [...items_xrobot_guide, ...items_xrobot_api, ...items_xrobot_faq],
     // collapsed: false,
   },
 ];
@@ -129,16 +132,28 @@ function gobackItem(chapter: Chapters) {
 
 // todo: 把子章节从ChapterItems中抽离出来
 export const ChapterItems: Record<Chapters, ChapterItem[]> = {
+  // main
   [Chapters.xrobot]: items_xrobot,
-  [Chapters.xrobot_device]: [
-    gobackItem(Chapters.xrobot),
-    ...items_xrobot_device,
-  ],
+  // api
   [Chapters.xrobot_api]: [gobackItem(Chapters.xrobot), ...items_xrobot_api],
-  [Chapters.xrobot_faq]: [gobackItem(Chapters.xrobot), ...items_xrobot_faq],
+  [Chapters.xrobot_api_server]: [
+    gobackItem(Chapters.xrobot_api),
+    ...items_xrobot_api_server,
+  ],
+  [Chapters.xrobot_api_client]: [
+    gobackItem(Chapters.xrobot_api),
+    ...items_xrobot_api_client,
+  ],
+  // guide
   [Chapters.xrobot_guide]: [gobackItem(Chapters.xrobot), ...items_xrobot_guide],
   [Chapters.xrobot_guide_mp]: [
     gobackItem(Chapters.xrobot_guide),
     ...items_xrobot_guide_mp,
   ],
+  [Chapters.xrobot_guide_device]: [
+    gobackItem(Chapters.xrobot_guide),
+    ...items_xrobot_guide_device,
+  ],
+  // faq
+  [Chapters.xrobot_faq]: [gobackItem(Chapters.xrobot), ...items_xrobot_faq],
 };
