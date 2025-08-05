@@ -16,7 +16,8 @@ const { chapter: chapter_root, root = true } = defineProps<{
 let chapter_name: string[] = [];
 let tocs: { link: string; text: string }[][] = [];
 
-// console.log(chapter_root);
+console.log("chapter_root", chapter_root);
+console.log("ChapterItems[chapter_root]", ChapterItems[chapter_root]);
 
 ChapterItems[chapter_root]?.forEach((subchapter) => {
   const t = subchapter.items?.filter((item) => {
@@ -28,15 +29,16 @@ ChapterItems[chapter_root]?.forEach((subchapter) => {
   }
 });
 
-// console.log("chapter_name:", chapter_name);
-// console.log("tocs:", tocs);
+console.log("chapter_name:", chapter_name);
+console.log("tocs:", tocs);
 </script>
 
 <template>
   <h1 v-if="root">目录</h1>
   <div v-for="(subchapter, index) in tocs">
     <h2>{{ chapter_name[index] }}</h2>
-    <ol>
+    <div v-if="subchapter.length === 0"><span>暂无内容</span></div>
+    <ol v-else>
       <li v-for="(item, index2) in subchapter" :key="item.link">
         <ol v-if="isChapter(item.link)">
           <ChapterContents

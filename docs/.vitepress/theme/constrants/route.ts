@@ -22,8 +22,8 @@ export enum Chapters {
   xrobot_guide_device = "/xrobot/device/",
   // api
   xrobot_api = "/xrobot/api/",
-  xrobot_api_server = "/xrobot/api/server",
-  xrobot_api_client = "/xrobot/api/client",
+  xrobot_api_server = "/xrobot/api/server/",
+  xrobot_api_client = "/xrobot/api/client/",
   // faq
   xrobot_faq = "/xrobot/faq/",
 }
@@ -42,6 +42,12 @@ export enum Chapters {
 
 // 给 ChapterItem 的 link 字段追加当前章节的 link 前缀
 export function apply_prefix(item: ChapterItem, prefix: Chapters) {
+  // // 包含子章节
+  // if (item.items && isChapter(item.link))
+  //   return item.items.map((item2) =>
+  //     apply_prefix(item2, item.link as Chapters)
+  //   );
+
   if (item?.link.startsWith("/") && prefix.endsWith("/")) {
     return { ...item, link: prefix.slice(0, -1) + item.link };
   } else if (!item.link.startsWith("/") && !prefix.endsWith("/")) {
@@ -50,28 +56,37 @@ export function apply_prefix(item: ChapterItem, prefix: Chapters) {
   return { ...item, link: prefix + item.link };
 }
 
-export const items_xrobot_api = [
+export const items_xrobot_api_server = [
   {
-    text: "API参考",
+    text: "服务端API参考",
     collapsed: false,
-    link: Chapters.xrobot_api,
+    link: Chapters.xrobot_api_server,
     items: [
       { text: "用户API", link: "user" },
       { text: "智能体API", link: "agent" },
       { text: "设备API", link: "device" },
       { text: "音色克隆API", link: "voice-clone" },
-    ].map((item) => apply_prefix(item, Chapters.xrobot_api)),
+    ].map((item) => apply_prefix(item, Chapters.xrobot_api_server)),
   },
 ];
 
-export const items_xrobot_api_server = [];
-export const items_xrobot_api_client = [];
+export const items_xrobot_api_client = [
+  {
+    text: "客户端API参考",
+    collapsed: false,
+    link: Chapters.xrobot_api_client,
+    items: [].map((item) => apply_prefix(item, Chapters.xrobot_api_client)),
+  },
+];
 
-export default {
-  items_xrobot_api,
-  items_xrobot_api_client,
-  items_xrobot_api_server,
-};
+export const items_xrobot_api = [
+  {
+    text: "API参考",
+    collapsed: false,
+    link: Chapters.xrobot_api,
+    items: [...items_xrobot_api_server, ...items_xrobot_api_client],
+  },
+];
 
 export const items_xrobot_guide_mp = [
   {
@@ -140,7 +155,7 @@ const items_xrobot = [
 
 function gobackItem(chapter: Chapters) {
   return {
-    text: "返回上级",
+    text: "< 返回上级",
     link: chapter,
     goback: true,
   };
