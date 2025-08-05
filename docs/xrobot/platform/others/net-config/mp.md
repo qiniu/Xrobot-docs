@@ -1,5 +1,5 @@
 ---
-title: "通过微信小程序"
+title: 通过微信小程序
 ---
 
 <script setup>

@@ -23,16 +23,16 @@ export enum Chapters {
   // api
   xrobot_api = "/xrobot/api/",
   xrobot_api_server = "/xrobot/api/server/",
-  xrobot_api_client = "/xrobot/api/client/",
+  // xrobot_api_client = "/xrobot/api/client/",
   xrobot_api_protocol = "/xrobot/api/protocol/",
   // platform
   xrobot_platform = "/xrobot/platform/",
   xrobot_platform_esp32 = "/xrobot/platform/esp32/",
   xrobot_platform_others = "/xrobot/platform/others/",
   xrobot_platform_others_mp = "/xrobot/platform/others/mini-program/",
-  xrobot_platform_others_device = "/xrobot/platform/others/device/",
   xrobot_platform_others_console = "/xrobot/platform/others/console/",
-  xrobot_platform_others_net_config = "/xrobot/platform/others/net-config/",
+  xrobot_platform_others_device = "/xrobot/platform/others/device/",
+  xrobot_platform_others_device_net_config = "/xrobot/platform/others/net-config/",
   // faq
   xrobot_faq = "/xrobot/faq/",
 }
@@ -79,7 +79,7 @@ export function apply_prefix(item: ChapterItem, prefix: Chapters) {
 
 export const items_xrobot_api_server = [
   {
-    text: "服务端API参考",
+    text: "平台接入API",
     collapsed: true,
     link: Chapters.xrobot_api_server,
     items: [
@@ -91,18 +91,18 @@ export const items_xrobot_api_server = [
   },
 ];
 
-export const items_xrobot_api_client = [
-  {
-    text: "客户端API参考",
-    collapsed: true,
-    link: Chapters.xrobot_api_client,
-    items: [].map((item) => apply_prefix(item, Chapters.xrobot_api_client)),
-  },
-];
+// export const items_xrobot_api_client = [
+//   {
+//     text: "设备接入协议",
+//     collapsed: true,
+//     link: Chapters.xrobot_api_client,
+//     items: [].map((item) => apply_prefix(item, Chapters.xrobot_api_client)),
+//   },
+// ];
 
 export const items_xrobot_api_protocol = [
   {
-    text: "WebSocket API参考",
+    text: "设备接入协议",
     collapsed: true,
     link: Chapters.xrobot_api_protocol,
     items: [
@@ -120,7 +120,7 @@ export const items_xrobot_api = [
     link: Chapters.xrobot_api,
     items: [
       ...items_xrobot_api_server,
-      ...items_xrobot_api_client,
+      // ...items_xrobot_api_client,
       ...items_xrobot_api_protocol,
     ],
   },
@@ -140,14 +140,31 @@ export const items_xrobot_platform_mp = [
   },
 ];
 
+const items_xrobot_platform_net_config = [
+  {
+    text: "配网",
+    link: Chapters.xrobot_platform_others_device_net_config,
+    collapsed: true,
+    items: [
+      { text: "通过微信小程序", link: "mp" },
+      { text: "通过浏览器", link: "browser" },
+    ].map((item) =>
+      apply_prefix(item, Chapters.xrobot_platform_others_device_net_config)
+    ),
+  },
+];
+
 export const items_xrobot_platform_device = [
   {
     text: "设备配置与使用",
     link: Chapters.xrobot_platform_others_device,
     collapsed: true,
-    items: [{ text: "使用指南", link: "device-intro" }].map((item) =>
-      apply_prefix(item, Chapters.xrobot_platform_others_device)
-    ),
+    items: [
+      ...[{ text: "设备基本配置流程说明", link: "device-intro" }].map((item) =>
+        apply_prefix(item, Chapters.xrobot_platform_others_device)
+      ),
+      ...items_xrobot_platform_net_config,
+    ],
   },
 ];
 
@@ -157,22 +174,11 @@ const items_xrobot_platform_console = [
     link: Chapters.xrobot_platform_others_console,
     collapsed: true,
     items: [
-      { text: "基本介绍", link: "intro" },
+      // { text: "基本介绍", link: "intro" },
       { text: "智能体连接指南", link: "device-connection" },
       { text: "设备绑定", link: "device-bind" },
     ].map((item) =>
       apply_prefix(item, Chapters.xrobot_platform_others_console)
-    ),
-  },
-];
-
-const items_xrobot_platform_net_config = [
-  {
-    text: "配网",
-    link: Chapters.xrobot_platform_others_net_config,
-    collapsed: true,
-    items: [{ text: "通过微信小程序", link: "mp" }].map((item) =>
-      apply_prefix(item, Chapters.xrobot_platform_others_net_config)
     ),
   },
 ];
@@ -198,10 +204,9 @@ const items_xrobot_platform_others = [
     link: Chapters.xrobot_platform,
     collapsed: true,
     items: [
-      ...items_xrobot_platform_mp,
       ...items_xrobot_platform_device,
+      ...items_xrobot_platform_mp,
       ...items_xrobot_platform_console,
-      ...items_xrobot_platform_net_config,
     ],
   },
 ];
@@ -258,10 +263,10 @@ export const ChapterItems: Record<Chapters, ChapterItem[]> = {
     gobackItem(Chapters.xrobot_api),
     ...items_xrobot_api_server,
   ],
-  [Chapters.xrobot_api_client]: [
-    gobackItem(Chapters.xrobot_api),
-    ...items_xrobot_api_client,
-  ],
+  // [Chapters.xrobot_api_client]: [
+  //   gobackItem(Chapters.xrobot_api),
+  //   ...items_xrobot_api_client,
+  // ],
   [Chapters.xrobot_api_protocol]: [
     gobackItem(Chapters.xrobot_api),
     ...items_xrobot_api_protocol,
@@ -295,7 +300,7 @@ export const ChapterItems: Record<Chapters, ChapterItem[]> = {
     gobackItem(Chapters.xrobot_platform_others),
     ...items_xrobot_platform_console,
   ],
-  [Chapters.xrobot_platform_others_net_config]: [
+  [Chapters.xrobot_platform_others_device_net_config]: [
     gobackItem(Chapters.xrobot_platform_others),
     ...items_xrobot_platform_net_config,
   ],

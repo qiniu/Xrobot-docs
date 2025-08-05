@@ -10,7 +10,7 @@ title: 智能体API
 请求：
 POST https://xrobo.qiniuapi.com/xiaozhi/agent
 Content-Type: application/json
-authorization Bearer 4fxxxxxxxxxxxxxxxxxxxxxxx
+authorization Bearer <token>
 {
 "agentName": "吞吞吐吐" 【用户随意命名，有参数检查】
 }
@@ -22,8 +22,6 @@ authorization Bearer 4fxxxxxxxxxxxxxxxxxxxxxxx
 }
 
 ```
-
-
 
 ## 2. 获取智能体列表
 
@@ -66,7 +64,7 @@ authorization Bearer 4fxxxxxxxxxxxxxxxxxxxxxxx
 请求：
 PUT https://xrobo.qiniu.com/xiaozhi/agent/3e0535877a0b46ca8555d73ec43a4211
 Content-Type: application/json
-authorization Bearer 4fxxxxxxxxxxxxxxxxxxxxxxx
+authorization Bearer <token>
 {
 agentCode: "AGT*1752818539532"
 agentName: "ggg"
@@ -102,15 +100,15 @@ vllmModelId: "VLLM_ChatGLMVLLM"
 请求：
 DELETE https://xrobo.qiniu.com/xiaozhi/agent/3e0535877a0b46ca8555d73ec43a4211
 Content-Type: application/json
-authorization Bearer 4fxxxxxxxxxxxxxxxxxxxxxxx
+authorization Bearer <token>
 {
 
 }
 响应：
 {
-"code":0,
-"msg":"success",
-"data":null
+    "code":0,
+    "msg":"success",
+    "data":null
 }
 
 ```
