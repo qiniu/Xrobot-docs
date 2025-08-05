@@ -11,6 +11,7 @@ export default defineConfig({
   description: "A 灵矽 Documentation Project",
   lastUpdated: true,
   cleanUrls: true,
+  base: "/Xrobot-docs/",
   locales: {
     root: {
       label: "简体中文",
@@ -35,7 +36,7 @@ export default defineConfig({
     socialLinks: [
       {
         icon: "github",
-        link: "https://github.com/realdream-ai/xrobot-miniprogram",
+        link: "https://github.com/qiniu/Xrobot-docs",
       },
     ],
   },
