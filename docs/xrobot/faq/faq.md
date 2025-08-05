@@ -6,10 +6,10 @@ title: Q & A
 
 可通过点击以下链接进行下载，七牛灵芯云提供最新版本的设备固件：
 
-   | 芯片     | 固件                                                                                                                            |
-   | :------- | :------------------------------------------------------------------------------------------------------------------------------ |
-   | ESP32-C3 | https://algorithm.qnaigc.com/xiaoling-rom/xiaoling-202507021613-ESP32C3-xiage_mini_c3-nihaoxiaozhi-without_dns.bin              |
-   | ESP32-S3 | https://algorithm.qnaigc.com/xiaoling-rom/xiaoling-202507021613-ESP32S3-bread_compact-nihaoxiaozhi_nihaoxiaoxin-without_dns.bin |
+| 芯片     | 固件                                                                                                                              |
+| :------- | :-------------------------------------------------------------------------------------------------------------------------------- |
+| ESP32-C3 | <https://algorithm.qnaigc.com/xiaoling-rom/xiaoling-202507021613-ESP32C3-xiage_mini_c3-nihaoxiaozhi-without_dns.bin>              |
+| ESP32-S3 | <https://algorithm.qnaigc.com/xiaoling-rom/xiaoling-202507021613-ESP32S3-bread_compact-nihaoxiaozhi_nihaoxiaoxin-without_dns.bin> |
 
 ## 2. 烧录固件时提示串口被占用？
 
@@ -27,13 +27,11 @@ title: Q & A
 
 如果设备固件版本>=0.2.2，在重试 3 次连接原有 WI-FI 网络失败后，会重新进入配网模式（切换网络时可能需要按 RST 按键重启一下设备）。如果设备固件版本较新，在设备开机后，如果处于扫描 wifi 状态时按一下 boot 键（如图中绿圈所示），设备将重新配网，不再连接上次的 WIFI 网络。
 
-| 芯片     | 说明图片                                          |
-| -------- | ------------------------------------------------- |
-| ESP32-C3 | <img src="../device/imgs/device-intro/3.2 esp32-c3.png"/> |
-| ESP32-S3 | <img src="../device/imgs/device-intro/3.2 esp32-s3.png"/> |
+| 芯片     | 说明图片                                                    |
+| -------- | ----------------------------------------------------------- |
+| ESP32-C3 | <img src="./imgs/faq/3.2 esp32-c3.png" alt="3.2 esp32-c3"/> |
+| ESP32-S3 | <img src="./imgs/faq/3.2 esp32-s3.png" alt="3.2 esp32-s3"/> |
 
 ## 6. 智能体更新角色配置后未生效？
 
 智能体更新角色配置后，需重启设备才能生效。
-
-
