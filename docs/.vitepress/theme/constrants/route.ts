@@ -105,9 +105,11 @@ export const items_xrobot_api_protocol = [
     text: "WebSocket API参考",
     collapsed: true,
     link: Chapters.xrobot_api_protocol,
-    items: [{ text: "服务通信协议", link: "device-protocol" }].map((item) =>
-      apply_prefix(item, Chapters.xrobot_api_protocol)
-    ),
+    items: [
+      { text: "WebSocket 协议", link: "websocket" },
+      { text: "MQTT 协议", link: "MQTT" },
+      { text: "OTA协议", link: "OTA" },
+    ].map((item) => apply_prefix(item, Chapters.xrobot_api_protocol)),
   },
 ];
 
@@ -143,10 +145,9 @@ export const items_xrobot_platform_device = [
     text: "设备配置与使用",
     link: Chapters.xrobot_platform_others_device,
     collapsed: true,
-    items: [
-      { text: "使用指南", link: "device-intro" },
-      { text: "绑定", link: "device-bind" },
-    ].map((item) => apply_prefix(item, Chapters.xrobot_platform_others_device)),
+    items: [{ text: "使用指南", link: "device-intro" }].map((item) =>
+      apply_prefix(item, Chapters.xrobot_platform_others_device)
+    ),
   },
 ];
 
@@ -155,7 +156,11 @@ const items_xrobot_platform_console = [
     text: "控制台（智控台）",
     link: Chapters.xrobot_platform_others_console,
     collapsed: true,
-    items: [{ text: "智能体连接指南", link: "device-connection" }].map((item) =>
+    items: [
+      { text: "基本介绍", link: "intro" },
+      { text: "智能体连接指南", link: "device-connection" },
+      { text: "设备绑定", link: "device-bind" },
+    ].map((item) =>
       apply_prefix(item, Chapters.xrobot_platform_others_console)
     ),
   },

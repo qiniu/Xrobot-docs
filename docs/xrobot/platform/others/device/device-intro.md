@@ -156,9 +156,3 @@ bin 固件烧录后，设备保持接通电源状态，重启设备，设备进�
 <img src="./imgs/device-intro/4-6.png" alt="4-6" class="img-center"/>
 
 设备添加后将自动激活，并显示在“设备管理”列表页面上，如上图示，就可以正常使用了。
-
-## 6.通信协议
-
-设备绑定请参考 [七牛云灵芯平台-设备绑定](./device-bind.md)
-
-Websocket 通信请参考 [七牛云灵芯平台-设备服务通信协议](./device-protocol.md)
