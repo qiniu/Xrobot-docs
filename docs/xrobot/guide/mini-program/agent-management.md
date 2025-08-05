@@ -6,7 +6,7 @@ title: 智能体管理
 
 扫描小程序二维码，登陆后即进入智能体管理页面。
 
-todo: 图片错误
+![qrcode](./imgs/agent-management/qrcode.png)
 
 ## 2. 添加智能体
 
