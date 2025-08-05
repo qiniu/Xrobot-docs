@@ -19,18 +19,18 @@ export enum Chapters {
   // xrobot 主章节
   xrobot = "/xrobot/",
   // guide
-  xrobot_guide = "/xrobot/guide",
-  xrobot_guide_mp = "/xrobot/guide/mini-program",
+  xrobot_guide = "/xrobot/guide/",
+  xrobot_guide_mp = "/xrobot/guide/mini-program/",
   xrobot_guide_device = "/xrobot/guide/device/",
-  xrobot_guide_console = "/xrobot/guide/console",
-  xrobot_guide_net_config = "/xrobot/guide/net-config",
+  xrobot_guide_console = "/xrobot/guide/console/",
+  xrobot_guide_net_config = "/xrobot/guide/net-config/",
   // api
   xrobot_api = "/xrobot/api/",
   xrobot_api_server = "/xrobot/api/server/",
   xrobot_api_client = "/xrobot/api/client/",
   // platform
-  xrobot_platform = "/xrobot/platform",
-  xrobot_platform_esp32 = "/xrobot/platform/esp32",
+  xrobot_platform = "/xrobot/platform/",
+  xrobot_platform_esp32 = "/xrobot/platform/esp32/",
   // faq
   xrobot_faq = "/xrobot/faq/",
 }
@@ -40,6 +40,11 @@ export function isChapter<T extends Record<string, string>>(
   link: string
 ): link is T[keyof T] {
   return Object.values(Chapters).includes(link as Chapters);
+}
+
+export function isSubChapter(link: string) {
+  const t = link.split("/").filter((p) => p !== "");
+  return t.length > 1 && isChapter(link);
 }
 
 // // 给 ChapterItem 的 link 字段追加当前章节的 link 前缀
@@ -264,3 +269,23 @@ export const ChapterItems: Record<Chapters, ChapterItem[]> = {
   // faq
   [Chapters.xrobot_faq]: [gobackItem(Chapters.xrobot), ...items_xrobot_faq],
 };
+
+// 获得章节items, 所有level~maxLevel层级的章节
+export function getChapterItems(
+  level?: 1 | 2 | 3 | 4 | 5,
+  maxLevel?: 1 | 2 | 3 | 4 | 5
+) {
+  const _level = level ?? 1;
+  const _maxLevel = maxLevel ?? 6;
+  // 满足条件的ChapterItems的key
+  const chap = Object.values(Chapters).filter((ch) => {
+    const len = ch.split("/").filter((p) => p !== "").length;
+    return _level <= len && len <= _maxLevel;
+  });
+
+  let res = {};
+  chap.forEach((ch) => {
+    res[ch] = ChapterItems[ch];
+  });
+  return res;
+}

@@ -16,8 +16,8 @@ const { chapter: chapter_root, root = true } = defineProps<{
 let chapter_name: string[] = [];
 let tocs: { link: string; text: string }[][] = [];
 
-console.log("chapter_root", chapter_root);
-console.log("ChapterItems[chapter_root]", ChapterItems[chapter_root]);
+// console.log("chapter_root", chapter_root);
+// console.log("ChapterItems[chapter_root]", ChapterItems[chapter_root]);
 
 ChapterItems[chapter_root]?.forEach((subchapter) => {
   const t = subchapter.items?.filter((item) => {
@@ -29,8 +29,8 @@ ChapterItems[chapter_root]?.forEach((subchapter) => {
   }
 });
 
-console.log("chapter_name:", chapter_name);
-console.log("tocs:", tocs);
+// console.log("chapter_name:", chapter_name);
+// console.log("tocs:", tocs);
 </script>
 
 <template>
