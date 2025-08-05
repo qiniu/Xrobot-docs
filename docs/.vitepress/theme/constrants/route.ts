@@ -146,7 +146,6 @@ export const items_xrobot_platform_device = [
     items: [
       { text: "使用指南", link: "device-intro" },
       { text: "绑定", link: "device-bind" },
-      { text: "智能体连接指南", link: "device-connection" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_platform_others_device)),
   },
 ];
@@ -156,7 +155,7 @@ const items_xrobot_platform_console = [
     text: "控制台（智控台）",
     link: Chapters.xrobot_platform_others_console,
     collapsed: true,
-    items: [{ text: "example", link: "" }].map((item) =>
+    items: [{ text: "智能体连接指南", link: "device-connection" }].map((item) =>
       apply_prefix(item, Chapters.xrobot_platform_others_console)
     ),
   },
