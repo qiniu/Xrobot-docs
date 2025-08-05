@@ -116,7 +116,7 @@ export const items_xrobot_api_protocol = [
 export const items_xrobot_api = [
   {
     text: "API参考",
-    collapsed: false,
+    // collapsed: false,
     link: Chapters.xrobot_api,
     items: [
       ...items_xrobot_api_server,
@@ -215,7 +215,7 @@ const items_xrobot_platform = [
   {
     text: "最佳实践",
     link: Chapters.xrobot_platform,
-    collapsed: false,
+    // collapsed: false,
     items: [...items_xrobot_platform_esp32, ...items_xrobot_platform_others],
   },
 ];
