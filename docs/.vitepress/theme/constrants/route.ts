@@ -16,27 +16,32 @@ export type ChapterItem = {
 export enum Chapters {
   // xrobot 主章节
   xrobot = "/xrobot/",
-
+  // guide
   xrobot_guide = "/xrobot/guide",
   xrobot_guide_mp = "/xrobot/guide/mini-program",
   xrobot_guide_device = "/xrobot/device/",
-
+  // api
   xrobot_api = "/xrobot/api/",
   xrobot_api_server = "/xrobot/api/server",
   xrobot_api_client = "/xrobot/api/client",
-
+  // faq
   xrobot_faq = "/xrobot/faq/",
 }
 
-// 判断一个link 字符串是否是章节link
-export function isChapter<T extends Record<string, string>>(
-  link: string
-): link is T[keyof T] {
-  return Object.values(Chapters).includes(link as Chapters);
-}
+// // 给 ChapterItem 的 link 字段追加当前章节的 link 前缀
+// // 通过是否包含子items来判断
+// export function apply_prefix2(item: ChapterItem, prefix: Chapters) {
+//   if (item.items) {
+//     return item.items.map((item2) => {
+//       apply_prefix2(item2, item.link as Chapters);
+//     });
+//   } else {
+//     return apply_prefix(item, prefix);
+//   }
+// }
 
 // 给 ChapterItem 的 link 字段追加当前章节的 link 前缀
-function apply_prefix(item: ChapterItem, prefix: Chapters) {
+export function apply_prefix(item: ChapterItem, prefix: Chapters) {
   if (item?.link.startsWith("/") && prefix.endsWith("/")) {
     return { ...item, link: prefix.slice(0, -1) + item.link };
   } else if (!item.link.startsWith("/") && !prefix.endsWith("/")) {
@@ -45,7 +50,7 @@ function apply_prefix(item: ChapterItem, prefix: Chapters) {
   return { ...item, link: prefix + item.link };
 }
 
-const items_xrobot_api = [
+export const items_xrobot_api = [
   {
     text: "API参考",
     collapsed: false,
@@ -59,37 +64,16 @@ const items_xrobot_api = [
   },
 ];
 
-const items_xrobot_api_server = [];
-const items_xrobot_api_client = [];
+export const items_xrobot_api_server = [];
+export const items_xrobot_api_client = [];
 
-const items_xrobot_guide_device = [
-  {
-    text: "设备使用",
-    link: Chapters.xrobot_guide_device,
-    collapsed: true,
-    items: [
-      { text: "设备使用指南", link: "device-intro" },
-      { text: "设备绑定", link: "device-bind" },
-      { text: "设备服务通信协议", link: "device-protocol" },
-      { text: "智能体连接指南", link: "device-connection" },
-    ].map((item) => apply_prefix(item, Chapters.xrobot_guide_device)),
-  },
-  // 子章节
-];
+export default {
+  items_xrobot_api,
+  items_xrobot_api_client,
+  items_xrobot_api_server,
+};
 
-const items_xrobot_faq = [
-  {
-    text: "常见问题",
-    link: Chapters.xrobot_faq,
-    // collapsed: false,
-    items: [{ text: "FAQ", link: "faq" }].map((item) =>
-      apply_prefix(item, Chapters.xrobot_faq)
-    ),
-  },
-  // 子章节
-];
-
-const items_xrobot_guide_mp = [
+export const items_xrobot_guide_mp = [
   {
     text: "微信小程序",
     link: Chapters.xrobot_guide_mp,
@@ -103,12 +87,44 @@ const items_xrobot_guide_mp = [
   },
 ];
 
-const items_xrobot_guide = [
+export const items_xrobot_guide_device = [
+  {
+    text: "设备使用",
+    link: Chapters.xrobot_guide_device,
+    collapsed: true,
+    items: [
+      { text: "设备使用指南", link: "device-intro" },
+      { text: "设备绑定", link: "device-bind" },
+      { text: "设备服务通信协议", link: "device-protocol" },
+      { text: "智能体连接指南", link: "device-connection" },
+    ].map((item) => apply_prefix(item, Chapters.xrobot_guide_device)),
+  },
+];
+
+export const items_xrobot_guide = [
   {
     text: "厂商接入指南",
     link: Chapters.xrobot_guide,
     collapsed: false,
     items: [...items_xrobot_guide_mp, ...items_xrobot_guide_device],
+  },
+];
+
+// 判断一个link 字符串是否是章节link
+export function isChapter<T extends Record<string, string>>(
+  link: string
+): link is T[keyof T] {
+  return Object.values(Chapters).includes(link as Chapters);
+}
+
+const items_xrobot_faq = [
+  {
+    text: "常见问题",
+    link: Chapters.xrobot_faq,
+    // collapsed: false,
+    items: [{ text: "FAQ", link: "faq" }].map((item) =>
+      apply_prefix(item, Chapters.xrobot_faq)
+    ),
   },
 ];
 
@@ -130,7 +146,6 @@ function gobackItem(chapter: Chapters) {
   };
 }
 
-// todo: 把子章节从ChapterItems中抽离出来
 export const ChapterItems: Record<Chapters, ChapterItem[]> = {
   // main
   [Chapters.xrobot]: items_xrobot,
