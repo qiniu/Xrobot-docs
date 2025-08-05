@@ -1,13 +1,17 @@
 ---
-title: 设备服务通信协议
+title: WebSocket 协议
 ---
 
-## 1. Websocket 通信协议
+## 1. WebSocket 地址
+
+<wss://xrobo-io.qiniuapi.com/v1/ws/>
+
+## 2. WebSocket 通信协议
 
 ### 基本信息
 
 - 协议版本: 1
-- 传输方式: Websocket
+- 传输方式: WebSocket
 - 音频格式: OPUS
 - 音频参数:
   - 采样率: 16000Hz
@@ -16,7 +20,7 @@ title: 设备服务通信协议
 
 ### 会话流程
 
-1. 建立 Websocket 连接
+1. 建立 WebSocket 连接
 2. 交换 hello 消息
 3. 开始语音交互:
 
@@ -27,7 +31,7 @@ title: 设备服务通信协议
 
 ### 连接建立
 
-1. 客户端连接 Websocket 服务器时需要携带以下 headers:
+1. 客户端连接 WebSocket 服务器时需要携带以下 headers:
 
    ```Plain Text
    Authorization: Bearer <access_token> 【服务端如果开启 auth，则需要验证 token】
@@ -73,7 +77,7 @@ title: 设备服务通信协议
    }
    ```
 
-   Websocket 协议不返回 session_id，所以消息中的会话 ID 可设置为空。
+   WebSocket 协议不返回 session_id，所以消息中的会话 ID 可设置为空。
 
 ### 消息类型
 
@@ -181,10 +185,10 @@ title: 设备服务通信协议
 ### 状态流程图
 
 Manual 模式
-<img src="./imgs/device-protocol/manual.png" class="img-center" />
+<img src="./imgs/websocket/manual.png" class="img-center" />
 
 Auto 模式
-<img src="./imgs/device-protocol/auto.png" class="img-center" />
+<img src="./imgs/websocket/auto.png" class="img-center" />
 
 ### 二进制数据传输
 
@@ -195,7 +199,3 @@ Auto 模式
 ### 错误处理
 
 当发生网络错误时，客户端会收到错误消息并关闭连接。客户端需要实现重连机制。
-
-## 2. MQTT 通信协议
-
-待补充。

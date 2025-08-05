@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useData } from "vitepress";
 import {
   ChapterItems,
   Chapters,
@@ -16,27 +17,43 @@ const { chapter: chapter_root, root = true } = defineProps<{
 let chapter_name: string[] = [];
 let tocs: { link: string; text: string }[][] = [];
 
-// console.log(chapter_root);
+// console.log("chapter_root", chapter_root);
+// console.log("ChapterItems[chapter_root]", ChapterItems[chapter_root]);
 
-ChapterItems[chapter_root]?.forEach((subchapter) => {
-  const t = subchapter.items?.filter((item) => {
-    return item.link !== chapter_root && !item.goback;
+const items = ChapterItems[chapter_root];
+if (!items) {
+  const { page } = useData();
+  console.warn(
+    "Error at gen ChapterContents, chapter_root:",
+    chapter_root,
+    "filePath:",
+    page.value.filePath,
+    "title:",
+    page.value.title
+  );
+} else {
+  items.forEach((subchapter) => {
+    // console.log(subchapter);
+    const t = subchapter.items?.filter((item) => {
+      return item.link !== chapter_root && !item.goback;
+    });
+    if (t) {
+      tocs.push(t);
+      chapter_name.push(subchapter.text);
+    }
   });
-  if (t) {
-    tocs.push(t);
-    chapter_name.push(subchapter.text);
-  }
-});
+}
 
 // console.log("chapter_name:", chapter_name);
 // console.log("tocs:", tocs);
 </script>
 
 <template>
-  <h1 v-if="root">目录</h1>
+  <h2 v-if="root">目录</h2>
   <div v-for="(subchapter, index) in tocs">
-    <h2>{{ chapter_name[index] }}</h2>
-    <ol>
+    <h3>{{ chapter_name[index] }}</h3>
+    <div v-if="subchapter.length === 0"><span>暂无内容</span></div>
+    <ol v-else>
       <li v-for="(item, index2) in subchapter" :key="item.link">
         <ol v-if="isChapter(item.link)">
           <ChapterContents

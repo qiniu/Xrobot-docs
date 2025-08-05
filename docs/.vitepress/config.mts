@@ -1,6 +1,9 @@
 import { defineConfig } from "vitepress";
-import { ChapterItems, Chapters } from "./theme/constrants/route";
+import { Chapters, getChapterItems } from "./theme/constrants/route";
 import autoH1 from "./plugins/autoH1";
+
+// 限制sidebar最多深入两层章节
+const sidebarItems = getChapterItems(1, 2);
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -24,22 +27,12 @@ export default defineConfig({
     outline: [2, 4],
     nav: [
       { text: "主页", link: "/" },
-      { text: "设备操作指南", link: Chapters.xrobot_device },
+      { text: "开发文档", link: Chapters.xrobot_platform },
       { text: "API参考", link: Chapters.xrobot_api },
+      { text: "最佳实践", link: Chapters.xrobot_platform_esp32 },
       { text: "FAQ", link: Chapters.xrobot_faq },
     ],
-    sidebar: {
-      "/": [
-        {
-          text: "Examples",
-          items: [
-            { text: "Markdown Examples", link: "/markdown-examples" },
-            { text: "Runtime API Examples", link: "/api-examples" },
-          ],
-        },
-      ],
-      ...ChapterItems,
-    },
+    sidebar: sidebarItems,
     socialLinks: [
       {
         icon: "github",
