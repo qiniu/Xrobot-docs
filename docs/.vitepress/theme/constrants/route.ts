@@ -24,8 +24,18 @@ export enum Chapters {
   xrobot_api = "/xrobot/api/",
   xrobot_api_server = "/xrobot/api/server/",
   xrobot_api_client = "/xrobot/api/client/",
+  // platform
+  xrobot_platform = "/xrobot/platform",
+  xrobot_platform_esp32 = "/xrobot/platform/esp32",
   // faq
   xrobot_faq = "/xrobot/faq/",
+}
+
+// 判断一个link 字符串是否是章节link
+export function isChapter<T extends Record<string, string>>(
+  link: string
+): link is T[keyof T] {
+  return Object.values(Chapters).includes(link as Chapters);
 }
 
 // // 给 ChapterItem 的 link 字段追加当前章节的 link 前缀
@@ -59,7 +69,7 @@ export function apply_prefix(item: ChapterItem, prefix: Chapters) {
 export const items_xrobot_api_server = [
   {
     text: "服务端API参考",
-    collapsed: false,
+    collapsed: true,
     link: Chapters.xrobot_api_server,
     items: [
       { text: "用户API", link: "user" },
@@ -73,7 +83,7 @@ export const items_xrobot_api_server = [
 export const items_xrobot_api_client = [
   {
     text: "客户端API参考",
-    collapsed: false,
+    collapsed: true,
     link: Chapters.xrobot_api_client,
     items: [].map((item) => apply_prefix(item, Chapters.xrobot_api_client)),
   },
@@ -125,12 +135,26 @@ export const items_xrobot_guide = [
   },
 ];
 
-// 判断一个link 字符串是否是章节link
-export function isChapter<T extends Record<string, string>>(
-  link: string
-): link is T[keyof T] {
-  return Object.values(Chapters).includes(link as Chapters);
-}
+const items_xrobot_platform_esp32 = [
+  {
+    text: "ESP32",
+    link: Chapters.xrobot_platform_esp32,
+    collapsed: true,
+    items: [
+      { text: "esp32-s3", link: "S3" },
+      { text: "esp32-c3", link: "C3" },
+    ].map((item) => apply_prefix(item, Chapters.xrobot_platform_esp32)),
+  },
+];
+
+const items_xrobot_platform = [
+  {
+    text: "设备平台",
+    link: Chapters.xrobot_platform,
+    collapsed: false,
+    items: [...items_xrobot_platform_esp32],
+  },
+];
 
 const items_xrobot_faq = [
   {
@@ -148,8 +172,13 @@ const items_xrobot = [
   {
     text: "",
     link: Chapters.xrobot,
-    items: [...items_xrobot_guide, ...items_xrobot_api, ...items_xrobot_faq],
     // collapsed: false,
+    items: [
+      ...items_xrobot_guide,
+      ...items_xrobot_api,
+      ...items_xrobot_platform,
+      ...items_xrobot_faq,
+    ],
   },
 ];
 
@@ -183,6 +212,15 @@ export const ChapterItems: Record<Chapters, ChapterItem[]> = {
   [Chapters.xrobot_guide_device]: [
     gobackItem(Chapters.xrobot_guide),
     ...items_xrobot_guide_device,
+  ],
+  // platform
+  [Chapters.xrobot_platform]: [
+    gobackItem(Chapters.xrobot),
+    ...items_xrobot_platform,
+  ],
+  [Chapters.xrobot_platform_esp32]: [
+    gobackItem(Chapters.xrobot_platform),
+    ...items_xrobot_platform_esp32,
   ],
   // faq
   [Chapters.xrobot_faq]: [gobackItem(Chapters.xrobot), ...items_xrobot_faq],
