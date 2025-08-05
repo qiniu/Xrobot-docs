@@ -1,3 +1,5 @@
+// todo: 增加sidebar的层次感
+
 export type ChapterItem = {
   // 标题
   text: string;
@@ -19,7 +21,9 @@ export enum Chapters {
   // guide
   xrobot_guide = "/xrobot/guide",
   xrobot_guide_mp = "/xrobot/guide/mini-program",
-  xrobot_guide_device = "/xrobot/device/",
+  xrobot_guide_device = "/xrobot/device/", // todo: 调整device位置
+  xrobot_guide_console = "/xrobot/guide/console",
+  xrobot_guide_net_config = "/xrobot/guide/net-config",
   // api
   xrobot_api = "/xrobot/api/",
   xrobot_api_server = "/xrobot/api/server/",
@@ -126,12 +130,39 @@ export const items_xrobot_guide_device = [
   },
 ];
 
+const items_xrobot_guide_console = [
+  {
+    text: "控制台（智控台）",
+    link: Chapters.xrobot_guide_console,
+    collapsed: true,
+    items: [{ text: "设备绑定", link: "" }].map((item) =>
+      apply_prefix(item, Chapters.xrobot_guide_console)
+    ),
+  },
+];
+
+const items_xrobot_guide_net_config = [
+  {
+    text: "配网",
+    link: Chapters.xrobot_guide_net_config,
+    collapsed: true,
+    items: [{ text: "通过微信小程序", link: "mp" }].map((item) =>
+      apply_prefix(item, Chapters.xrobot_guide_net_config)
+    ),
+  },
+];
+
 export const items_xrobot_guide = [
   {
     text: "厂商接入指南",
     link: Chapters.xrobot_guide,
     collapsed: false,
-    items: [...items_xrobot_guide_mp, ...items_xrobot_guide_device],
+    items: [
+      ...items_xrobot_guide_mp,
+      ...items_xrobot_guide_device,
+      ...items_xrobot_guide_console,
+      ...items_xrobot_guide_net_config,
+    ],
   },
 ];
 
@@ -212,6 +243,14 @@ export const ChapterItems: Record<Chapters, ChapterItem[]> = {
   [Chapters.xrobot_guide_device]: [
     gobackItem(Chapters.xrobot_guide),
     ...items_xrobot_guide_device,
+  ],
+  [Chapters.xrobot_guide_console]: [
+    gobackItem(Chapters.xrobot_guide),
+    ...items_xrobot_guide_console,
+  ],
+  [Chapters.xrobot_guide_net_config]: [
+    gobackItem(Chapters.xrobot_guide),
+    ...items_xrobot_guide_net_config,
   ],
   // platform
   [Chapters.xrobot_platform]: [
