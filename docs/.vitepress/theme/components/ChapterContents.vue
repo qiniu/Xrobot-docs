@@ -33,7 +33,7 @@ if (!items) {
   );
 } else {
   items.forEach((subchapter) => {
-    console.log(subchapter);
+    // console.log(subchapter);
     const t = subchapter.items?.filter((item) => {
       return item.link !== chapter_root && !item.goback;
     });
