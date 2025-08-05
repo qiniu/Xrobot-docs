@@ -201,7 +201,7 @@ const items_xrobot_platform_esp32 = [
 const items_xrobot_platform_others = [
   {
     text: "厂商接入指南",
-    link: Chapters.xrobot_platform,
+    link: Chapters.xrobot_platform_others,
     collapsed: true,
     items: [
       ...items_xrobot_platform_device,

@@ -19,6 +19,7 @@ let tocs: { link: string; text: string }[][] = [];
 
 // console.log("chapter_root", chapter_root);
 // console.log("ChapterItems[chapter_root]", ChapterItems[chapter_root]);
+
 const items = ChapterItems[chapter_root];
 if (!items) {
   const { page } = useData();
@@ -32,6 +33,7 @@ if (!items) {
   );
 } else {
   items.forEach((subchapter) => {
+    console.log(subchapter);
     const t = subchapter.items?.filter((item) => {
       return item.link !== chapter_root && !item.goback;
     });
