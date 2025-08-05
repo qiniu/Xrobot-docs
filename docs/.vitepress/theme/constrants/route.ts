@@ -20,10 +20,6 @@ export enum Chapters {
   xrobot = "/xrobot/",
   // guide
   xrobot_guide = "/xrobot/guide/",
-  xrobot_guide_mp = "/xrobot/guide/mini-program/",
-  xrobot_guide_device = "/xrobot/guide/device/",
-  xrobot_guide_console = "/xrobot/guide/console/",
-  xrobot_guide_net_config = "/xrobot/guide/net-config/",
   // api
   xrobot_api = "/xrobot/api/",
   xrobot_api_server = "/xrobot/api/server/",
@@ -32,6 +28,11 @@ export enum Chapters {
   // platform
   xrobot_platform = "/xrobot/platform/",
   xrobot_platform_esp32 = "/xrobot/platform/esp32/",
+  xrobot_platform_others = "/xrobot/platform/others/",
+  xrobot_platform_others_mp = "/xrobot/platform/others/mini-program/",
+  xrobot_platform_others_device = "/xrobot/platform/others/device/",
+  xrobot_platform_others_console = "/xrobot/platform/others/console/",
+  xrobot_platform_others_net_config = "/xrobot/platform/others/net-config/",
   // faq
   xrobot_faq = "/xrobot/faq/",
 }
@@ -123,51 +124,51 @@ export const items_xrobot_api = [
   },
 ];
 
-export const items_xrobot_guide_mp = [
+export const items_xrobot_platform_mp = [
   {
     text: "微信小程序",
-    link: Chapters.xrobot_guide_mp,
+    link: Chapters.xrobot_platform_others_mp,
     collapsed: true,
     items: [
       { text: "智能体管理", link: "agent-management" },
       { text: "角色配置", link: "role-config" },
       { text: "设备管理", link: "device-management" },
       { text: "设备配网", link: "device-net-config" },
-    ].map((item) => apply_prefix(item, Chapters.xrobot_guide_mp)),
+    ].map((item) => apply_prefix(item, Chapters.xrobot_platform_others_mp)),
   },
 ];
 
-export const items_xrobot_guide_device = [
+export const items_xrobot_platform_device = [
   {
     text: "设备配置与使用",
-    link: Chapters.xrobot_guide_device,
+    link: Chapters.xrobot_platform_others_device,
     collapsed: true,
     items: [
       { text: "使用指南", link: "device-intro" },
       { text: "绑定", link: "device-bind" },
       { text: "智能体连接指南", link: "device-connection" },
-    ].map((item) => apply_prefix(item, Chapters.xrobot_guide_device)),
+    ].map((item) => apply_prefix(item, Chapters.xrobot_platform_others_device)),
   },
 ];
 
-const items_xrobot_guide_console = [
+const items_xrobot_platform_console = [
   {
     text: "控制台（智控台）",
-    link: Chapters.xrobot_guide_console,
+    link: Chapters.xrobot_platform_others_console,
     collapsed: true,
     items: [{ text: "example", link: "" }].map((item) =>
-      apply_prefix(item, Chapters.xrobot_guide_console)
+      apply_prefix(item, Chapters.xrobot_platform_others_console)
     ),
   },
 ];
 
-const items_xrobot_guide_net_config = [
+const items_xrobot_platform_net_config = [
   {
     text: "配网",
-    link: Chapters.xrobot_guide_net_config,
+    link: Chapters.xrobot_platform_others_net_config,
     collapsed: true,
     items: [{ text: "通过微信小程序", link: "mp" }].map((item) =>
-      apply_prefix(item, Chapters.xrobot_guide_net_config)
+      apply_prefix(item, Chapters.xrobot_platform_others_net_config)
     ),
   },
 ];
@@ -190,13 +191,13 @@ const items_xrobot_platform_esp32 = [
 const items_xrobot_platform_others = [
   {
     text: "厂商接入指南",
-    link: Chapters.xrobot_guide,
+    link: Chapters.xrobot_platform,
     collapsed: true,
     items: [
-      ...items_xrobot_guide_mp,
-      ...items_xrobot_guide_device,
-      ...items_xrobot_guide_console,
-      ...items_xrobot_guide_net_config,
+      ...items_xrobot_platform_mp,
+      ...items_xrobot_platform_device,
+      ...items_xrobot_platform_console,
+      ...items_xrobot_platform_net_config,
     ],
   },
 ];
@@ -263,30 +264,36 @@ export const ChapterItems: Record<Chapters, ChapterItem[]> = {
   ],
   // guide
   [Chapters.xrobot_guide]: [gobackItem(Chapters.xrobot), ...items_xrobot_guide],
-  [Chapters.xrobot_guide_mp]: [
-    gobackItem(Chapters.xrobot_guide),
-    ...items_xrobot_guide_mp,
-  ],
-  [Chapters.xrobot_guide_device]: [
-    gobackItem(Chapters.xrobot_guide),
-    ...items_xrobot_guide_device,
-  ],
-  [Chapters.xrobot_guide_console]: [
-    gobackItem(Chapters.xrobot_guide),
-    ...items_xrobot_guide_console,
-  ],
-  [Chapters.xrobot_guide_net_config]: [
-    gobackItem(Chapters.xrobot_guide),
-    ...items_xrobot_guide_net_config,
-  ],
   // platform
   [Chapters.xrobot_platform]: [
     gobackItem(Chapters.xrobot),
     ...items_xrobot_platform,
   ],
+  // - esp32
   [Chapters.xrobot_platform_esp32]: [
     gobackItem(Chapters.xrobot_platform),
     ...items_xrobot_platform_esp32,
+  ],
+  // - others
+  [Chapters.xrobot_platform_others]: [
+    gobackItem(Chapters.xrobot_platform),
+    ...items_xrobot_platform_others,
+  ],
+  [Chapters.xrobot_platform_others_mp]: [
+    gobackItem(Chapters.xrobot_platform_others),
+    ...items_xrobot_platform_mp,
+  ],
+  [Chapters.xrobot_platform_others_device]: [
+    gobackItem(Chapters.xrobot_platform_others),
+    ...items_xrobot_platform_device,
+  ],
+  [Chapters.xrobot_platform_others_console]: [
+    gobackItem(Chapters.xrobot_platform_others),
+    ...items_xrobot_platform_console,
+  ],
+  [Chapters.xrobot_platform_others_net_config]: [
+    gobackItem(Chapters.xrobot_platform_others),
+    ...items_xrobot_platform_net_config,
   ],
   // faq
   [Chapters.xrobot_faq]: [gobackItem(Chapters.xrobot), ...items_xrobot_faq],
