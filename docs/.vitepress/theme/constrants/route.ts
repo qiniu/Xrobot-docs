@@ -21,7 +21,7 @@ export enum Chapters {
   // guide
   xrobot_guide = "/xrobot/guide",
   xrobot_guide_mp = "/xrobot/guide/mini-program",
-  xrobot_guide_device = "/xrobot/device/", // todo: 调整device位置
+  xrobot_guide_device = "/xrobot/guide/device/",
   xrobot_guide_console = "/xrobot/guide/console",
   xrobot_guide_net_config = "/xrobot/guide/net-config",
   // api
@@ -118,13 +118,13 @@ export const items_xrobot_guide_mp = [
 
 export const items_xrobot_guide_device = [
   {
-    text: "设备使用",
+    text: "设备配置与使用",
     link: Chapters.xrobot_guide_device,
     collapsed: true,
     items: [
-      { text: "设备使用指南", link: "device-intro" },
-      { text: "设备绑定", link: "device-bind" },
-      { text: "设备服务通信协议", link: "device-protocol" },
+      { text: "使用指南", link: "device-intro" },
+      { text: "绑定", link: "device-bind" },
+      { text: "服务通信协议", link: "device-protocol" },
       { text: "智能体连接指南", link: "device-connection" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_guide_device)),
   },
@@ -135,7 +135,7 @@ const items_xrobot_guide_console = [
     text: "控制台（智控台）",
     link: Chapters.xrobot_guide_console,
     collapsed: true,
-    items: [{ text: "设备绑定", link: "" }].map((item) =>
+    items: [{ text: "example", link: "" }].map((item) =>
       apply_prefix(item, Chapters.xrobot_guide_console)
     ),
   },
