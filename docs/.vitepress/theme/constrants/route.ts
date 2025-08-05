@@ -28,6 +28,7 @@ export enum Chapters {
   xrobot_api = "/xrobot/api/",
   xrobot_api_server = "/xrobot/api/server/",
   xrobot_api_client = "/xrobot/api/client/",
+  xrobot_api_protocol = "/xrobot/api/protocol/",
   // platform
   xrobot_platform = "/xrobot/platform/",
   xrobot_platform_esp32 = "/xrobot/platform/esp32/",
@@ -98,12 +99,27 @@ export const items_xrobot_api_client = [
   },
 ];
 
+export const items_xrobot_api_protocol = [
+  {
+    text: "WebSocket API参考",
+    collapsed: true,
+    link: Chapters.xrobot_api_protocol,
+    items: [{ text: "服务通信协议", link: "device-protocol" }].map((item) =>
+      apply_prefix(item, Chapters.xrobot_api_protocol)
+    ),
+  },
+];
+
 export const items_xrobot_api = [
   {
     text: "API参考",
     collapsed: false,
     link: Chapters.xrobot_api,
-    items: [...items_xrobot_api_server, ...items_xrobot_api_client],
+    items: [
+      ...items_xrobot_api_server,
+      ...items_xrobot_api_client,
+      ...items_xrobot_api_protocol,
+    ],
   },
 ];
 
@@ -129,7 +145,6 @@ export const items_xrobot_guide_device = [
     items: [
       { text: "使用指南", link: "device-intro" },
       { text: "绑定", link: "device-bind" },
-      { text: "服务通信协议", link: "device-protocol" },
       { text: "智能体连接指南", link: "device-connection" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_guide_device)),
   },
@@ -157,23 +172,11 @@ const items_xrobot_guide_net_config = [
   },
 ];
 
-export const items_xrobot_guide = [
-  {
-    text: "厂商接入指南",
-    link: Chapters.xrobot_guide,
-    collapsed: false,
-    items: [
-      ...items_xrobot_guide_mp,
-      ...items_xrobot_guide_device,
-      ...items_xrobot_guide_console,
-      ...items_xrobot_guide_net_config,
-    ],
-  },
-];
+export const items_xrobot_guide = [];
 
 const items_xrobot_platform_esp32 = [
   {
-    text: "ESP32",
+    text: "小智接入指南 (ESP32)",
     link: Chapters.xrobot_platform_esp32,
     collapsed: true,
     items: [
@@ -183,12 +186,27 @@ const items_xrobot_platform_esp32 = [
   },
 ];
 
+// todo: 调整guide内容位置
+const items_xrobot_platform_others = [
+  {
+    text: "厂商接入指南",
+    link: Chapters.xrobot_guide,
+    collapsed: true,
+    items: [
+      ...items_xrobot_guide_mp,
+      ...items_xrobot_guide_device,
+      ...items_xrobot_guide_console,
+      ...items_xrobot_guide_net_config,
+    ],
+  },
+];
+
 const items_xrobot_platform = [
   {
-    text: "设备平台",
+    text: "最佳实践",
     link: Chapters.xrobot_platform,
     collapsed: false,
-    items: [...items_xrobot_platform_esp32],
+    items: [...items_xrobot_platform_esp32, ...items_xrobot_platform_others],
   },
 ];
 
@@ -238,6 +256,10 @@ export const ChapterItems: Record<Chapters, ChapterItem[]> = {
   [Chapters.xrobot_api_client]: [
     gobackItem(Chapters.xrobot_api),
     ...items_xrobot_api_client,
+  ],
+  [Chapters.xrobot_api_protocol]: [
+    gobackItem(Chapters.xrobot_api),
+    ...items_xrobot_api_protocol,
   ],
   // guide
   [Chapters.xrobot_guide]: [gobackItem(Chapters.xrobot), ...items_xrobot_guide],

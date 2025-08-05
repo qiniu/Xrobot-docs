@@ -26,8 +26,9 @@ export default defineConfig({
     outline: [2, 4],
     nav: [
       { text: "主页", link: "/" },
-      { text: "设备操作指南", link: Chapters.xrobot_guide_device },
+      { text: "使用文档", link: Chapters.xrobot_guide_device },
       { text: "API参考", link: Chapters.xrobot_api },
+      { text: "最佳实践： ESP32 接入", link: Chapters.xrobot_platform_esp32 },
       { text: "FAQ", link: Chapters.xrobot_faq },
     ],
     sidebar: sidebarItems,
