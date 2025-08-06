@@ -15,7 +15,7 @@ const { chapter_data = [{ text: "", link: "" }], root = true } = defineProps<{
 const { site } = useData();
 const base = site.value.base;
 
-console.log("chapter_data", chapter_data);
+// console.log("chapter_data", chapter_data);
 
 // 过滤
 const items: ChapterItem[] = chapter_data.filter((sub) => {
