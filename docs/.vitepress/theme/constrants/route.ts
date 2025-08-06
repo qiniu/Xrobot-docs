@@ -160,9 +160,6 @@ const items_xrobot_guide_quick_start = [
     link: Chapters.xrobot_guide_quick_start,
     collapsed: false,
     items: [
-      ...[{ text: "设备基本配置流程说明", link: "device-intro" }].map((item) =>
-        apply_prefix(item, Chapters.xrobot_guide_quick_start)
-      ),
       ...items_xrobot_platform_net_config,
       ...[
         { text: "智能体连接指南", link: "device-connection" },
