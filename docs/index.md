@@ -11,9 +11,6 @@ hero:
       text: 开发文档
       link: /xrobot/
     - theme: brand
-      text: API参考
-      link: /xrobot/api/
-    - theme: brand
       text: 常见问题
       link: /xrobot/faq/
     - theme: alt

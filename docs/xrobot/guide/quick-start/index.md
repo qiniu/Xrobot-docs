@@ -1,7 +1,7 @@
 <script setup>
-import { Chapters } from "../../../../.vitepress/theme/constrants/route";
+import { Chapters } from "../../../.vitepress/theme/constrants/route";
 
-const chapter_root = Chapters.xrobot_platform_others_console;
+const chapter_root = Chapters.xrobot_guide_quick_start;
 </script>
 
 ## 基本介绍

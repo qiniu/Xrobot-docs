@@ -25,7 +25,7 @@ title: 设备绑定
 
 ### 2.1 获取设备激活码
 
-通过 OTA 通信协议获取，参考 [OTA 协议](/xrobot/api/protocol/OTA)
+通过 OTA 通信协议获取，参考 [OTA 协议](/xrobot/platform/OTA)
 
 ### 2.2 ESP32 设备通过 OTA 拿到激活码后，没有及时绑定会怎么样？
 

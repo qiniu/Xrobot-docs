@@ -2,6 +2,19 @@
 title: WebSocket 协议
 ---
 
+<script setup>
+import { Chapters, ChapterItems } from "../../.vitepress/theme/constrants/route";
+import { apply_prefix } from "../../.vitepress/theme/utils";
+import { useData } from "vitepress";
+
+const { site } = useData();
+const base = site.value.base;
+
+const chapter_root = Chapters.xrobot_guide_xiaozhi_firmware;
+const device_bind_link = ChapterItems[chapter_root].filter(item => item.link === chapter_root)[0].items.filter(item => item.link.endsWith("device-bind"))[0].link;
+</script>
+
+
 ## 1. WebSocket 地址
 
 <wss://xrobo-io.qiniuapi.com/v1/ws/>
@@ -44,7 +57,7 @@ title: WebSocket 协议
 
    用户登录(login)服务获取到 token。
 
-   设备如何绑定，见 七牛云灵芯平台-设备绑定
+   设备如何绑定，见 <a :href="apply_prefix(device_bind_link, base)">七牛云灵芯平台-设备绑定</a>
 
 2. 连接成功后，客户端发送 hello 消息:
 
