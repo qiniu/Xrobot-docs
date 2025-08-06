@@ -18,18 +18,33 @@ hero:
       link: https://xrobo.qiniu.com/#/home
 features:
   - linkText: 设备接入协议
-    icon: <img src="./.vitepress/icons/protocol.png" />
+    icon:
+      src: /icons/protocol.png
+      width: 100
+      height: 100
     link: ./xrobot/platform
   - linkText: 平台API
-    icon: <img src="./.vitepress/icons/API.png" />
+    icon:
+      src: /icons/API.png
+      width: 100
+      height: 100
     link: ./xrobot/api
   - linkText: MCP接入
-    icon: <img src="./.vitepress/icons/mcp.png" />
+    icon:
+      src: /icons/mcp.png
+      width: 100
+      height: 100
     link: ./xrobot/mcp
   - linkText: 最佳实践
-    icon: <img src="./.vitepress/icons/best-practice.png" />
+    icon:
+      src: /icons/best-practice.png
+      width: 100
+      height: 100
     link: ./xrobot/guide
   - linkText: FAQ
-    icon: <img src="./.vitepress/icons/faq.png" />
+    icon: 
+      src: /icons/faq.png
+      width: 100
+      height: 100
     link: ./xrobot/faq
 ---
