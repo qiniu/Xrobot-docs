@@ -15,16 +15,15 @@ title: 设备绑定
   <img src="./imgs/device-bind/device-import.png">
 
   不知道设备 mac 地址怎么办？
-  <!-- todo ↑ -->
 
 ## 2. 绑定设备激活码
 
 - 第三步：通过 在“设备管理”中，选择新增，填写 设备激活码
   <img src="./imgs/device-bind/3.device-code.png">
 
-## 3. 其他问题
+怎么获取设备激活码？
 
-### 2.1 怎么获取设备激活码？
+### 2.1 获取设备激活码
 
 通过 OTA 通信协议获取，参考 [OTA 协议](/xrobot/api/protocol/OTA)
 

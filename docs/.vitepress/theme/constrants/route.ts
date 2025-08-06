@@ -18,27 +18,21 @@ export type ChapterItem = {
 export enum Chapters {
   // xrobot 主章节
   xrobot = "/xrobot/",
-  // guide
-  xrobot_guide = "/xrobot/guide/",
-  xrobot_guide_quick_start = "/xrobot/guide/quick-start/",
-  xrobot_guide_xiaozhi_firmware = "/xrobot/guide/xiaozhi-firmware/",
-  xrobot_guide_xiaozhi_hardware = "/xrobot/guide/xiaozhi-hardware/",
-  xrobot_guide_platform_mp = "/xrobot/guide/platform-mp/",
+  // platform
+  xrobot_platform = "/xrobot/platform/",
   // api
   xrobot_api = "/xrobot/api/",
   xrobot_api_server = "/xrobot/api/server/",
   // xrobot_api_client = "/xrobot/api/client/",
-  xrobot_api_protocol = "/xrobot/api/protocol/",
-  xrobot_api_mcp = "/xrobot/api/mcp/",
-  // platform
-  xrobot_platform = "/xrobot/platform/",
-  xrobot_platform_esp32 = "/xrobot/platform/esp32/",
-  xrobot_platform_others = "/xrobot/platform/others/",
-  xrobot_platform_others_mp = "/xrobot/platform/others/mini-program/",
-  xrobot_platform_others_console = "/xrobot/platform/others/console/",
-  xrobot_platform_others_device = "/xrobot/platform/others/device/",
-  xrobot_platform_others_device_net_config = "/xrobot/platform/others/device/net-config/",
-  xrobot_platform_others_device_device_bind = "/xrobot/platform/others/device/device-bind/",
+  // mcp
+  xrobot_mcp = "/xrobot/mcp/",
+  // guide
+  xrobot_guide = "/xrobot/guide/",
+  xrobot_guide_quick_start = "/xrobot/guide/quick-start/",
+  xrobot_guide_quick_start_net_config = "/xrobot/guide/quick-start/net-config/",
+  xrobot_guide_xiaozhi_firmware = "/xrobot/guide/xiaozhi-firmware/",
+  xrobot_guide_xiaozhi_hardware = "/xrobot/guide/xiaozhi-hardware/",
+  xrobot_guide_platform_mp = "/xrobot/guide/platform-mp/",
   // faq
   xrobot_faq = "/xrobot/faq/",
 }
@@ -83,9 +77,22 @@ export function apply_prefix(item: ChapterItem, prefix: Chapters) {
   return { ...item, link: prefix + item.link };
 }
 
+const items_xrobot_platform = [
+  {
+    text: "设备接入协议",
+    link: Chapters.xrobot_platform,
+    // collapsed: false,
+    items: [
+      { text: "OTA", link: "OTA" },
+      { text: "websocket", link: "websocket" },
+      { text: "MQTT", link: "MQTT" },
+    ].map((item) => apply_prefix(item, Chapters.xrobot_platform)),
+  },
+];
+
 const items_xrobot_api_server = [
   {
-    text: "平台接入API",
+    text: "服务端 API",
     collapsed: true,
     link: Chapters.xrobot_api_server,
     items: [
@@ -106,109 +113,43 @@ const items_xrobot_api_server = [
 //   },
 // ];
 
-const items_xrobot_api_protocol = [
-  {
-    text: "设备接入协议",
-    collapsed: true,
-    link: Chapters.xrobot_api_protocol,
-    items: [
-      { text: "WebSocket 协议", link: "websocket" },
-      { text: "MQTT 协议", link: "MQTT" },
-      { text: "OTA协议", link: "OTA" },
-    ].map((item) => apply_prefix(item, Chapters.xrobot_api_protocol)),
-  },
-];
-
-const items_xrobot_api_mcp = [
-  {
-    text: "MCP接入",
-    link: Chapters.xrobot_api_mcp,
-    items: [].map((item) => apply_prefix(item, Chapters.xrobot_api_mcp)),
-  },
-];
-
 const items_xrobot_api = [
   {
-    text: "API参考",
+    text: "平台API",
     // collapsed: false,
     link: Chapters.xrobot_api,
     items: [
       ...items_xrobot_api_server,
       // ...items_xrobot_api_client,
-      ...items_xrobot_api_protocol,
-      ...items_xrobot_api_mcp,
     ],
   },
 ];
 
-const items_xrobot_platform_mp = [
+const items_xrobot_mcp = [
   {
-    text: "微信小程序",
-    link: Chapters.xrobot_platform_others_mp,
-    collapsed: true,
+    text: "MCP接入",
+    // collapsed: false,
+    link: Chapters.xrobot_mcp,
     items: [
-      { text: "智能体管理", link: "agent-management" },
-      { text: "角色配置", link: "role-config" },
-      { text: "设备管理", link: "device-management" },
-      { text: "设备配网", link: "device-net-config" },
-    ].map((item) => apply_prefix(item, Chapters.xrobot_platform_others_mp)),
+      // { text: "硬件MCP", link: "hardware-mcp" },
+      // { text: "软件MCP", link: "software-mcp" },
+    ].map((item) =>
+      apply_prefix(item, Chapters.xrobot_mcp)
+    ),
   },
 ];
 
+// 设备接入指南
 const items_xrobot_platform_net_config = [
   {
     text: "配网",
-    link: Chapters.xrobot_platform_others_device_net_config,
+    link: Chapters.xrobot_guide_quick_start_net_config,
     collapsed: true,
     items: [
       { text: "通过微信小程序", link: "mp" },
       { text: "通过浏览器", link: "browser" },
     ].map((item) =>
-      apply_prefix(item, Chapters.xrobot_platform_others_device_net_config)
-    ),
-  },
-];
-
-const items_xrobot_platform_device_bind = [
-  {
-    text: "绑定设备",
-    link: Chapters.xrobot_platform_others_device_device_bind,
-    collapsed: true,
-    items: [
-      { text: "通过微信小程序", link: "mp" },
-      { text: "通过浏览器", link: "browser" },
-    ].map((item) =>
-      apply_prefix(item, Chapters.xrobot_platform_others_device_device_bind)
-    ),
-  },
-];
-
-const items_xrobot_platform_device = [
-  {
-    text: "设备配置与使用",
-    link: Chapters.xrobot_platform_others_device,
-    collapsed: true,
-    items: [
-      ...[{ text: "设备基本配置流程说明", link: "device-intro" }].map((item) =>
-        apply_prefix(item, Chapters.xrobot_platform_others_device)
-      ),
-      ...items_xrobot_platform_net_config,
-      ...items_xrobot_platform_device_bind,
-    ],
-  },
-];
-
-const items_xrobot_platform_console = [
-  {
-    text: "控制台（智控台）",
-    link: Chapters.xrobot_platform_others_console,
-    collapsed: true,
-    items: [
-      // { text: "基本介绍", link: "intro" },
-      { text: "智能体连接指南", link: "device-connection" },
-      { text: "设备绑定", link: "device-bind" },
-    ].map((item) =>
-      apply_prefix(item, Chapters.xrobot_platform_others_console)
+      apply_prefix(item, Chapters.xrobot_guide_quick_start_net_config)
     ),
   },
 ];
@@ -218,9 +159,17 @@ const items_xrobot_guide_quick_start = [
     text: "快速入门",
     link: Chapters.xrobot_guide_quick_start,
     collapsed: false,
-    items: [{ text: "创建智能体", link: "create-agent" }].map((item) =>
-      apply_prefix(item, Chapters.xrobot_guide_quick_start)
-    ),
+    items: [
+      ...[{ text: "设备基本配置流程说明", link: "device-intro" }].map((item) =>
+        apply_prefix(item, Chapters.xrobot_guide_quick_start)
+      ),
+      ...items_xrobot_platform_net_config,
+      ...[
+        { text: "智能体连接指南", link: "device-connection" },
+      ].map((item) =>
+        apply_prefix(item, Chapters.xrobot_guide_quick_start)
+      ),
+    ]
   },
 ];
 
@@ -231,8 +180,10 @@ const items_xrobot_guide_xiaozhi_firmware = [
     collapsed: true,
     items: [
       ...[
-        { text: "编译小智固件", link: "compile" },
-        { text: "配网高级选项", link: "advanced-options" },
+        { text: "灵矽 固件 & 服务", link: "lingxi-service" },
+        { text: "编译小智固件", link: "firmware-compilation" },
+        { text: "烧录固件", link: "flashing" },
+        { text: "设备绑定", link: "device-bind" },
       ].map((item) =>
         apply_prefix(item, Chapters.xrobot_guide_xiaozhi_firmware)
       ),
@@ -249,7 +200,12 @@ const items_xrobot_guide_xiaozhi_hardware = [
     text: "小智硬件接入",
     link: Chapters.xrobot_guide_xiaozhi_hardware,
     collapsed: true,
-    items: [].map((item) =>
+    items: [
+      { text: "智能体管理", link: "agent-management" },
+      { text: "角色配置", link: "role-config" },
+      { text: "设备管理", link: "device-management" },
+      { text: "设备配网", link: "device-net-config" },
+    ].map((item) =>
       apply_prefix(item, Chapters.xrobot_guide_xiaozhi_hardware)
     ),
   },
@@ -280,40 +236,6 @@ const items_xrobot_guide = [
   },
 ];
 
-const items_xrobot_platform_esp32 = [
-  {
-    text: "小智接入指南 (ESP32)",
-    link: Chapters.xrobot_platform_esp32,
-    collapsed: true,
-    items: [
-      { text: "esp32-s3", link: "S3" },
-      { text: "esp32-c3", link: "C3" },
-    ].map((item) => apply_prefix(item, Chapters.xrobot_platform_esp32)),
-  },
-];
-
-const items_xrobot_platform_others = [
-  {
-    text: "厂商接入指南",
-    link: Chapters.xrobot_platform_others,
-    collapsed: true,
-    items: [
-      ...items_xrobot_platform_device,
-      ...items_xrobot_platform_mp,
-      ...items_xrobot_platform_console,
-    ],
-  },
-];
-
-const items_xrobot_platform = [
-  {
-    text: "最佳实践",
-    link: Chapters.xrobot_platform,
-    // collapsed: false,
-    items: [...items_xrobot_platform_esp32, ...items_xrobot_platform_others],
-  },
-];
-
 const items_xrobot_faq = [
   {
     text: "常见问题",
@@ -332,9 +254,10 @@ const items_xrobot = [
     link: Chapters.xrobot,
     // collapsed: false,
     items: [
-      ...items_xrobot_guide,
-      ...items_xrobot_api,
       ...items_xrobot_platform,
+      ...items_xrobot_api,
+      ...items_xrobot_mcp,
+      ...items_xrobot_guide,
       ...items_xrobot_faq,
     ],
   },
@@ -351,29 +274,32 @@ function gobackItem(chapter: Chapters) {
 export const ChapterItems: Record<Chapters, ChapterItem[]> = {
   // main
   [Chapters.xrobot]: items_xrobot,
+  // platform
+  [Chapters.xrobot_platform]: [
+    gobackItem(Chapters.xrobot),
+    ...items_xrobot_platform,
+  ],
   // api
   [Chapters.xrobot_api]: [gobackItem(Chapters.xrobot), ...items_xrobot_api],
   [Chapters.xrobot_api_server]: [
     gobackItem(Chapters.xrobot_api),
     ...items_xrobot_api_server,
   ],
+  // mcp
+  [Chapters.xrobot_mcp]: [gobackItem(Chapters.xrobot), ...items_xrobot_mcp],
   // [Chapters.xrobot_api_client]: [
   //   gobackItem(Chapters.xrobot_api),
   //   ...items_xrobot_api_client,
   // ],
-  [Chapters.xrobot_api_protocol]: [
-    gobackItem(Chapters.xrobot_api),
-    ...items_xrobot_api_protocol,
-  ],
-  [Chapters.xrobot_api_mcp]: [
-    gobackItem(Chapters.xrobot_api),
-    ...items_xrobot_api_mcp,
-  ],
   // guide
   [Chapters.xrobot_guide]: [gobackItem(Chapters.xrobot), ...items_xrobot_guide],
   [Chapters.xrobot_guide_quick_start]: [
     gobackItem(Chapters.xrobot),
     ...items_xrobot_guide_quick_start,
+  ],
+  [Chapters.xrobot_guide_quick_start_net_config]: [
+    gobackItem(Chapters.xrobot_guide_quick_start),
+    ...items_xrobot_platform_net_config,
   ],
   [Chapters.xrobot_guide_xiaozhi_firmware]: [
     gobackItem(Chapters.xrobot),
@@ -386,41 +312,6 @@ export const ChapterItems: Record<Chapters, ChapterItem[]> = {
   [Chapters.xrobot_guide_platform_mp]: [
     gobackItem(Chapters.xrobot),
     ...items_xrobot_guide_platform_mp,
-  ],
-  // platform
-  [Chapters.xrobot_platform]: [
-    gobackItem(Chapters.xrobot),
-    ...items_xrobot_platform,
-  ],
-  // - esp32
-  [Chapters.xrobot_platform_esp32]: [
-    gobackItem(Chapters.xrobot_platform),
-    ...items_xrobot_platform_esp32,
-  ],
-  // - others
-  [Chapters.xrobot_platform_others]: [
-    gobackItem(Chapters.xrobot_platform),
-    ...items_xrobot_platform_others,
-  ],
-  [Chapters.xrobot_platform_others_mp]: [
-    gobackItem(Chapters.xrobot_platform_others),
-    ...items_xrobot_platform_mp,
-  ],
-  [Chapters.xrobot_platform_others_device]: [
-    gobackItem(Chapters.xrobot_platform_others),
-    ...items_xrobot_platform_device,
-  ],
-  [Chapters.xrobot_platform_others_console]: [
-    gobackItem(Chapters.xrobot_platform_others),
-    ...items_xrobot_platform_console,
-  ],
-  [Chapters.xrobot_platform_others_device_net_config]: [
-    gobackItem(Chapters.xrobot_platform_others),
-    ...items_xrobot_platform_net_config,
-  ],
-  [Chapters.xrobot_platform_others_device_device_bind]: [
-    gobackItem(Chapters.xrobot_platform_others),
-    ...items_xrobot_platform_device_bind,
   ],
   // platform - others END
   // faq

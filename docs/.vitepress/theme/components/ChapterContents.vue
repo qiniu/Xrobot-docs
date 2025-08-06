@@ -63,6 +63,7 @@ if (!items) {
 
 <template>
   <h2 v-if="root">目录</h2>
+  <slot name="header"></slot>
   <div v-for="(subchapter, index) in tocs">
     <h3>{{ chapter_name[index] }}</h3>
     <div v-if="subchapter.length === 0"><span>暂无内容</span></div>
