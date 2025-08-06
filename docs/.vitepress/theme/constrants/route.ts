@@ -33,6 +33,7 @@ export enum Chapters {
   xrobot_platform_others_console = "/xrobot/platform/others/console/",
   xrobot_platform_others_device = "/xrobot/platform/others/device/",
   xrobot_platform_others_device_net_config = "/xrobot/platform/others/net-config/",
+  xrobot_platform_others_device_device_bind = "/xrobot/platform/others/device/device-bind/",
   // faq
   xrobot_faq = "/xrobot/faq/",
 }
@@ -154,6 +155,20 @@ const items_xrobot_platform_net_config = [
   },
 ];
 
+const items_xrobot_platform_device_bind = [
+  {
+    text: "绑定设备",
+    link: Chapters.xrobot_platform_others_device_device_bind,
+    collapsed: true,
+    items: [
+      { text: "通过微信小程序", link: "mp" },
+      { text: "通过浏览器", link: "browser" },
+    ].map((item) =>
+      apply_prefix(item, Chapters.xrobot_platform_others_device_device_bind)
+    ),
+  },
+];
+
 export const items_xrobot_platform_device = [
   {
     text: "设备配置与使用",
@@ -164,6 +179,7 @@ export const items_xrobot_platform_device = [
         apply_prefix(item, Chapters.xrobot_platform_others_device)
       ),
       ...items_xrobot_platform_net_config,
+      ...items_xrobot_platform_device_bind,
     ],
   },
 ];
@@ -303,6 +319,10 @@ export const ChapterItems: Record<Chapters, ChapterItem[]> = {
   [Chapters.xrobot_platform_others_device_net_config]: [
     gobackItem(Chapters.xrobot_platform_others),
     ...items_xrobot_platform_net_config,
+  ],
+  [Chapters.xrobot_platform_others_device_device_bind]: [
+    gobackItem(Chapters.xrobot_platform_others),
+    ...items_xrobot_platform_device_bind,
   ],
   // faq
   [Chapters.xrobot_faq]: [gobackItem(Chapters.xrobot), ...items_xrobot_faq],
