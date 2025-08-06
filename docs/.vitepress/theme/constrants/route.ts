@@ -81,7 +81,7 @@ const items_xrobot_platform = [
   {
     text: "设备接入协议",
     link: Chapters.xrobot_platform,
-    collapsed: false,
+    collapsed: true,
     items: [
       { text: "OTA", link: "OTA" },
       { text: "websocket", link: "websocket" },
@@ -116,7 +116,7 @@ const items_xrobot_api_server = [
 const items_xrobot_api = [
   {
     text: "平台API",
-    collapsed: false,
+    collapsed: true,
     link: Chapters.xrobot_api,
     items: [
       ...items_xrobot_api_server,
@@ -128,7 +128,7 @@ const items_xrobot_api = [
 const items_xrobot_mcp = [
   {
     text: "MCP接入",
-    collapsed: false,
+    collapsed: true,
     link: Chapters.xrobot_mcp,
     items: [
       // { text: "硬件MCP", link: "hardware-mcp" },
@@ -158,7 +158,7 @@ const items_xrobot_guide_quick_start = [
   {
     text: "快速入门",
     link: Chapters.xrobot_guide_quick_start,
-    collapsed: false,
+    collapsed: true,
     items: [
       ...items_xrobot_platform_net_config,
       ...[
@@ -222,7 +222,7 @@ const items_xrobot_guide = [
   {
     text: "最佳实践",
     link: Chapters.xrobot_guide,
-    collapsed: false,
+    collapsed: true,
     items: [
       ...items_xrobot_guide_quick_start,
       ...items_xrobot_guide_xiaozhi_firmware,
@@ -237,7 +237,7 @@ const items_xrobot_faq = [
   {
     text: "常见问题",
     link: Chapters.xrobot_faq,
-    collapsed: false,
+    collapsed: true,
     items: [{ text: "FAQ", link: "faq" }].map((item) =>
       apply_prefix(item, Chapters.xrobot_faq)
     ),
