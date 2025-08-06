@@ -2,18 +2,19 @@
 title: WebSocket 协议
 ---
 
-<script setup>
-import { Chapters, ChapterItems } from "../../.vitepress/theme/constrants/route";
-import { apply_prefix } from "../../.vitepress/theme/utils";
-import { useData } from "vitepress";
+## WebSocket 协议介绍
 
-const { site } = useData();
-const base = site.value.base;
+WebSocket 是一种网络通信协议，提供了全双工通信通道，允许客户端和服务器之间进行实时数据交换。与传统的 HTTP 请求-响应模型不同，WebSocket 允许在单个连接上进行双向通信，这使得它非常适合需要实时更新的应用场景，如在线聊天、实时游戏和金融交易等。
 
-const chapter_root = Chapters.xrobot_guide_xiaozhi_firmware;
-const device_bind_link = ChapterItems[chapter_root].filter(item => item.link === chapter_root)[0].items.filter(item => item.link.endsWith("device-bind"))[0].link;
-</script>
+WebSocket 协议的主要特点包括：
 
+- **全双工通信**：客户端和服务器可以同时发送和接收消息，减少了延迟。
+- **持久连接**：一旦建立连接，客户端和服务器可以在不重新建立连接的情况下进行多次数据交换。
+- **低开销**：WebSocket 连接在建立后，数据传输的开销较小，适合频繁的数据交换。
+
+在本指南中，我们将详细介绍 WebSocket 的地址、通信协议、会话流程以及如何在小智设备中实现 WebSocket 通信。
+
+请确保在使用 WebSocket 协议时，设备已连接到稳定的网络，以确保数据传输的可靠性。
 
 ## 1. WebSocket 地址
 
@@ -57,7 +58,7 @@ const device_bind_link = ChapterItems[chapter_root].filter(item => item.link ===
 
    用户登录(login)服务获取到 token。
 
-   设备如何绑定，见 <a :href="apply_prefix(device_bind_link, base)">七牛云灵芯平台-设备绑定</a>
+   请参考[小智固件接入-三、设备绑定](../guide/xiaozhi-firmware#三、设备绑定)
 
 2. 连接成功后，客户端发送 hello 消息:
 

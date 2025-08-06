@@ -12,7 +12,7 @@ title: 快速入门
 
 ### 小程序配网
 
-请参考[小智硬件接入-五、设备配网](xiaozhi-hardware.md)
+请参考[小智硬件接入-五、设备配网](xiaozhi-hardware)
 
 ### 浏览器配网
 
