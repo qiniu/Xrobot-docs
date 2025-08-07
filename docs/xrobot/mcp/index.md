@@ -1,7 +1,7 @@
 <script setup>
- import { Chapters } from "../../.vitepress/theme/constrants/route";
+import { Chapters } from "../../.vitepress/theme/constrants/route";
 
- const chapter_root = Chapters.xrobot_mcp;
- </script>
+const chapter_root = Chapters.xrobot_mcp;
+</script>
 
- <ChapterContents :chapter=chapter_root />
+<ChapterContents :chapter=chapter_root />

@@ -7,28 +7,20 @@ const sidebarItems = getChapterItems(1, 2);
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  lang: "zh",
   title: "灵矽文档中心",
   description: "A 灵矽 Documentation Project",
   lastUpdated: true,
   cleanUrls: true,
   base: "/Xrobot-docs/",
-  locales: {
-    root: {
-      label: "简体中文",
-      lang: "cn",
-    },
-    // en: {
-    //   label: "English",
-    //   lang: "en",
-    // },
-  },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     outline: [2, 4],
     nav: [
       { text: "主页", link: "/" },
-      { text: "开发文档", link: Chapters.xrobot },
+      { text: "设备接入协议", link: Chapters.xrobot_platform },
       { text: "API", link: Chapters.xrobot_api },
+      { text: "MCP接入", link: Chapters.xrobot_mcp },
       { text: "最佳实践", link: Chapters.xrobot_guide },
       { text: "FAQ", link: Chapters.xrobot_faq },
     ],
@@ -39,6 +31,9 @@ export default defineConfig({
         link: "https://github.com/qiniu/Xrobot-docs",
       },
     ],
+    search: {
+      provider: 'local',
+    }
   },
   markdown: {
     toc: {
