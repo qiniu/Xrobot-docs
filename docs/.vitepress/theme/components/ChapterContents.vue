@@ -1,20 +1,12 @@
 <script setup lang="ts">
 import { useData } from "vitepress";
 import {
+  ChapterItem,
   ChapterItems,
   Chapters,
   isChapter,
 } from "../../../.vitepress/theme/constrants/route";
-
-function apply_prefix(link: string, prefix: string) {
-  if (!prefix) return link;
-  if (link.startsWith("/") && prefix.endsWith("/")) {
-    return prefix.slice(0, -1) + link;
-  } else if (!link.startsWith("/") && !prefix.endsWith("/")) {
-    return prefix + "/" + link;
-  }
-  return prefix + link;
-}
+import { apply_prefix } from "../utils";
 
 const { chapter: chapter_root, root = true } = defineProps<{
   // 参数chapter应该是如 Chapter.xrobot_device这样的
@@ -28,12 +20,13 @@ const base = site.value.base;
 
 // console.log("contents");
 let chapter_name: string[] = [];
-let tocs: { link: string; text: string }[][] = [];
+let tocs: ChapterItem[][] = [];
 
 // console.log("chapter_root", chapter_root);
 // console.log("ChapterItems[chapter_root]", ChapterItems[chapter_root]);
 
-const items = ChapterItems[chapter_root];
+const items: ChapterItem[] = ChapterItems[chapter_root];
+
 if (!items) {
   const { page } = useData();
   console.warn(
