@@ -6,16 +6,6 @@ hero:
   name: "灵矽文档中心"
   # text: "Xrobot Docs"
   # tagline: ddddddddddddddddddddddddd
-  actions:
-    - theme: brand
-      text: 开发文档
-      link: /xrobot/
-    - theme: brand
-      text: 常见问题
-      link: /xrobot/faq/
-    - theme: alt
-      text: 去体验-灵矽
-      link: https://xrobo.qiniu.com/#/home
 features:
   - linkText: 设备接入协议
     icon:
@@ -47,4 +37,10 @@ features:
       width: 100
       height: 100
     link: ./xrobot/faq
+  - linkText: 去体验
+    icon: 
+      src: /icons/experience.png
+      width: 100
+      height: 100
+    link: https://xrobo.qiniu.com/#/home
 ---
