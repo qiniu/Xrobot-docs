@@ -7,21 +7,12 @@ const sidebarItems = getChapterItems(1, 2);
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  lang: "zh",
   title: "灵矽文档中心",
   description: "A 灵矽 Documentation Project",
   lastUpdated: true,
   cleanUrls: true,
   base: "/Xrobot-docs/",
-  locales: {
-    root: {
-      label: "简体中文",
-      lang: "cn",
-    },
-    // en: {
-    //   label: "English",
-    //   lang: "en",
-    // },
-  },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     outline: [2, 4],
@@ -42,26 +33,6 @@ export default defineConfig({
     ],
     search: {
       provider: 'local',
-      options: {
-        locales: {
-          zh: {
-            translations: {
-              button: {
-                buttonText: '搜索文档',
-                buttonAriaLabel: '搜索文档'
-              },
-              modal: {
-                noResultsText: '无法找到相关结果',
-                resetButtonTitle: '清除查询条件',
-                footer: {
-                  selectText: '选择',
-                  navigateText: '切换'
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   markdown: {
