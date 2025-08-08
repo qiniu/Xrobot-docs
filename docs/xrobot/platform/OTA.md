@@ -10,6 +10,9 @@ OTA（Over-The-Air）更新是一种通过无线网络将软件更新直接推�
 
 请确保在进行 OTA 更新之前，设备已连接到稳定的网络，并且电量充足，以避免更新过程中出现问题。
 
+通过OTA请求获取到小智设备的激活码和websocket地址后，再进行websocket通信。
+
+
 ## OTA 地址
 
 <https://xrobo.qiniuapi.com/v1/ota/>
