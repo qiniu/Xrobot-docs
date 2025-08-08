@@ -1,7 +1,10 @@
 {
   "devDependencies": {
+    "medium-zoom": "^1.0.6",
+    "mermaid": "^11.9.0",
     "vitepress": "^1.6.3",
-    "medium-zoom": "^1.0.6"
+    "vitepress-plugin-mermaid": "^2.0.17",
+    "rollup": "4.46.2"
   },
   "scripts": {
     "docs:dev": "vitepress dev docs",

@@ -41,7 +41,7 @@ features:
       dark: /icons/dark/faq.svg
       width: 100
       height: 100
-    link: ./xrobot/faq
+    link: ./xrobot/faq/faq/
   - linkText: 去体验
     icon: 
       light: /icons/light/experience.svg
