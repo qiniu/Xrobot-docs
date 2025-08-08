@@ -25,6 +25,11 @@
   margin: auto;
 }
 
+/* 主页 */
+div.home #local-search button {
+  display: none;
+}
+
 /* todo 移除测试背景-该背景被应用到整个页面 */
 /* div[class="VPContent is-home"] {
   background: linear-gradient(to bottom right, #dce8ff, #e4eeff, #e6cbfd);
