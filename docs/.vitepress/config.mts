@@ -22,7 +22,7 @@ export default defineConfig({
       { text: "API", link: Chapters.xrobot_api },
       { text: "MCP接入", link: Chapters.xrobot_mcp },
       { text: "最佳实践", link: Chapters.xrobot_guide },
-      { text: "FAQ", link: Chapters.xrobot_faq },
+      { text: "FAQ", link: Chapters.xrobot_faq + "faq/" },
     ],
     sidebar: sidebarItems,
     socialLinks: [
@@ -32,8 +32,8 @@ export default defineConfig({
       },
     ],
     search: {
-      provider: 'local',
-    }
+      provider: "local",
+    },
   },
   markdown: {
     toc: {

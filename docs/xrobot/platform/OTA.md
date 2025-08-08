@@ -1,5 +1,5 @@
 ---
-title: OTA 协议
+title: OTA 协议(网关)
 ---
 
 ## OTA（Over-The-Air）更新介绍

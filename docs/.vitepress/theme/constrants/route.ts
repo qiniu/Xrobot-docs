@@ -76,8 +76,8 @@ const items_xrobot_platform = [
     link: Chapters.xrobot_platform,
     collapsed: true,
     items: [
-      { text: "OTA", link: "OTA" },
-      { text: "websocket", link: "websocket" },
+      { text: "OTA 网关", link: "OTA" },
+      { text: "WebSocket", link: "websocket" },
       { text: "MQTT", link: "MQTT" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_platform)),
   },
@@ -105,9 +105,7 @@ const items_xrobot_mcp = [
     items: [
       // { text: "硬件MCP", link: "hardware-mcp" },
       // { text: "软件MCP", link: "software-mcp" },
-    ].map((item) =>
-      apply_prefix(item, Chapters.xrobot_mcp)
-    ),
+    ].map((item) => apply_prefix(item, Chapters.xrobot_mcp)),
   },
 ];
 
