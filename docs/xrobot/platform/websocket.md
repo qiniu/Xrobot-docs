@@ -43,6 +43,34 @@ WebSocket 协议的主要特点包括：
    - 接收 TTS 音频
 4. 结束会话时关闭连接
 
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+
+    Client->>Server: 建立 WebSocket 连接 (wss://xrobo-io.qiniuapi.com/v1/ws/)
+    Note right of Client: 携带 headers: Authorization, Protocol-Version, Device-Id, Client-Id
+    Server-->>Client: 连接成功
+
+    Client->>Server: 发送 hello 消息
+    Note right of Client: JSON: {type: "hello", version: 1, transport: "websocket", audio_params: {...}}
+    Server-->>Client: 响应 hello 消息
+    Note left of Server: JSON: {type: "hello", transport: "websocket", audio_params: {...}}
+
+    Client->>Server: 发送开始监听消息
+    Note right of Client: JSON: {session_id: "<ID>", type: "listen", state: "start", mode: "<auto/manual/realtime>"}
+
+    Client->>Server: 发送 OPUS 音频数据 (二进制)
+    Server-->>Client: 返回语音识别结果
+    Server-->>Client: 发送 TTS 音频数据 (OPUS)
+    Note left of Server: JSON: {type: "tts", state: "<start/stop/sentence_start>", text: "<文本>"}
+
+    Client->>Server: 发送停止监听消息
+    Note right of Client: JSON: {session_id: "<ID>", type: "listen", state: "stop"}
+
+    Client->>Server: 关闭 WebSocket 连接
+```
+
 ### 连接建立
 
 1. 客户端连接 WebSocket 服务器时需要携带以下 headers:

@@ -1,4 +1,5 @@
-import { defineConfig } from "vitepress";
+// import { defineConfig } from "vitepress";
+import { withMermaid } from "vitepress-plugin-mermaid";
 import { Chapters, getChapterItems } from "./theme/constrants/route";
 import autoH1 from "./plugins/autoH1";
 
@@ -6,7 +7,7 @@ import autoH1 from "./plugins/autoH1";
 const sidebarItems = getChapterItems(1, 2);
 
 // https://vitepress.dev/reference/site-config
-export default defineConfig({
+export default withMermaid({
   lang: "zh",
   title: "灵矽文档中心",
   description: "A 灵矽 Documentation Project",
