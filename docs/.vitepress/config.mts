@@ -13,7 +13,7 @@ export default withMermaid({
   description: "A 灵矽 Documentation Project",
   lastUpdated: true,
   cleanUrls: true,
-  base: "/Xrobot-docs/",
+  base: "/docs/",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     outline: [2, 4],
