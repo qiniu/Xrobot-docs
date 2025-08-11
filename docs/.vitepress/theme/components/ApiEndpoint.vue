@@ -109,29 +109,8 @@
             ]"
           >
             <div class="params-table">
-              <div class="table-header">
-                <span>参数名</span>
-                <span>类型</span>
-                <span>必填</span>
-                <span>说明</span>
-              </div>
-              <div
-                v-for="param in parameters"
-                :key="param.name"
-                class="table-row"
-              >
-                <code class="param-name">{{ param.name }}</code>
-                <span class="param-type">{{ param.type }}</span>
-                <span
-                  :class="[
-                    'param-required',
-                    param.required ? 'required' : 'optional',
-                  ]"
-                >
-                  {{ param.required ? "是" : "否" }}
-                </span>
-                <span class="param-description">{{ param.description }}</span>
-              </div>
+              <!-- 使用 ParameterTable 组件来渲染参数 -->
+              <ParameterTable :parameters="parameters" />
             </div>
           </div>
         </div>
@@ -308,14 +287,13 @@
 
 <script setup lang="ts">
 import { computed, ref, reactive } from "vue";
+import ParameterTable from "./ParameterTable.vue"; // 导入 ParameterTable 组件
 import {
   type HttpMethod,
   type ContentType,
-  type ParameterType,
   type Parameter,
   type Header,
   type StatusCode,
-  type StatusClass,
   isValidHttpMethod,
   isValidParameter,
   isValidStatusCode,
@@ -534,7 +512,7 @@ if (process.env.NODE_ENV === "development") {
 .example-section,
 .status-section {
   margin-top: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
 }
 
 .section-header {
@@ -600,54 +578,8 @@ if (process.env.NODE_ENV === "development") {
   overflow: hidden;
 }
 
-.table-header {
-  display: grid;
-  grid-template-columns: 1fr 1fr 80px 2fr;
-  background: var(--vp-c-bg-soft);
-  padding: 12px;
-  font-weight: 600;
-  color: var(--vp-c-text-1);
-  border-bottom: 1px solid var(--vp-c-border);
-}
-
-.table-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 80px 2fr;
-  padding: 12px;
-  border-bottom: 1px solid var(--vp-c-border);
-  align-items: center;
-}
-
-.table-row:last-child {
-  border-bottom: none;
-}
-
-.param-name {
-  font-family: var(--vp-font-family-mono);
-  font-size: 13px;
-  background: var(--vp-c-bg-soft);
-  padding: 2px 6px;
-  border-radius: 3px;
-}
-
-.param-type {
-  color: var(--vp-c-text-2);
-  font-size: 13px;
-}
-
-.param-required.required {
-  color: #ef4444;
-  font-weight: 500;
-}
-
-.param-required.optional {
-  color: var(--vp-c-text-3);
-}
-
-.param-description {
-  color: var(--vp-c-text-2);
-  font-size: 14px;
-}
+/* ParameterTable 内部的样式由 ParameterTable.vue 控制 */
+/* 移除 ApiEndpoint.vue 中重复的 .table-header 和 .table-row 样式 */
 
 .code-block {
   background: var(--vp-c-bg-soft);
@@ -760,49 +692,6 @@ if (process.env.NODE_ENV === "development") {
     min-width: auto;
   }
 
-  .table-header {
-    display: none; /* 在小屏幕下隐藏表头 */
-  }
-
-  .table-row {
-    grid-template-columns: 1fr; /* 单列布局 */
-    gap: 8px;
-    display: block; /* 允许子元素堆叠 */
-    padding: 16px 12px;
-    border-bottom: 1px solid var(--vp-c-border);
-  }
-
-  .table-row:last-child {
-    border-bottom: none;
-  }
-
-  .table-row > * {
-    display: block;
-    margin-bottom: 4px;
-  }
-
-  .param-name::before {
-    content: "参数名: ";
-    font-weight: 500;
-    color: var(--vp-c-text-2);
-  }
-
-  .param-type::before {
-    content: "类型: ";
-    font-weight: 500;
-    color: var(--vp-c-text-2);
-  }
-
-  .param-required::before {
-    content: "必填: ";
-    font-weight: 500;
-    color: var(--vp-c-text-2);
-  }
-
-  .param-description::before {
-    content: "说明: ";
-    font-weight: 500;
-    color: var(--vp-c-text-2);
-  }
+  /* ParameterTable 内部的响应式由 ParameterTable.vue 控制 */
 }
 </style>

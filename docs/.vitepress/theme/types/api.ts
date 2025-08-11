@@ -1,5 +1,3 @@
-// API相关类型定义文件
-
 export type HttpMethod =
   | "get"
   | "post"
@@ -25,6 +23,10 @@ export type ParameterType =
   | "array"
   | "object"
   | "file"
+  | "integer(int32)" // Specific type from the HTML doc
+  | "integer(int64)" // Specific type from the HTML doc
+  | "string(byte)" // Specific type from the HTML doc
+  | "string(date-time)" // Specific type from the HTML doc
   | string;
 
 export interface Parameter {
@@ -32,14 +34,17 @@ export interface Parameter {
   type: ParameterType;
   required: boolean;
   description: string;
-  example?: string | number | boolean;
+  in?: "path" | "query" | "header" | "body" | "formData"; // Added 'in' property
+  example?: string | number | boolean | object; // Added object for complex examples
   enum?: string[];
   default?: string | number | boolean;
-  pattern?: string; // 正则表达式模式
-  minLength?: number;
-  maxLength?: number;
+  children?: Parameter[]; // For nested objects/arrays in body
+  level?: number; // To track nesting level for indentation in recursive table
   minimum?: number;
   maximum?: number;
+  minLength?: number;
+  maxLength?: number;
+  pattern?: string;
 }
 
 export interface Header {
@@ -53,44 +58,7 @@ export interface Header {
 export interface StatusCode {
   code: number;
   description: string;
-  schema?: string; // 响应数据结构描述
-}
-
-export interface ApiEndpointProps {
-  // 基本信息
-  host: string;
-  basePath?: string;
-  endpoint: string;
-  method: HttpMethod;
-  responseType?: ContentType;
-
-  // 描述信息
-  title?: string;
-  description?: string;
-  tags?: string[];
-  deprecated?: boolean;
-
-  // 参数和请求头
-  parameters?: Parameter[];
-  headers?: Header[];
-
-  // 示例
-  requestExample?: string;
-  responseExample?: string;
-
-  // 状态码
-  statusCodes?: StatusCode[];
-
-  // 安全性
-  security?: SecurityRequirement[];
-}
-
-export interface SecurityRequirement {
-  type: "apiKey" | "http" | "oauth2" | "openIdConnect";
-  name?: string;
-  in?: "query" | "header" | "cookie";
-  scheme?: string;
-  description?: string;
+  schema?: string; // Added schema for response body type
 }
 
 export type StatusClass = "success" | "client-error" | "server-error" | "info";
@@ -141,7 +109,7 @@ export const validateUrl = (url: string): boolean => {
   try {
     new URL(url);
     return true;
-  } catch {
+  } catch (e) {
     return false;
   }
 };
