@@ -287,7 +287,7 @@
 
 <script setup lang="ts">
 import { computed, ref, reactive } from "vue";
-import ParameterTable from "./ParameterTable.vue"; // 导入 ParameterTable 组件
+import ParameterTable from "./ParameterTable.vue";
 import {
   type HttpMethod,
   type ContentType,
@@ -578,8 +578,61 @@ if (process.env.NODE_ENV === "development") {
   overflow: hidden;
 }
 
-/* ParameterTable 内部的样式由 ParameterTable.vue 控制 */
-/* 移除 ApiEndpoint.vue 中重复的 .table-header 和 .table-row 样式 */
+/* 请求头表格样式 - 与 ParameterTable.vue 保持完全一致 */
+.headers-section .params-table .table-header {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 0.5fr 2fr; /* Header名, 类型, 必填, 说明 */
+  background: var(--vp-c-bg-soft);
+  padding: 12px;
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+  border-bottom: 1px solid var(--vp-c-border);
+}
+
+.headers-section .params-table .table-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 0.5fr 2fr; /* Header名, 类型, 必填, 说明 */
+  padding: 12px;
+  border-bottom: 1px solid var(--vp-c-border);
+  align-items: center;
+  background-color: var(--vp-c-bg);
+}
+
+.headers-section .params-table .table-row:last-child {
+  border-bottom: none;
+}
+
+/* 请求头表格中的样式类 - 与 ParameterTable.vue 保持完全一致 */
+.headers-section .param-name {
+  font-family: var(--vp-font-family-mono);
+  font-size: 13px;
+  background: var(--vp-c-bg-soft);
+  padding: 2px 6px;
+  border-radius: 3px;
+  word-break: break-all;
+  justify-self: start; /* 修复参数名背景宽度问题 */
+}
+
+.headers-section .param-type {
+  color: var(--vp-c-text-2);
+  font-size: 13px;
+  word-break: break-all;
+}
+
+.headers-section .param-required.required {
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.headers-section .param-required.optional {
+  color: var(--vp-c-text-3);
+}
+
+.headers-section .param-description {
+  color: var(--vp-c-text-2);
+  font-size: 14px;
+  word-break: break-all;
+}
 
 .code-block {
   background: var(--vp-c-bg-soft);
@@ -691,7 +744,5 @@ if (process.env.NODE_ENV === "development") {
     flex-basis: 100%; /* 占据整行 */
     min-width: auto;
   }
-
-  /* ParameterTable 内部的响应式由 ParameterTable.vue 控制 */
 }
 </style>
