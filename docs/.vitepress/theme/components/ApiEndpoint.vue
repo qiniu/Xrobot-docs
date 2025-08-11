@@ -1,7 +1,7 @@
 <template>
   <div class="api-endpoint">
-    <!-- API基本信息 -->
-    <div class="api-header">
+    <!-- API基本信息 (始终可见，点击可折叠/展开详情) -->
+    <div class="api-header" @click="toggleOverallExpand">
       <div class="api-method-url">
         <span :class="['method-badge', methodClass]">{{
           method.toUpperCase()
@@ -10,116 +10,295 @@
       </div>
       <h3 v-if="title" class="api-title">{{ title }}</h3>
       <p v-if="description" class="api-description">{{ description }}</p>
+      <div class="expand-toggle-icon">
+        <svg
+          :class="{ rotated: isOverallExpanded }"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </div>
     </div>
 
-    <!-- API详细信息 -->
-    <div class="api-details">
-      <!-- 基本信息 -->
-      <div class="info-section">
-        <h4>基本信息</h4>
-        <div class="info-grid">
-          <div class="info-item">
-            <span class="label">Host:</span>
-            <code>{{ host }}</code>
-          </div>
-          <div class="info-item">
-            <span class="label">Base Path:</span>
-            <code>{{ basePath }}</code>
-          </div>
-          <div class="info-item">
-            <span class="label">Method:</span>
-            <span :class="['method-badge', methodClass]">{{
-              method.toUpperCase()
-            }}</span>
-          </div>
-          <div class="info-item">
-            <span class="label">返回类型:</span>
-            <code>{{ responseType }}</code>
-          </div>
-        </div>
-      </div>
-
-      <!-- 请求参数 -->
-      <div v-if="parameters && parameters.length > 0" class="params-section">
-        <h4>请求参数</h4>
-        <div class="params-table">
-          <div class="table-header">
-            <span>参数名</span>
-            <span>类型</span>
-            <span>必填</span>
-            <span>说明</span>
-          </div>
-          <div v-for="param in parameters" :key="param.name" class="table-row">
-            <code class="param-name">{{ param.name }}</code>
-            <span class="param-type">{{ param.type }}</span>
-            <span
-              :class="[
-                'param-required',
-                param.required ? 'required' : 'optional',
-              ]"
-            >
-              {{ param.required ? "是" : "否" }}
-            </span>
-            <span class="param-description">{{ param.description }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 请求头 -->
-      <div v-if="headers && headers.length > 0" class="headers-section">
-        <h4>请求头</h4>
-        <div class="params-table">
-          <div class="table-header">
-            <span>Header名</span>
-            <span>类型</span>
-            <span>必填</span>
-            <span>说明</span>
-          </div>
-          <div v-for="header in headers" :key="header.name" class="table-row">
-            <code class="param-name">{{ header.name }}</code>
-            <span class="param-type">{{ header.type }}</span>
-            <span
-              :class="[
-                'param-required',
-                header.required ? 'required' : 'optional',
-              ]"
-            >
-              {{ header.required ? "是" : "否" }}
-            </span>
-            <span class="param-description">{{ header.description }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 请求示例 -->
-      <div v-if="requestExample" class="example-section">
-        <h4>请求示例</h4>
-        <div class="code-block">
-          <pre><code>{{ requestExample }}</code></pre>
-        </div>
-      </div>
-
-      <!-- 响应示例 -->
-      <div v-if="responseExample" class="example-section">
-        <h4>响应示例</h4>
-        <div class="code-block">
-          <pre><code>{{ responseExample }}</code></pre>
-        </div>
-      </div>
-
-      <!-- 状态码 -->
-      <div v-if="statusCodes && statusCodes.length > 0" class="status-section">
-        <h4>状态码</h4>
-        <div class="status-table">
+    <!-- API详细信息 (可折叠部分) -->
+    <div :class="['api-details-wrapper', { expanded: isOverallExpanded }]">
+      <div class="api-details">
+        <!-- 基本信息 -->
+        <div class="info-section">
+          <h4 @click="toggleSection('info')" class="section-header">
+            基本信息
+            <div class="expand-toggle-icon">
+              <svg
+                :class="{ rotated: isSectionExpanded.info }"
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+          </h4>
           <div
-            v-for="status in statusCodes"
-            :key="status.code"
-            class="status-row"
+            :class="[
+              'collapsible-content',
+              { expanded: isSectionExpanded.info },
+            ]"
           >
-            <span :class="['status-code', getStatusClass(status.code)]">{{
-              status.code
-            }}</span>
-            <span class="status-description">{{ status.description }}</span>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="label">Host:</span>
+                <code class="info-value">{{ host }}</code>
+              </div>
+              <div class="info-item">
+                <span class="label">Base Path:</span>
+                <code class="info-value">{{ basePath }}</code>
+              </div>
+              <div class="info-item">
+                <span class="label">Method:</span>
+                <span :class="['method-badge', methodClass]">{{
+                  method.toUpperCase()
+                }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">返回类型:</span>
+                <code class="info-value">{{ responseType }}</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 请求参数 -->
+        <div v-if="parameters && parameters.length > 0" class="params-section">
+          <h4 @click="toggleSection('params')" class="section-header">
+            请求参数
+            <div class="expand-toggle-icon">
+              <svg
+                :class="{ rotated: isSectionExpanded.params }"
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+          </h4>
+          <div
+            :class="[
+              'collapsible-content',
+              { expanded: isSectionExpanded.params },
+            ]"
+          >
+            <div class="params-table">
+              <div class="table-header">
+                <span>参数名</span>
+                <span>类型</span>
+                <span>必填</span>
+                <span>说明</span>
+              </div>
+              <div
+                v-for="param in parameters"
+                :key="param.name"
+                class="table-row"
+              >
+                <code class="param-name">{{ param.name }}</code>
+                <span class="param-type">{{ param.type }}</span>
+                <span
+                  :class="[
+                    'param-required',
+                    param.required ? 'required' : 'optional',
+                  ]"
+                >
+                  {{ param.required ? "是" : "否" }}
+                </span>
+                <span class="param-description">{{ param.description }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 请求头 -->
+        <div v-if="headers && headers.length > 0" class="headers-section">
+          <h4 @click="toggleSection('headers')" class="section-header">
+            请求头
+            <div class="expand-toggle-icon">
+              <svg
+                :class="{ rotated: isSectionExpanded.headers }"
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+          </h4>
+          <div
+            :class="[
+              'collapsible-content',
+              { expanded: isSectionExpanded.headers },
+            ]"
+          >
+            <div class="params-table">
+              <div class="table-header">
+                <span>Header名</span>
+                <span>类型</span>
+                <span>必填</span>
+                <span>说明</span>
+              </div>
+              <div
+                v-for="header in headers"
+                :key="header.name"
+                class="table-row"
+              >
+                <code class="param-name">{{ header.name }}</code>
+                <span class="param-type">{{ header.type }}</span>
+                <span
+                  :class="[
+                    'param-required',
+                    header.required ? 'required' : 'optional',
+                  ]"
+                >
+                  {{ header.required ? "是" : "否" }}
+                </span>
+                <span class="param-description">{{ header.description }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 请求示例 -->
+        <div v-if="requestExample" class="example-section">
+          <h4 @click="toggleSection('requestExample')" class="section-header">
+            请求示例
+            <div class="expand-toggle-icon">
+              <svg
+                :class="{ rotated: isSectionExpanded.requestExample }"
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+          </h4>
+          <div
+            :class="[
+              'collapsible-content',
+              { expanded: isSectionExpanded.requestExample },
+            ]"
+          >
+            <div class="code-block">
+              <pre><code>{{ requestExample }}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- 响应示例 -->
+        <div v-if="responseExample" class="example-section">
+          <h4 @click="toggleSection('responseExample')" class="section-header">
+            响应示例
+            <div class="expand-toggle-icon">
+              <svg
+                :class="{ rotated: isSectionExpanded.responseExample }"
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+          </h4>
+          <div
+            :class="[
+              'collapsible-content',
+              { expanded: isSectionExpanded.responseExample },
+            ]"
+          >
+            <div class="code-block">
+              <pre><code>{{ responseExample }}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- 状态码 -->
+        <div
+          v-if="statusCodes && statusCodes.length > 0"
+          class="status-section"
+        >
+          <h4 @click="toggleSection('statusCodes')" class="section-header">
+            状态码
+            <div class="expand-toggle-icon">
+              <svg
+                :class="{ rotated: isSectionExpanded.statusCodes }"
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+          </h4>
+          <div
+            :class="[
+              'collapsible-content',
+              { expanded: isSectionExpanded.statusCodes },
+            ]"
+          >
+            <div class="status-table">
+              <div
+                v-for="status in statusCodes"
+                :key="status.code"
+                class="status-row"
+              >
+                <span :class="['status-code', getStatusClass(status.code)]">{{
+                  status.code
+                }}</span>
+                <span class="status-description">{{ status.description }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -128,60 +307,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-
-// 类型定义
-type HttpMethod =
-  | "get"
-  | "post"
-  | "put"
-  | "delete"
-  | "patch"
-  | "head"
-  | "options";
-
-type ContentType =
-  | "application/json"
-  | "application/xml"
-  | "text/plain"
-  | "text/html"
-  | "application/x-www-form-urlencoded"
-  | "multipart/form-data"
-  | string;
-
-type ParameterType =
-  | "string"
-  | "number"
-  | "boolean"
-  | "array"
-  | "object"
-  | "file"
-  | string;
-
-interface Parameter {
-  name: string;
-  type: ParameterType;
-  required: boolean;
-  description: string;
-  example?: string | number | boolean;
-  enum?: string[];
-  default?: string | number | boolean;
-}
-
-interface Header {
-  name: string;
-  type: ParameterType;
-  required: boolean;
-  description: string;
-  example?: string;
-}
-
-interface StatusCode {
-  code: number;
-  description: string;
-}
-
-type StatusClass = "success" | "client-error" | "server-error" | "info";
+import { computed, ref, reactive } from "vue";
+import {
+  type HttpMethod,
+  type ContentType,
+  type ParameterType,
+  type Parameter,
+  type Header,
+  type StatusCode,
+  type StatusClass,
+  isValidHttpMethod,
+  isValidParameter,
+  isValidStatusCode,
+  getStatusClass,
+  validateUrl,
+} from "../types/api"; // 确保路径正确
 
 // Props接口定义
 interface ApiEndpointProps {
@@ -221,20 +361,6 @@ const props = withDefaults(defineProps<ApiEndpointProps>(), {
   statusCodes: () => [],
 });
 
-// 验证HTTP方法
-const validateMethod = (method: string): method is HttpMethod => {
-  const validMethods: HttpMethod[] = [
-    "get",
-    "post",
-    "put",
-    "delete",
-    "patch",
-    "head",
-    "options",
-  ];
-  return validMethods.includes(method.toLowerCase() as HttpMethod);
-};
-
 // 计算完整URL
 const fullUrl = computed((): string => {
   const base = props.basePath ? props.basePath : "";
@@ -243,43 +369,37 @@ const fullUrl = computed((): string => {
 
 // 计算方法样式类
 const methodClass = computed((): string => {
-  if (!validateMethod(props.method)) {
+  if (!isValidHttpMethod(props.method)) {
     console.warn(`Invalid HTTP method: ${props.method}`);
     return "method-get";
   }
   return `method-${props.method.toLowerCase()}`;
 });
 
-// 获取状态码样式类
-const getStatusClass = (code: number): StatusClass => {
-  if (code >= 200 && code < 300) return "success";
-  if (code >= 400 && code < 500) return "client-error";
-  if (code >= 500) return "server-error";
-  return "info";
+// --- 折叠/展开逻辑 ---
+const isOverallExpanded = ref(false); // 整体是否展开，默认折叠
+
+// 各个分块的展开状态
+const isSectionExpanded = reactive({
+  info: true, // 基本信息默认展开
+  params: true,
+  headers: true,
+  requestExample: true,
+  responseExample: true,
+  statusCodes: true,
+});
+
+// 切换整体展开状态
+const toggleOverallExpand = () => {
+  isOverallExpanded.value = !isOverallExpanded.value;
 };
 
-// 类型守卫函数
-const isValidParameter = (param: any): param is Parameter => {
-  return (
-    typeof param === "object" &&
-    param !== null &&
-    typeof param.name === "string" &&
-    typeof param.type === "string" &&
-    typeof param.required === "boolean" &&
-    typeof param.description === "string"
-  );
+// 切换单个分块展开状态
+const toggleSection = (sectionName: keyof typeof isSectionExpanded) => {
+  isSectionExpanded[sectionName] = !isSectionExpanded[sectionName];
 };
 
-const isValidStatusCode = (status: any): status is StatusCode => {
-  return (
-    typeof status === "object" &&
-    status !== null &&
-    typeof status.code === "number" &&
-    typeof status.description === "string"
-  );
-};
-
-// 运行时验证
+// 运行时验证 (保持不变)
 if (process.env.NODE_ENV === "development") {
   // 验证参数
   if (props.parameters) {
@@ -301,9 +421,11 @@ if (process.env.NODE_ENV === "development") {
 
   // 验证URL格式
   try {
-    new URL(fullUrl.value);
+    if (!validateUrl(fullUrl.value)) {
+      console.warn(`Invalid URL format: ${fullUrl.value}`);
+    }
   } catch (error) {
-    console.warn(`Invalid URL format: ${fullUrl.value}`);
+    console.warn(`Error validating URL: ${fullUrl.value}`, error);
   }
 }
 </script>
@@ -314,19 +436,25 @@ if (process.env.NODE_ENV === "development") {
   border-radius: 8px;
   margin: 24px 0;
   overflow: hidden;
+  background-color: var(--vp-c-bg); /* 确保背景色与VitePress主题一致 */
 }
 
 .api-header {
   background: var(--vp-c-bg-soft);
   padding: 20px;
   border-bottom: 1px solid var(--vp-c-border);
+  cursor: pointer; /* 添加手型光标表示可点击 */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative; /* 用于定位展开图标 */
 }
 
 .api-method-url {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 4px; /* 调整间距 */
 }
 
 .method-badge {
@@ -336,6 +464,7 @@ if (process.env.NODE_ENV === "development") {
   font-weight: 600;
   text-transform: uppercase;
   color: white;
+  flex-shrink: 0; /* 防止被挤压 */
 }
 
 .method-get {
@@ -367,21 +496,36 @@ if (process.env.NODE_ENV === "development") {
   font-family: var(--vp-font-family-mono);
   font-size: 14px;
   flex: 1;
+  word-break: break-all; /* 允许长URL换行 */
 }
 
 .api-title {
-  margin: 0 0 8px 0;
+  margin: 0; /* 移除默认margin */
   color: var(--vp-c-text-1);
+  font-size: 20px; /* 调整标题大小 */
 }
 
 .api-description {
-  margin: 0;
+  margin: 0; /* 移除默认margin */
   color: var(--vp-c-text-2);
   line-height: 1.6;
+  font-size: 14px;
+}
+
+/* 整体详情部分的折叠动画 */
+.api-details-wrapper {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-out; /* 调整动画速度 */
+}
+
+.api-details-wrapper.expanded {
+  max-height: 5000px; /* 足够大的值以容纳所有内容 */
 }
 
 .api-details {
   padding: 20px;
+  padding-top: 0; /* 避免双重padding */
 }
 
 .info-section,
@@ -389,35 +533,64 @@ if (process.env.NODE_ENV === "development") {
 .headers-section,
 .example-section,
 .status-section {
+  margin-top: 12px;
   margin-bottom: 24px;
 }
 
-.info-section h4,
-.params-section h4,
-.headers-section h4,
-.example-section h4,
-.status-section h4 {
+.section-header {
   margin: 0 0 12px 0;
   color: var(--vp-c-text-1);
   font-size: 16px;
+  cursor: pointer; /* 添加手型光标 */
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 标题和图标两端对齐 */
+  padding-top: 12px; /* 增加顶部间距 */
+  border-top: 1px solid var(--vp-c-border); /* 添加分隔线 */
+}
+.info-section .section-header {
+  border-top: none; /* 基本信息顶部不需要分隔线 */
+  padding-top: 0;
+}
+
+/* 各个分块内容的折叠动画 */
+.collapsible-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+.collapsible-content.expanded {
+  max-height: 2000px; /* 足够大的值 */
 }
 
 .info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
+  display: flex; /* 使用flex布局 */
+  flex-wrap: wrap; /* 允许换行 */
+  gap: 12px 24px; /* 垂直和水平间距 */
 }
 
 .info-item {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-basis: calc(50% - 12px); /* 默认两列布局，减去一半的水平gap */
+  min-width: 250px; /* 确保在小屏幕下也能有足够空间 */
 }
 
 .label {
   font-weight: 500;
   color: var(--vp-c-text-2);
-  min-width: 80px;
+  flex-shrink: 0; /* 防止标签被挤压 */
+}
+
+.info-value {
+  background: var(--vp-c-bg-soft);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: var(--vp-font-family-mono);
+  font-size: 13px;
+  word-break: break-all; /* 允许长值换行 */
+  flex-grow: 1; /* 允许值占据剩余空间 */
 }
 
 .params-table,
@@ -537,6 +710,34 @@ if (process.env.NODE_ENV === "development") {
   color: var(--vp-c-text-2);
 }
 
+/* 展开/折叠图标样式 */
+.expand-toggle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vp-c-text-3);
+  transition: transform 0.3s ease-out;
+}
+
+.api-header .expand-toggle-icon {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.expand-toggle-icon svg {
+  transform: rotate(90deg); /* 默认向右 */
+  transition: transform 0.3s ease-out;
+}
+
+.api-header .expand-toggle-icon svg.rotated {
+  transform: rotate(270deg); /* 整体展开时向下 */
+}
+
+.section-header .expand-toggle-icon svg.rotated {
+  transform: rotate(270deg); /* 分块展开时向下 */
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .api-method-url {
@@ -545,23 +746,34 @@ if (process.env.NODE_ENV === "development") {
     gap: 8px;
   }
 
-  .info-grid {
-    grid-template-columns: 1fr;
+  .api-header .expand-toggle-icon {
+    top: 16px;
+    right: 16px;
   }
 
-  .table-header,
-  .table-row {
-    grid-template-columns: 1fr;
-    gap: 8px;
+  .info-grid {
+    flex-direction: column; /* 在小屏幕下改为单列 */
+    gap: 12px;
+  }
+  .info-item {
+    flex-basis: 100%; /* 占据整行 */
+    min-width: auto;
   }
 
   .table-header {
-    display: none;
+    display: none; /* 在小屏幕下隐藏表头 */
   }
 
   .table-row {
-    display: block;
+    grid-template-columns: 1fr; /* 单列布局 */
+    gap: 8px;
+    display: block; /* 允许子元素堆叠 */
     padding: 16px 12px;
+    border-bottom: 1px solid var(--vp-c-border);
+  }
+
+  .table-row:last-child {
+    border-bottom: none;
   }
 
   .table-row > * {
@@ -570,23 +782,27 @@ if (process.env.NODE_ENV === "development") {
   }
 
   .param-name::before {
-    content: "参数: ";
+    content: "参数名: ";
     font-weight: 500;
+    color: var(--vp-c-text-2);
   }
 
   .param-type::before {
     content: "类型: ";
     font-weight: 500;
+    color: var(--vp-c-text-2);
   }
 
   .param-required::before {
     content: "必填: ";
     font-weight: 500;
+    color: var(--vp-c-text-2);
   }
 
   .param-description::before {
     content: "说明: ";
     font-weight: 500;
+    color: var(--vp-c-text-2);
   }
 }
 </style>
