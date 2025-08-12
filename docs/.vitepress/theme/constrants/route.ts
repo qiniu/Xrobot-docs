@@ -93,6 +93,7 @@ const items_xrobot_api = [
       { text: "智能体API", link: "agent" },
       { text: "设备API", link: "device" },
       { text: "音色克隆API", link: "voice-clone" },
+      { text: "其他API", link: "others" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_api)),
   },
 ];

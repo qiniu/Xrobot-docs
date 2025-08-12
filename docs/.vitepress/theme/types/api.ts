@@ -99,6 +99,7 @@ export const isValidStatusCode = (status: any): status is StatusCode => {
 
 // 工具函数
 export const getStatusClass = (code: number): StatusClass => {
+  if (code === 0) return "success";
   if (code >= 200 && code < 300) return "success";
   if (code >= 400 && code < 500) return "client-error";
   if (code >= 500) return "server-error";
