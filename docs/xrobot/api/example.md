@@ -171,7 +171,9 @@ const postResponseExample = `{
 }`
 </script>
 
-## 用户管理API（TypeScript版本）
+## 样例
+
+复杂数据结构请放到 setup中定义再使用
 
 <ApiEndpoint
   host="https://api.example.com"

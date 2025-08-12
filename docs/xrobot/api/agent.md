@@ -1,5 +1,5 @@
 ---
-title: 智能体管理 API 文档
+title: 智能体 API
 ---
 
 <script setup lang="ts">
@@ -13,7 +13,7 @@ const getListHeaders = [
 ]
 
 const getAgentListRequest = `GET /xiaozhi/agent/list HTTP/1.1
-Host: localhost
+Host: https://xrobo.qiniu.com
 Authorization: Bearer <token>`
 
 // 获取智能体列表 - 响应示例
@@ -65,7 +65,7 @@ const createAgentParameters = [
 ]
 
 const createAgentRequest = `POST /xiaozhi/agent HTTP/1.1
-Host: localhost
+Host: https://xrobo.qiniu.com
 Content-Type: application/json
 Authorization: Bearer <token>
 
@@ -96,8 +96,8 @@ const updateAgentParameters = [
     example: '31dad2a8042a40ec879ef92a7bc240ae'
   },
   {
-    name: 'agentUpdateDTO',
-    type: 'AgentUpdateDTO',
+    name: 'agentUpdateObj',
+    type: 'AgentUpdateObj',
     in: 'body',
     required: true,
     description: '智能体更新对象',
@@ -106,7 +106,7 @@ const updateAgentParameters = [
         name: 'agentCode',
         type: 'string',
         required: false,
-        description: '智能体编码',
+        description: '智能体代号，一般不用管',
         example: 'AGT_1754966279238'
       },
       {
@@ -120,42 +120,42 @@ const updateAgentParameters = [
         name: 'asrModelId',
         type: 'string',
         required: false,
-        description: '语音识别模型标识',
+        description: '语音识别模型ID',
         example: 'ASR_FunASR'
       },
       {
         name: 'vadModelId',
         type: 'string',
         required: false,
-        description: '语音活动检测标识',
+        description: '语音活动检测ID',
         example: 'VAD_SileroVAD'
       },
       {
         name: 'llmModelId',
         type: 'string',
         required: false,
-        description: '大语言模型标识',
+        description: '大语言模型ID',
         example: 'LLM_AliLLM'
       },
       {
         name: 'vllmModelId',
         type: 'string',
         required: false,
-        description: 'VLLM模型标识',
+        description: 'VLLM模型ID',
         example: 'VLLM_QwenVLVLLM'
       },
       {
         name: 'ttsModelId',
         type: 'string',
         required: false,
-        description: '语音合成模型标识',
+        description: '语音合成模型ID',
         example: ''
       },
       {
         name: 'ttsVoiceId',
         type: 'string',
         required: false,
-        description: '音色标识',
+        description: '音色ID',
         example: 'a5b85a7ba5b24a9a96e24aa88b500d2f'
       },
       {
@@ -169,14 +169,14 @@ const updateAgentParameters = [
         name: 'memModelId',
         type: 'string',
         required: false,
-        description: '记忆模型标识',
+        description: '记忆模型ID',
         example: 'Memory_mem_local_short'
       },
       {
         name: 'intentModelId',
         type: 'string',
         required: false,
-        description: '意图模型标识',
+        description: '意图模型ID',
         example: 'Intent_intent_llm'
       },
       {
@@ -197,21 +197,21 @@ const updateAgentParameters = [
         name: 'langCode',
         type: 'string',
         required: false,
-        description: '语言编码',
+        description: '语言代码',
         example: 'zh'
       },
       {
         name: 'language',
         type: 'string',
         required: false,
-        description: '交互语种',
+        description: '语言代码对应的名称',
         example: '中文'
       },
       {
         name: 'sort',
         type: 'integer(int32)',
         required: false,
-        description: '排序',
+        description: '排序序号',
         example: 0
       },
       {
@@ -240,7 +240,7 @@ const updateAgentParameters = [
         name: 'extra',
         type: 'object',
         required: false,
-        description: '额外配置信息',
+        description: '额外高级配置信息',
         children: [
           {
             name: 'voice',
@@ -285,7 +285,7 @@ const updateAgentParameters = [
 ]
 
 const updateAgentRequest = `PUT /xiaozhi/agent/31dad2a8042a40ec879ef92a7bc240ae HTTP/1.1
-Host: localhost
+Host: https://xrobo.qiniu.com
 Content-Type: application/json
 Authorization: Bearer <token>
 
@@ -355,7 +355,7 @@ const deleteAgentParameters = [
 ]
 
 const deleteAgentRequest = `DELETE /xiaozhi/agent/31dad2a8042a40ec879ef92a7bc240ae HTTP/1.1
-Host: localhost
+Host: https://xrobo.qiniu.com
 Authorization: Bearer <token>`
 
 // 删除智能体 - 响应示例
@@ -383,8 +383,6 @@ const unauthorizedResponse = `{
 }`
 </script>
 
-本文档描述了小智ESP32管理系统中智能体管理相关的API接口。
-
 ## 认证说明
 
 所有API接口都需要在请求头中包含有效的认证令牌：
@@ -410,7 +408,7 @@ Authorization: Bearer <token>
 ### 获取用户智能体列表
 
 <ApiEndpoint
-  host="http://localhost"
+  host="https://xrobo.qiniu.com"
   basePath="/xiaozhi"
   endpoint="/agent/list"
   method="get"
@@ -423,10 +421,14 @@ Authorization: Bearer <token>
   :statusCodes="getListStatusCodes"
 />
 
+::: info
+创建智能体时只需提供名称，其他配置可后续通过更新接口修改
+:::
+
 ### 创建智能体
 
 <ApiEndpoint
-  host="http://localhost"
+  host="https://xrobo.qiniu.com"
   basePath="/xiaozhi"
   endpoint="/agent"
   method="post"
@@ -442,7 +444,7 @@ Authorization: Bearer <token>
 ### 更新智能体
 
 <ApiEndpoint
-  host="http://localhost"
+  host="https://xrobo.qiniu.com"
   basePath="/xiaozhi"
   endpoint="/agent/{id}"
   method="put"
@@ -455,10 +457,14 @@ Authorization: Bearer <token>
   :statusCodes="commonStatusCodes"
 />
 
+::: info
+更新智能体时，只需传递需要修改的字段，未传递的字段可以不传
+:::
+
 ### 删除智能体
 
 <ApiEndpoint
-  host="http://localhost"
+  host="https://xrobo.qiniu.com"
   basePath="/xiaozhi"
   endpoint="/agent/{id}"
   method="delete"
@@ -471,52 +477,8 @@ Authorization: Bearer <token>
   :statusCodes="commonStatusCodes"
 />
 
+::: warning
+删除操作不可逆，请确认后再执行
+:::
+
 ## 其他说明项
-
-### 响应数据结构
-
-#### 通用响应格式
-
-所有API都遵循统一的响应格式：
-
-```json
-{
-  "code": 0,           // 编码：0表示成功，其他值表示失败
-  "msg": "",           // 消息内容
-  "data": {}           // 响应数据，根据具体API而定
-}
-```
-
-#### AgentDTO 数据结构
-
-智能体信息对象包含以下字段：
-
-- `id` (string): 智能体唯一标识符
-- `agentName` (string): 智能体名称
-- `ttsModelName` (string): 语音合成模型名称
-- `ttsVoiceName` (string): 音色名称
-- `llmModelName` (string): 大语言模型名称
-- `vllmModelName` (string): 视觉模型名称
-- `memModelId` (string): 记忆模型ID
-- `systemPrompt` (string): 角色设定参数
-- `summaryMemory` (string|null): 总结记忆
-- `lastConnectedAt` (string|null): 最后连接时间 (ISO 8601格式)
-- `deviceCount` (integer): 设备数量
-
-### 错误处理
-
-#### 常见错误码
-
-- `0`: 操作成功
-- `401`: 未登录或认证令牌无效/过期
-
-当API调用失败时，响应中的 `code` 字段将不为0，`msg` 字段会包含具体的错误信息。请根据错误信息进行相应的处理。
-
-### 注意事项
-
-1. 所有API接口都需要有效的认证令牌
-2. 认证令牌格式为 `Bearer <token>`
-3. 创建智能体时只需提供名称，其他配置可后续通过更新接口修改
-4. 删除操作不可逆，请确认后再执行
-5. 更新智能体时，只需传递需要修改的字段，未传递的字段保持原值
-6. 插件函数支持多种类型，包括音乐、新闻、天气等系统插件

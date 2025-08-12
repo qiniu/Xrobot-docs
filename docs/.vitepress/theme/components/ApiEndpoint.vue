@@ -1,16 +1,17 @@
 <template>
   <div class="api-endpoint">
     <!-- API基本信息 (始终可见，点击可折叠/展开详情) -->
-    <div class="api-header" @click="toggleOverallExpand">
+    <div class="api-header">
+      <h3 v-if="title" class="api-title">{{ title }}</h3>
+      <p v-if="description" class="api-description">{{ description }}</p>
       <div class="api-method-url">
         <span :class="['method-badge', methodClass]">{{
           method.toUpperCase()
         }}</span>
         <code class="api-url">{{ fullUrl }}</code>
       </div>
-      <h3 v-if="title" class="api-title">{{ title }}</h3>
-      <p v-if="description" class="api-description">{{ description }}</p>
-      <div class="expand-toggle-icon">
+      <div class="expand-toggle-icon" @click="toggleOverallExpand">
+        <div>点击{{ isOverallExpanded ? "折叠" : "展开" }}</div>
         <svg
           :class="{ rotated: isOverallExpanded }"
           xmlns="http://www.w3.org/2000/svg"
@@ -421,7 +422,6 @@ if (process.env.NODE_ENV === "development") {
   background: var(--vp-c-bg-soft);
   padding: 20px;
   border-bottom: 1px solid var(--vp-c-border);
-  cursor: pointer; /* 添加手型光标表示可点击 */
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -697,6 +697,7 @@ if (process.env.NODE_ENV === "development") {
 
 /* 展开/折叠图标样式 */
 .expand-toggle-icon {
+  cursor: pointer; /* 添加手型光标表示可点击 */
   display: flex;
   align-items: center;
   justify-content: center;
