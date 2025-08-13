@@ -455,14 +455,14 @@ const preregisterDeviceStatusCodes = [
   :statusCodes="manualAddDeviceStatusCodes"
 /> -->
 
-## 4. 批量导入设备
+## 4. 批量导入设备（通过MAC地址绑定）
 
 <ApiEndpoint
   host="https://xrobo.qiniu.com"
   basePath="/xiaozhi"
   endpoint="/device/preregister"
   method="post"
-  title="批量导入设备"
+  title="批量导入设备（通过MAC地址绑定）"
   description="通过MAC地址批量导入设备到指定智能体。支持同时导入多个设备，返回成功和失败的统计信息。"
   :parameters="preregisterDeviceBodyParams"
   :headers="preregisterDeviceHeaders"
