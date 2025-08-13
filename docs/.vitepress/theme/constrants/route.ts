@@ -104,6 +104,7 @@ const items_xrobot_mcp = [
     collapsed: true,
     link: Chapters.xrobot_mcp,
     items: [
+      { text: "示例：音乐网盘", link: "example-music-pan" },
       // { text: "硬件MCP", link: "hardware-mcp" },
       // { text: "软件MCP", link: "software-mcp" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_mcp)),
