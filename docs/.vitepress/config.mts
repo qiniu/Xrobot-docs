@@ -19,7 +19,6 @@ export default withMermaid({
     outline: [2, 4],
     nav: [
       { text: "灵矽官网", link: "https://xiaoling.qiniu.com/" },
-      { text: "主页", link: "/" },
       { text: "设备接入协议", link: Chapters.xrobot_platform },
       { text: "API", link: Chapters.xrobot_api },
       { text: "MCP接入", link: Chapters.xrobot_mcp },
