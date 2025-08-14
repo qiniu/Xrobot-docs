@@ -12,17 +12,19 @@ OTA（Over-The-Air）更新是一种通过无线网络将软件更新直接推�
 
 通过OTA请求获取到小智设备的激活码和websocket地址后，再进行websocket通信。
 
-
 ## OTA 地址
 
 <https://xrobo.qiniuapi.com/v1/ota/>
 
 ## OTA 协议描述
 
-请求方法
+### 请求方法
 
-- POST /api/ota/
-  请求头
+POST /api/ota/
+
+### 请求头
+
+- Activation-Version: 激活版本（必需，设备芯片 efuse 区是否存储了有效的序列号，有则"2"，无则"1"）
 - Device-Id: 设备的唯一标识符（必需，使用 MAC 地址或由硬件 ID 生成的伪 MAC 地址）
 - Client-Id: 客户端的唯一标识符，由软件自动生成的 UUID v4（必需，擦除 FLASH 或重装后会变化）
 - User-Agent: 客户端的名字和版本号（必需，例如 esp-box-3/1.5.6）
@@ -58,12 +60,14 @@ OTA（Over-The-Air）更新是一种通过无线网络将软件更新直接推�
 - firmware: 最新版本固件信息
   - version: 固件版本号
   - url: 固件下载链接（如果有更新）
-    错误响应
-- 400 Bad Request: 请求缺少必需的字段或字段无效
-  - error: 错误信息
+
+### 错误响应
+
+- 400 Bad Request: 请求缺少必需的字段或字段无效 - error: 错误信息
 - 500 Internal Server Error: 服务器内部错误 - error: 错误信息
-  2.1.2 OTA 协议举例
-  以 Web 端模拟设备为例，也可以直接体验我们的 Web-demo
+
+<!-- 2.1.2 OTA 协议举例
+  以 Web 端模拟设备为例，也可以直接体验我们的 Web-demo -->
   <!-- todo Web-demo超链 -->
 
 ```Plain Text

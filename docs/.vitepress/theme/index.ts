@@ -4,6 +4,8 @@ import { useRoute } from "vitepress";
 import mediumZoom from "medium-zoom";
 
 import ChapterContents from "./components/ChapterContents.vue";
+import ApiEndpoint from "./components/ApiEndpoint.vue";
+
 import MyLayout from "./layout.vue";
 
 import "./index.css";
@@ -14,6 +16,7 @@ export default {
   enhanceApp({ app }) {
     // 注册全局组件
     app.component("ChapterContents", ChapterContents);
+    app.component("ApiEndpoint", ApiEndpoint);
   },
   setup() {
     const route = useRoute();

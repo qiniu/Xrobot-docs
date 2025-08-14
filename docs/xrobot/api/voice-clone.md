@@ -2,237 +2,353 @@
 title: 音色克隆API
 ---
 
-## 接口基本信息
-
-### baseUrl
-
-https://xrobo.qiniu.com
-
-### Headers
-
-将`<token>`替换为账户的 token
-
-```Plain
-Authorization: Bearer <token>
-Content-Type: application/json
-```
-
-### ResponseBody
-
-code: 当前请求的状态码，成功时为 0，失败时为非 0
-
-msg: 错误信息，只有在请求失败时才会有值
-
-reqid: 唯一的请求 ID
-
-data: 请求实际返回的信息
-
-```Go
-{
-    "code": <int>,
-    "msg": <string>,
-    "reqid": <string>,
-    "data": <object>
-}
-```
-
-## 创建音色栏位
-
-### 接口路径
-
-POST /v1/voice-clones
-
-### 传入参数
-
-model_id: "QN_ACV"
-
-### 返回参数
-
-id: 音色的唯一 id
-
-name: 默认的音色名称，形如"复刻音色-XXXXX"，(XXXXX 为大写字母、小写字母、数字组成的随机字符串)
-
-language: ""
-
-demo_url: ""
-
-state: "Init"
-
-```Plain
-POST /v1/voice-clones
-Authorization: Bearer <token>
-
-{
-    "model_id": <string>  // QN_ACV
-}
-
-响应
-200
-{
-    "code": <int>,
-    "data": {
-        "id" <string> // 音色 id
-        "name": <string>, // 音色名字，默认为"复刻音色-XXXXX"
-        "language": <string>, // 音色对应语言
-        "demo_url": <string> // 试听地址
-        "state": <string>, // 状态，Init/Success/Training/Failed
-    }
-}
-```
-
-## 训练音色
-
-### 接口路径
-
-PUT /v1/voice-clones/`<id>`
-
-### 传入参数
-
-id: 待训练的音色，id 由"创建音色栏位"接口创建，可以通过"音色列取"接口查看有哪些 id
-
-key: 可以为""或者一个合法的音频 url 连接，如果为空则表示只修改 name，不为空则根据 url 对应文件进行训练。
-
-name: 必填，当前音色的名称，如果填入与原名称不同的字符串，将会更新原音色的名称
-
-### 返回参数
-
-id: 音色的唯一 id
-
-name: 音色名称
-
-language: 音色语言
-
-demo_url: 音色的试听链接
-
-state: ["Init", "Success", "Training", "Failed"]，表示当前音色的状态，只有处于"Success"状态的音色才可以使用
-
-```Plain
-PUT /v1/voice-clones/<id>
-Authorization: Bearer <token>
-{
-    "key": <string> // 可选，如果为空则表示只修改 name，不为空则根据上传的文件进行训练。
-    "name": <string> // 可选，如果不为空则更新音色名称（限制为20字符以内,汉字/字母/数字都是一个字符）
-}
-响应
-200
-{
-    "code": <int>,
-    "data": {
-        "id": <string>,
-        "name": <string>,
-        "language": <string>,
-        "demo_url": <string>,
-        "state": <string>,
-    }
-}
-```
-
-## 获取音色
-
-根据 id 获取音色信息
-
-### 接口路径
-
-GET /v1/voice-clones/`<id>`
-
-### 传入参数
-
-id: 待查询的音色
-
-### 返回参数
-
-id: 音色的唯一 id
-
-name: 音色名称
-
-language: 音色语言
-
-demo_url: 音色的试听链接
-
-state: ["Init", "Success", "Training", "Failed"]，表示当前音色的状态，只有处于"Success"状态的音色才可以使用
-
-```Plain
-GET /v1/voice-clones/<id>
-Authorization: Bearer <token>
-
-响应
-200
-{
-    "code": <int>,
-    "data": {
-        "id": <string>,
-        "name": <string>,
-        "language": <string>,
-        "demo_url": <string>,
-        "state": <string>,
-    }
-}
-```
-
-## 音色列取
-
-列取当前用户复刻音色
-
-### 接口路径
-
-GET /v1/voice-clones
-
-### 返回参数
-
-id: 音色的唯一 id
-
-name: 音色名称
-
-language: 音色语言
-
-demo_url: 音色的试听链接
-
-state: ["Init", "Success", "Training", "Failed"]，表示当前音色的状态，只有处于"Success"状态的音色才可以使用
-
-```Plain
-GET /v1/voice-clones
-Authorization: Bearer <token>
-
-响应
-200
-{
-    "code": <int>,
-    "data": {
-        "voices": [
-            {
-                "id": <string>,
-                "name": <string>,
-                "language": <string>,
-                "demo_url": <string>,
-                "state": <string>,
-            },
-        ]
-    }
-}
-```
-
-## 删除音色
-
-删除用户账户下的指定音色
-
-### 接口路径
-
-DELETE /v1/voice-clones/`<id>`
-
-### 传入参数
-
-id: 待删除的音色 id
-
-```Plain
-DELETE /v1/voice-clones/<id>
-Authorization: Bearer <token>
-
-响应
-200
-{
-    "code": <int>,
-    "data": {
-
-    }
-}
-```
+<script setup>
+// 创建音色栏位 API
+const createVoiceCloneBodyParams = [
+  {
+    name: 'model_id',
+    type: 'string',
+    required: true,
+    location: 'body',
+    description: '音色模型ID，固定值为 "QN_ACV"',
+    example: 'QN_ACV'
+  }
+]
+
+const createVoiceCloneHeaders = [
+  {
+    name: 'Authorization',
+    type: 'string',
+    required: true,
+    description: 'Bearer token认证',
+    example: 'Bearer your_token_here'
+  },
+  {
+    name: 'Content-Type',
+    type: 'string',
+    required: true,
+    description: '请求内容类型',
+    example: 'application/json'
+  }
+]
+
+const createVoiceCloneRequest = `{
+  "model_id": "QN_ACV"
+}`
+
+const createVoiceCloneResponse = `{
+  "code": 0,
+  "msg": "",
+  "reqid": "req_12345678",
+  "data": {
+    "id": "voice_clone_abc123",
+    "name": "复刻音色-A1B2C",
+    "language": "",
+    "demo_url": "",
+    "state": "Init"
+  }
+}`
+
+const createVoiceCloneStatusCodes = [
+  { code: 0, description: '创建成功' },
+  { code: 400, description: '请求参数错误' },
+  { code: 401, description: '未授权访问' },
+  { code: 500, description: '服务器内部错误' }
+]
+
+// 训练音色 API
+const trainVoiceClonePathParams = [
+  {
+    name: 'id',
+    type: 'string',
+    required: true,
+    location: 'path',
+    description: '音色唯一标识符，由创建音色栏位接口返回',
+    example: 'voice_clone_abc123'
+  }
+]
+
+const trainVoiceCloneBodyParams = [
+  {
+    name: 'key',
+    type: 'string',
+    required: false,
+    location: 'body',
+    description: '音频文件URL。为空时仅修改名称，不为空时根据音频文件进行训练',
+    example: 'https://example.com/audio.wav'
+  },
+  {
+    name: 'name',
+    type: 'string',
+    required: true,
+    location: 'body',
+    description: '音色名称，限制20字符以内（汉字/字母/数字都算一个字符）',
+    example: '我的专属音色'
+  }
+]
+
+const trainVoiceCloneDesc = `使用音频文件训练指定的音色，或仅更新音色名称。
+如果提供音频URL，系统将根据音频进行训练；如果仅提供名称，则只更新音色名称。`
+
+const trainVoiceCloneHeaders = [
+  {
+    name: 'Authorization',
+    type: 'string',
+    required: true,
+    description: 'Bearer token认证',
+    example: 'Bearer your_token_here'
+  },
+  {
+    name: 'Content-Type',
+    type: 'string',
+    required: true,
+    description: '请求内容类型',
+    example: 'application/json'
+  }
+]
+
+const trainVoiceCloneRequest = `{
+  "key": "https://example.com/voice-sample.wav",
+  "name": "我的专属音色"
+}`
+
+const trainVoiceCloneResponse = `{
+  "code": 0,
+  "msg": "",
+  "reqid": "req_12345678",
+  "data": {
+    "id": "voice_clone_abc123",
+    "name": "我的专属音色",
+    "language": "zh",
+    "demo_url": "https://example.com/demo.wav",
+    "state": "Training"
+  }
+}`
+
+const trainVoiceCloneStatusCodes = [
+  { code: 0, description: '训练请求提交成功' },
+  { code: 400, description: '请求参数错误' },
+  { code: 401, description: '未授权访问' },
+  { code: 404, description: '音色不存在' },
+  { code: 500, description: '服务器内部错误' }
+]
+
+// 获取音色 API
+const getVoiceClonePathParams = [
+  {
+    name: 'id',
+    type: 'string',
+    required: true,
+    location: 'path',
+    description: '音色唯一标识符',
+    example: 'voice_clone_abc123'
+  }
+]
+
+const getVoiceCloneHeaders = [
+  {
+    name: 'Authorization',
+    type: 'string',
+    required: true,
+    description: 'Bearer token认证',
+    example: 'Bearer your_token_here'
+  }
+]
+
+const getVoiceCloneResponse = `{
+  "code": 0,
+  "msg": "",
+  "reqid": "req_12345678",
+  "data": {
+    "id": "voice_clone_abc123",
+    "name": "我的专属音色",
+    "language": "zh",
+    "demo_url": "https://example.com/demo.wav",
+    "state": "Success"
+  }
+}`
+
+const getVoiceCloneStatusCodes = [
+  { code: 0, description: '获取成功' },
+  { code: 401, description: '未授权访问' },
+  { code: 404, description: '音色不存在' },
+  { code: 500, description: '服务器内部错误' }
+]
+
+// 音色列表 API
+const listVoiceClonesHeaders = [
+  {
+    name: 'Authorization',
+    type: 'string',
+    required: true,
+    description: 'Bearer token认证',
+    example: 'Bearer your_token_here'
+  }
+]
+
+const listVoiceClonesResponse = `{
+  "code": 0,
+  "msg": "",
+  "reqid": "req_12345678",
+  "data": {
+    "voices": [
+      {
+        "id": "voice_clone_abc123",
+        "name": "我的专属音色",
+        "language": "zh",
+        "demo_url": "https://example.com/demo1.wav",
+        "state": "Success"
+      },
+      {
+        "id": "voice_clone_def456",
+        "name": "复刻音色-X9Y8Z",
+        "language": "",
+        "demo_url": "",
+        "state": "Training"
+      }
+    ]
+  }
+}`
+
+const listVoiceClonesStatusCodes = [
+  { code: 0, description: '获取成功' },
+  { code: 401, description: '未授权访问' },
+  { code: 500, description: '服务器内部错误' }
+]
+
+// 删除音色 API
+const deleteVoiceClonePathParams = [
+  {
+    name: 'id',
+    type: 'string',
+    required: true,
+    location: 'path',
+    description: '待删除的音色唯一标识符',
+    example: 'voice_clone_abc123'
+  }
+]
+
+const deleteVoiceCloneHeaders = [
+  {
+    name: 'Authorization',
+    type: 'string',
+    required: true,
+    description: 'Bearer token认证',
+    example: 'Bearer your_token_here'
+  }
+]
+
+const deleteVoiceCloneResponse = `{
+  "code": 0,
+  "msg": "",
+  "reqid": "req_12345678",
+  "data": {}
+}`
+
+const deleteVoiceCloneStatusCodes = [
+  { code: 0, description: '删除成功' },
+  { code: 401, description: '未授权访问' },
+  { code: 404, description: '音色不存在' },
+  { code: 500, description: '服务器内部错误' }
+]
+</script>
+
+## 音色状态说明
+
+音色在训练过程中会经历以下状态：
+
+- **Init**: 初始状态，刚创建的音色栏位
+- **Training**: 训练中，正在处理音频文件
+- **Success**: 训练成功，音色可以正常使用
+- **Failed**: 训练失败，需要重新训练
+
+## 1. 创建音色栏位
+
+<ApiEndpoint
+  host="https://xrobo.qiniu.com"
+  basePath=""
+  endpoint="/v1/voice-clones"
+  method="post"
+  title="创建音色栏位"
+  description="创建一个新的音色栏位，为后续的音色训练做准备。创建成功后会返回音色ID和默认名称。"
+  :parameters="createVoiceCloneBodyParams"
+  :headers="createVoiceCloneHeaders"
+  :requestExample="createVoiceCloneRequest"
+  :responseExample="createVoiceCloneResponse"
+  :statusCodes="createVoiceCloneStatusCodes"
+/>
+
+## 2. 训练音色
+
+<ApiEndpoint
+  host="https://xrobo.qiniu.com"
+  basePath=""
+  endpoint="/v1/voice-clones/{id}"
+  method="put"
+  title="训练音色"
+  :description=trainVoiceCloneDesc
+  :parameters="[...trainVoiceClonePathParams, ...trainVoiceCloneBodyParams]"
+  :headers="trainVoiceCloneHeaders"
+  :requestExample="trainVoiceCloneRequest"
+  :responseExample="trainVoiceCloneResponse"
+  :statusCodes="trainVoiceCloneStatusCodes"
+/>
+
+::: info
+
+1. **音色名称限制**: 音色名称最多20个字符，汉字、字母、数字都算作一个字符
+2. **音频文件要求**: 训练音频建议时长在10-60秒之间，音质清晰，无背景噪音
+3. **训练时间**: 音色训练通常需要几分钟到十几分钟，请耐心等待
+:::
+
+## 3. 获取音色信息
+
+<ApiEndpoint
+  host="https://xrobo.qiniu.com"
+  basePath=""
+  endpoint="/v1/voice-clones/{id}"
+  method="get"
+  title="获取音色信息"
+  description="根据音色ID获取指定音色的详细信息，包括名称、语言、试听链接和当前状态。"
+  :parameters="getVoiceClonePathParams"
+  :headers="getVoiceCloneHeaders"
+  :responseExample="getVoiceCloneResponse"
+  :statusCodes="getVoiceCloneStatusCodes"
+/>
+
+::: info
+**状态检查**: 只有状态为"Success"的音色才能正常使用
+:::
+
+## 4. 获取音色列表
+
+<ApiEndpoint
+  host="https://xrobo.qiniu.com"
+  basePath=""
+  endpoint="/v1/voice-clones"
+  method="get"
+  title="获取音色列表"
+  description="获取当前用户账户下所有的音色克隆列表，包括各种状态的音色。"
+  :headers="listVoiceClonesHeaders"
+  :responseExample="listVoiceClonesResponse"
+  :statusCodes="listVoiceClonesStatusCodes"
+/>
+
+## 5. 删除音色
+
+<ApiEndpoint
+  host="https://xrobo.qiniu.com"
+  basePath=""
+  endpoint="/v1/voice-clones/{id}"
+  method="delete"
+  title="删除音色"
+  description="删除指定的音色克隆。删除后该音色将无法恢复，请谨慎操作。"
+  :parameters="deleteVoiceClonePathParams"
+  :headers="deleteVoiceCloneHeaders"
+  :responseExample="deleteVoiceCloneResponse"
+  :statusCodes="deleteVoiceCloneStatusCodes"
+/>
+
+::: warning
+删除音色后无法恢复，请谨慎操作
+:::
