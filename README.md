@@ -25,3 +25,21 @@ npm run docs:build
 ```shell
 npm run docs:preview
 ```
+
+# docker 部署
+构建docker
+```shell
+cd $PROJECT_ROOT_PATH
+docker build -t xrobot-docs:$TAG .
+```
+
+停止现有的文档 docker服务
+```
+docker stop xrobot-docs
+docker rm xrobot-docs
+
+运行新的docker服务
+```shell
+docker run -d -p 4173:4173 xrobot-docs
+```
+
