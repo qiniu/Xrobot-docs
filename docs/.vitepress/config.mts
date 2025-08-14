@@ -9,7 +9,7 @@ const sidebarItems = getChapterItems(1, 2);
 // https://vitepress.dev/reference/site-config
 export default withMermaid({
   lang: "zh",
-  title: "灵矽文档中心",
+  title: "文档中心",
   description: "A 灵矽 Documentation Project",
   lastUpdated: true,
   cleanUrls: true,
