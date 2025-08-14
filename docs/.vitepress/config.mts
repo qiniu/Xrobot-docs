@@ -14,6 +14,7 @@ export default withMermaid({
   lastUpdated: true,
   cleanUrls: true,
   base: "/docs/",
+  head: [["link", { rel: "icon", href: "favicon.svg" }]],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     outline: [2, 4],
