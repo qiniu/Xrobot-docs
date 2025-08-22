@@ -10,7 +10,7 @@ const sidebarItems = getChapterItems(1, 2);
 export default withMermaid({
   lang: "zh",
   title: "文档中心",
-  description: "A 灵矽 Documentation Project",
+  description: "灵矽文档中心",
   lastUpdated: true,
   cleanUrls: true,
   base: "/docs/",
