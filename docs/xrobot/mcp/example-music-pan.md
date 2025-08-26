@@ -1,206 +1,187 @@
 ---
 title: 基于七牛云存储服务构建一个音乐网盘MCP
----
+---   
 
-## 1. 环境配置
+## 1. 需求背景与目标
 
-### 下载uv
+- 背景：目标场景是在灵矽AI平台智能硬件对话时，当用户以自然语言发出“播放某首/某目录音乐”请求时，MCP可以提供对应（假设存在）音乐文件的可访问 URL。
 
-#### Mac
+- 目标：通过 MCP（Model Context Protocol）提供标准化的MCP Tools，使语音智能体在对话流程中检索音乐并获取可播放链接。
 
-推荐使用 brew 安装
+- 非目标：MCP 不负责音乐的上传与管理、转码或播放控制；也不提供在线播放 UI。音乐文件由用户自行上传至对象存储；本服务仅返回文件 URL。
+
+## 2. 实现原理与技术架构
+
+### 2.1 系统架构概览
+
+本方案基于 MCP（Model Context Protocol）协议，为智能语音对话硬件提供音乐文件管理与播放能力。系统采用分层架构设计，通过 SSE（Server-Sent Events）建立实时通信通道，支持动态配置注入和会话隔离。
+
+```mermaid
+flowchart TD
+    U["用户: 语音指令"] --> NLU["意图"]
+    NLU -->|"播放请求(歌曲)或查询歌曲列表"| SVR["灵矽AI平台"]
+    SVR -->|"SSE(MCP)+Headers"| MCP["music-mcp-server（本MCP）"]
+    MCP --> KODO["七牛对象存储"]
+    MCP -->|"get_object_url"| URL["临时可播放URL"]
+    URL --> SVR
+    SVR --> DEVICE["设备"]
+```
+
+### 2.2 会话配置与隔离
+
+- **动态配置注入**：客户端通过 HTTP Headers 传递认证信息和存储配置
+  - `X-Qiniu-AK`: Access Key（访问密钥）
+  - `X-Qiniu-SK`: Secret Key（私有密钥）
+  - `X-Qiniu-Region`: 存储区域（如 cn-east-1）
+  - `X-Qiniu-Buckets`: 允许访问的存储桶列表
+
+- **会话隔离机制**：基于 Headers 建立独立的会话上下文，确保多用户/多租户间的数据隔离
+- **安全策略**：敏感信息仅在请求传递过程中存在，不在服务端持久化
+
+## 3. 部署
+
+### 3.1 服务器准备
+
+可以使用[七牛云轻量服务器](https://portal.qiniu.com/las)
+
+### 3.2 环境依赖与准备 `uv`
+
+<details>
+<summary>Mac 系统</summary>
+
+推荐使用 brew 安装：
 
 ```bash
 brew install uv
 ```
 
-#### Linux & Mac
+</details>
 
-1. 安装
+<details>
 
-    ```bash
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    ```
+<summary>
+Linux & Mac 系统
+</summary>
 
-2. 安装完成后，请确保将软件包安装路径（包含 uv 和 uvx 可执行文件的目录）添加到系统的 PATH 环境变量中。
+1. 安装命令：
 
-    假设安装包路径为 /Users/xxx/.local/bin（见安装执行输出）
+   ```bash
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
 
-    1. 临时生效（当前会话），在当前终端中执行以下命令
+2. 配置环境变量：
 
-        ```bash
-        export PATH="/Users/xxx/.local/bin:$PATH"
-        ```
+   安装完成后，需要将 uv 可执行文件路径添加到系统 PATH 中。假设安装路径为 `/Users/xxx/.local/bin`：
 
-    2. 永久生效（推荐），在当前终端中执行以下命令
+   - 临时生效（当前会话）：
 
-        ```bash
-        echo 'export PATH="/Users/xxx/.local/bin:$PATH"' >> ~/.bash_profile
-        source ~/.bash_profile
-        ```
+     ```bash
+     export PATH="/Users/xxx/.local/bin:$PATH"
+     ```
 
-#### Windows
+   - 永久生效（推荐）：
+
+     ```bash
+     echo 'export PATH="/Users/xxx/.local/bin:$PATH"' >> ~/.bash_profile
+     source ~/.bash_profile
+     ```
+
+</details>
+
+<details>
+<summary>Windows 系统</summary>
 
 ```powershell
-powershell -ExecutionPolicy ByPass -c "irm <https://astral.sh/uv/install.ps1> | iex"
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-### 手动安装 qiniu-mcp-server （可选）
+</details>
 
-手动使用uv安装qiniu-mcp-server，可以确认uv安装无误，减少后续失败需要排查的因素
+### 3.3 获取代码
+
+暂无
+
+### 3.4 启动server
 
 ```bash
-uv tool install qiniu-mcp-server
+uv --directory . run music-mcp-server --transport sse --port 8000
 ```
 
-## 2. 准备七牛云存储
+## 4. 配置与使用
 
-### 空间创建
+### 4.1 准备七牛云存储
+
+#### 空间创建
 
 前往 [七牛云 空间管理](https://portal.qiniu.com/kodo/bucket)
 
 ![create bucket](./imgs/example-music-pan/create-bucket.png)
 
-1. 点击新建空间，先输入`名称`，记住这个名称，这是之后需要使用的参数`QINIU_BUCKETS`
+1. 点击新建空间，先输入`名称`，记住这个名称，后续将作为 Header `X-Qiniu-Buckets` 的取值。
 
-    ![create bucket2](./imgs/example-music-pan/create-bucket2.png)
+   ![create bucket2](./imgs/example-music-pan/create-bucket2.png)
 
 2. 存储区域选择以国内优先、离你的远近其次
 
-3. 访问控制一定要选择**公开**，否则之后会访问不到文件
+3. 设置域名. 未设置域名时，七牛云提供的测试域名只能通过http访问。
 
-### 文件上传
+#### 文件上传
 
 在空间管理中点击你刚创建的空间，然后点击上传文件，然后就可以看到下面的菜单。
 
 ![upload-file](./imgs/example-music-pan/upload-file.png)
 
+目录选择没有要求，只要将放到当前空间里面就好了
+
 然后点击菜单左下角的选择文件，选择完文件后点击开始上传。
 
-由于这个空间是为了MCP服务定制的，没有什么别的要存放，音乐文件直接存放在根目录就好了。
+<!-- 由于这个空间是为了该 MCP 服务定制的，没有什么别的要存放，音乐文件直接存放在根目录就好了。 -->
 
-### 获取key
+#### 获取 key
 
 进入个人中心 - [密钥管理](https://portal.qiniu.com/developer/user/key)
 
 ![key](./imgs/example-music-pan/key.png)
 
-创建密钥，然后记录AK（access key）与SK（secret key），在后续配置需要使用它们。
+创建密钥，然后记录 AK（access key）与 SK（secret key），在后续 Header 传递时需要使用它们。
 
 ::: warning
-AK与SK是重要隐私，避免泄露给不可信来源。
+AK 与 SK 是重要隐私，避免泄露给不可信来源。
 
 如有泄露，可在密钥管理页面停用、删除。
 :::
 
-## 3. 配置MCP
+### 4.2 创建自定义MCP
 
-以vs code 插件 cline 为例，注意这个插件需要登录才能配置mcp
+来到灵矽AI控制台，登录之后，点击左侧的侧边栏选项“自定义MCP”，然后点击“添加自定义MCP”。
 
-![cline ui](./imgs/example-music-pan/cline-ui.png)
+在弹出的对话框中你需要按照表单填写服务名称、简短描述、LOGO、tag，以及接入配置，接入配置填写需要注意，你是以服务提供者的身份填写信息，不是以使用者的身份填写信息：
 
-进入插件的页面，点击MCP服务器图标（上图鼠标光标所指的位置），然后点击下面的Installed，最后点击Configure MCP Servers
+- SSE URL: 需要填写完整的，带有http(s)协议的、可访问的URL，通常还是以/SSE结尾
 
-这时配置文件就自动打开了
+<!-- todo -->
+<!-- - Query 参数：若需要多租户/不同 profile，可增加 profile/tenant 等查询参数参与服务端路由与限权。 -->
 
-基本模板如下
+- Header 参数：将上文 headers 列为用户必填项，标注字段说明与示例值。API_Key之类的一般都填写在这里。
 
-```json{9-13}
-{
-  "mcpServers": {
-    "qiniu": {
-      "command": "uvx",
-      "args": [
-        "qiniu-mcp-server"
-      ],
-      "env": {
-        "QINIU_ACCESS_KEY": "YOUR_ACCESS_KEY",
-        "QINIU_SECRET_KEY": "YOUR_SECRET_KEY",
-        "QINIU_REGION_NAME": "YOUR_REGION_NAME",
-        "QINIU_ENDPOINT_URL": "YOUR_ENDPOINT_URL",
-        "QINIU_BUCKETS": "YOUR_BUCKET_A,YOUR_BUCKET_B"
-     },
-      "disabled": false
-    }
-  }
-}
-```
+填写示例：
 
-复制模板到配置中，替换env中的5个字段
+![custom-mcp-dialog](./imgs/example-music-pan/custom-mcp-dialog.png)
 
-1. **QINIU_ACCESS_KEY**: 七牛云存储 [密钥管理](https://portal.qiniu.com/developer/user/key)
-2. **QINIU_SECRET_KEY**: 七牛云存储 [密钥管理](https://portal.qiniu.com/developer/user/key)
-3. **QINIU_REGION_NAME**: 根据你创建空间时所选择区域，参考 [存储区域](https://developer.qiniu.com/kodo/1671/4.region-endpoint-fq)
-4. **QINIU_ENDPOINT_URL**: 使用上一条获取的区域名称，替换`https://s3.QINIU_REGION_NAME.qiniucs.com`中的`QINIU_REGION_NAME`
-5. **QINIU_BUCKETS**: 你创建的空间名称，如果有多个，使用英文半角逗号隔开，建议最多 20 个 bucket
+### 4.3 使用MCP
 
-::: info
-该模板也适用于cursor。
+回到灵矽AI控制台，点击左侧的侧边栏选项“自定义MCP”，找到你刚创建的MCP，然后点击“开通”。或者，如果你想要其他人的MCP，可以点击侧边栏的“MCP市场”，然后开通你需要的MCP。
 
-claude 中使用时可能会遇到：Error: spawn uvx ENOENT 错误，解决方案：command 中 参数填写 uvx 的绝对路径，eg: /usr/local/bin/uvx
-:::
+填写必要参数：
 
-### 配置成功
+![mcp-config](./imgs/example-music-pan/mcp-config.png)
 
-当一切配置完成后，可以看到绿色的状态指示，有一些Tools与Resources
+后续可以到侧边栏“已开通MCP”中查看、修改配置或删除mcp。
 
-![success](./imgs/example-music-pan/success.png)
+随后，可以在智能体-角色配置页面启用新的mcp了。
 
-### 测试功能
+## 5. 相关链接
 
-#### 能力集
+<!-- [七牛云对象存储 - 开发者文档](https://developer.qiniu.com/kodo) -->
 
-1. 存储
-    - 获取 Bucket 列表
-    - 获取 Bucket 中的文件列表
-    - 上传本地文件，以及给出文件内容进行上传
-    - 读取文件内容
-    - 获取文件下载链接
-2. 智能多媒体
-    - 图片缩放
-    - 图片切圆角
-3. CDN
-    - 根据链接刷新文件
-    - 根据链接预取文件
-
-#### 在对话中测试
-
-在对话中，使用以下提示词尝试获取所有音乐文件
-
-```text
-列举 qiniu 中 music-pan Bucket 的文件
-```
-
-![test-get1](./imgs/example-music-pan/test-get1.png)
-
-我在存储中只有两个相同音乐文件，分别在根目录与music目录中，这里我们拿到了所有文件与目录信息
-
-![test-get2](./imgs/example-music-pan/test-get2.png)
-
-尝试获取音乐的链接，没有问题：
-
-![test-get3](./imgs/example-music-pan/test-get3.png)
-
-![test-get4](./imgs/example-music-pan/test-get4.png)
-
-::: info
-
-可以使用其他名称替换`"qiniu"`来访问MCP
-
-```json{3}
-{
-  "mcpServers": {
-    "qiniu": {
-        ...
-    }
-  }
-}
-```
-
-:::
-
-## 4. 相关链接
-
-[七牛云对象存储 - 开发者文档](https://developer.qiniu.com/kodo)
-
-Github [qiniu-mcp-serve](https://github.com/qiniu/qiniu-mcp-server)
+当前 music-mcp-server SSE URL：`http://121.29.19.158:8000/sse`
