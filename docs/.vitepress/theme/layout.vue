@@ -29,11 +29,4 @@ const home = apply_prefix("/", base);
   </Layout>
 </template>
 
-<style>
-.favicon {
-  height: 50%;
-}
-.VPNavBarTitle span {
-  /* size: fit-content; */
-}
-</style>
+<style></style>

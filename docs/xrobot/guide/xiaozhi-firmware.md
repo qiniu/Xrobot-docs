@@ -10,6 +10,8 @@ title: 开源小智固件接入指南
 
 参考教程 [Flash工具/Web端烧录固件（无IDF开发环境）-方式二：ESP-Launchpad 浏览器WEB端烧录-3. 烧录固件/下载到开发板](https://ccnphfhqs21z.feishu.cn/wiki/Zpz4wXBtdimBrLk25WdcXzxcnNS#CzSmd9PXYoGOHzxDi9bcwtsan9f)。
 
+注：外部文档，点击之后请等待跳转。
+
 ## 三、设备绑定
 
 ### 1. 绑定 MAC 地址

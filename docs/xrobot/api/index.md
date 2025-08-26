@@ -2,7 +2,6 @@
 title: 平台API
 ---
 
-
 <script setup>
 import { Chapters } from "../../.vitepress/theme/constrants/route";
 
@@ -19,7 +18,11 @@ const chapter_root = Chapters.xrobot_api;
 
 1. 所有API接口都需要有效的认证令牌
 2. 认证令牌格式为 `Bearer <token>`
-3. token获取见 [用户API - 登录](./user)
+
+    `<token>`有两种获取方式，推荐第一种：
+
+    - API-KEY: 在[灵矽AI控制台](https://xrobo.qiniu.com/#/api-key-management)创建 （推荐）
+    - [用户API - 登录](./user)
 
 ### 通用响应格式
 
