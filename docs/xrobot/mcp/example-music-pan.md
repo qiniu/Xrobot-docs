@@ -6,7 +6,7 @@ title: 基于七牛云存储服务构建一个音乐网盘MCP
 
 - 背景：目标场景是在灵矽AI平台智能硬件对话时，当用户以自然语言发出“播放某首/某目录音乐”请求时，MCP可以提供对应（假设存在）音乐文件的可访问 URL。
 
-- 目标：通过 MCP（Model Context Protocol）提供标准化工具（列桶、列文件、生成临时下载 URL），使语音智能体在对话流程中检索音乐并获取可播放链接。
+- 目标：通过 MCP（Model Context Protocol）提供标准化的MCP Tools，使语音智能体在对话流程中检索音乐并获取可播放链接。
 
 - 非目标：MCP 不负责音乐的上传与管理、转码或播放控制；也不提供在线播放 UI。音乐文件由用户自行上传至对象存储；本服务仅返回文件 URL。
 
@@ -21,8 +21,7 @@ flowchart TD
     U["用户: 语音指令"] --> NLU["意图"]
     NLU -->|"播放请求(歌曲)或查询歌曲列表"| SVR["灵矽AI平台"]
     SVR -->|"SSE(MCP)+Headers"| MCP["music-mcp-server（本MCP）"]
-    MCP <--> STG["StorageService"]
-    STG --> KODO["七牛对象存储"]
+    MCP --> KODO["七牛对象存储"]
     MCP -->|"get_object_url"| URL["临时可播放URL"]
     URL --> SVR
     SVR --> DEVICE["设备"]
@@ -37,7 +36,7 @@ flowchart TD
   - `X-Qiniu-Buckets`: 允许访问的存储桶列表
 
 - **会话隔离机制**：基于 Headers 建立独立的会话上下文，确保多用户/多租户间的数据隔离
-- **安全策略**：敏感信息仅在请求传递过程中存在，不在服务端持久化存储
+- **安全策略**：敏感信息仅在请求传递过程中存在，不在服务端持久化
 
 ## 3. 部署
 
@@ -132,9 +131,11 @@ uv --directory . run music-mcp-server --transport sse --port 8000
 
 ![upload-file](./imgs/example-music-pan/upload-file.png)
 
+目录选择没有要求，只要将放到当前空间里面就好了
+
 然后点击菜单左下角的选择文件，选择完文件后点击开始上传。
 
-由于这个空间是为了 MCP 服务定制的，没有什么别的要存放，音乐文件直接存放在根目录就好了。
+<!-- 由于这个空间是为了该 MCP 服务定制的，没有什么别的要存放，音乐文件直接存放在根目录就好了。 -->
 
 #### 获取 key
 
@@ -181,4 +182,6 @@ AK 与 SK 是重要隐私，避免泄露给不可信来源。
 
 ## 5. 相关链接
 
-[七牛云对象存储 - 开发者文档](https://developer.qiniu.com/kodo)
+<!-- [七牛云对象存储 - 开发者文档](https://developer.qiniu.com/kodo) -->
+
+当前 music-mcp-server SSE URL：`http://121.29.19.158:8000/sse`
