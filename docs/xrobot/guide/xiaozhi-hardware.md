@@ -145,10 +145,12 @@ title: 开源小智硬件接入指南
 
 ### 5.4 4G设备
 
-由于4G版本没有可以设置七牛OTA地址，需要重新烧录固件。
-
-适用于 4G esp32s3 集成板 的七牛云灵矽AI固件(bin文件)，[下载](https://algorithm.qnaigc.com/xiaoling-rom/xiaoling_20250825_ESP32S3_bread-compact-ml307.bin)
+4G版本设备需要重新烧录固件，烧录成功后无需配网，插卡自动联网，即可获得设备验证码。
 
 固件烧录参考教程 [Flash工具/Web端烧录固件（无IDF开发环境）-方式二：ESP-Launchpad 浏览器WEB端烧录-3. 烧录固件/下载到开发板](https://ccnphfhqs21z.feishu.cn/wiki/Zpz4wXBtdimBrLk25WdcXzxcnNS#CzSmd9PXYoGOHzxDi9bcwtsan9f)。
 
 注：外部文档，点击之后请等待跳转。
+
+| 设备型号          | 固件下载链接                                                 | 设备图片                                                     |
+| ----------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 4G esp32s3 集成板 | [下载](https://algorithm.qnaigc.com/xiaoling-rom/xiaoling_20250825_ESP32S3_bread-compact-ml307.bin) | <img src="./imgs/device-net-config/4g-esp32-s3.jpg" alt="4g-esp32-s3" style="zoom: 25%;" /> |
