@@ -6,6 +6,8 @@ title: 开源小智固件接入指南
 
 参考 [小智开源固件编译流程](https://github.com/xinnan-tech/xiaozhi-esp32-server/blob/main/docs/firmware-build.md) 进行固件编译。
 
+七牛云灵矽AI固件，[bin⽂件，点击下载](https://algorithm.qnaigc.com/xiaoling-rom/xiaoling_20250825_ESP32S3_bread-compact-ml307.bin)
+
 ## 二、固件烧录
 
 参考教程 [Flash工具/Web端烧录固件（无IDF开发环境）-方式二：ESP-Launchpad 浏览器WEB端烧录-3. 烧录固件/下载到开发板](https://ccnphfhqs21z.feishu.cn/wiki/Zpz4wXBtdimBrLk25WdcXzxcnNS#CzSmd9PXYoGOHzxDi9bcwtsan9f)。
