@@ -2,8 +2,6 @@
 title: 开源小智硬件接入指南
 ---
 
-以下方法针对wifi版小智硬件，如果你的小智硬件是4G版的，由于4G版本没有可以设置七牛OTA地址，需要重新烧录固件，参考[开源小智固件接入](./xiaozhi-firmware.md)。
-
 ## 一、 进入小程序
 
 扫描小程序二维码，登陆后即进入智能体管理页面。
@@ -144,3 +142,13 @@ title: 开源小智硬件接入指南
 
    | ![image-20250804165052520](./imgs/device-net-config/image-20250804165052520.png) | ![image-20250804165059545](./imgs/device-net-config/image-20250804165059545.png) |
    | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+
+### 5.4 4G设备
+
+由于4G版本没有可以设置七牛OTA地址，需要重新烧录固件。
+
+适用于 4G esp32s3 集成板 的七牛云灵矽AI固件(bin文件)，[下载](https://algorithm.qnaigc.com/xiaoling-rom/xiaoling_20250825_ESP32S3_bread-compact-ml307.bin)
+
+固件烧录参考教程 [Flash工具/Web端烧录固件（无IDF开发环境）-方式二：ESP-Launchpad 浏览器WEB端烧录-3. 烧录固件/下载到开发板](https://ccnphfhqs21z.feishu.cn/wiki/Zpz4wXBtdimBrLk25WdcXzxcnNS#CzSmd9PXYoGOHzxDi9bcwtsan9f)。
+
+注：外部文档，点击之后请等待跳转。
