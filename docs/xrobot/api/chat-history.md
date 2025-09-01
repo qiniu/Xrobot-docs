@@ -68,6 +68,31 @@ const getChatHistoryResponse = `{
   ]
 }`
 
+// 获取音频对应的播放ID - 请求示例
+const getAudioPlayIdRequest = `GET /xiaozhi/agent/audio/d9b8fdbc0ce492a0feb7a87e92c4eaf5 HTTP/1.1
+Host: https://xrobo.qiniu.com
+Authorization: Bearer <token>`
+
+// 获取音频对应的播放ID - 响应示例
+const getAudioPlayIdResponse = `{
+  "code": 0,
+  "msg": "success",
+  "data": "a040a914-ba53-42f4-a878-08293bf5877a"
+}`
+
+// 播放对话音频 - 请求示例
+const playAudioRequest = `GET /xiaozhi/agent/play/a040a914-ba53-42f4-a878-08293bf5877a HTTP/1.1
+Host: https://xrobo.qiniu.com
+Authorization: Bearer <token>`
+
+// 播放对话音频 - 响应示例
+const playAudioResponse = `HTTP/1.1 200 OK
+Content-Disposition: attachment; filename="play.wav"
+Content-Length: 7724
+Content-Type: application/octet-stream
+
+[Binary audio data]`
+
 // 获取聊天记录列表 - 参数定义
 const getSessionsParameters = [
   {
@@ -113,6 +138,30 @@ const getChatHistoryParameters = [
     required: true,
     description: '会话ID',
     example: '7465966b-4582-4dae-99be-420364d422d7'
+  }
+]
+
+// 获取音频对应的播放ID - 参数定义
+const getAudioPlayIdParameters = [
+  {
+    name: 'audioId',
+    type: 'string',
+    in: 'path',
+    required: true,
+    description: '音频ID，从聊天记录详情中获取',
+    example: 'd9b8fdbc0ce492a0feb7a87e92c4eaf5'
+  }
+]
+
+// 播放对话音频 - 参数定义
+const playAudioParameters = [
+  {
+    name: 'playId',
+    type: 'string',
+    in: 'path',
+    required: true,
+    description: '播放ID，从获取音频对应的播放ID接口中获取',
+    example: 'a040a914-ba53-42f4-a878-08293bf5877a'
   }
 ]
 
@@ -172,4 +221,44 @@ const unauthorizedResponse = `{
 
 ::: info
 响应中的data是一个聊天消息数组，按时间顺序排列，每条消息包含创建时间、聊天类型、内容、音频ID和MAC地址。
+:::
+
+### 获取对话音频的播放ID
+
+<ApiEndpoint
+  host="https://xrobo.qiniu.com"
+  basePath="/xiaozhi"
+  endpoint="/agent/audio/{audioId}"
+  method="get"
+  title="获取音频对应的播放ID"
+  description="通过音频ID（从聊天记录详情中获取）获取对应的播放ID，用于后续播放音频"
+  :parameters="getAudioPlayIdParameters"
+  :headers="getListHeaders"
+  :requestExample="getAudioPlayIdRequest"
+  :responseExample="getAudioPlayIdResponse"
+  :statusCodes="getListStatusCodes"
+/>
+
+::: info
+此接口用于获取播放ID，应与播放对话音频接口一同使用。
+:::
+
+### 播放对话音频
+
+<ApiEndpoint
+  host="https://xrobo.qiniu.com"
+  basePath="/xiaozhi"
+  endpoint="/agent/play/{playId}"
+  method="get"
+  title="播放对话音频"
+  description="通过播放ID下载音频文件，返回二进制音频数据，支持直接播放或下载"
+  :parameters="playAudioParameters"
+  :headers="getListHeaders"
+  :requestExample="playAudioRequest"
+  :responseExample="playAudioResponse"
+  :statusCodes="commonStatusCodes"
+/>
+
+::: info
+响应为二进制音频文件（WAV格式），可用于下载或直接播放。此接口应与获取音频对应的播放ID接口一同使用。
 :::
