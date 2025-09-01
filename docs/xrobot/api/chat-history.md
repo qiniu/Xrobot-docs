@@ -134,8 +134,6 @@ const unauthorizedResponse = `{
 }`
 </script>
 
-## API列表
-
 ### 获取聊天记录列表
 
 <ApiEndpoint
@@ -175,5 +173,3 @@ const unauthorizedResponse = `{
 ::: info
 响应中的data是一个聊天消息数组，按时间顺序排列，每条消息包含创建时间、聊天类型、内容、音频ID和MAC地址。
 :::
-
-## 其他说明项
