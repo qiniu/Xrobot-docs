@@ -391,7 +391,7 @@ const unauthorizedResponse = `{
 Authorization: Bearer <token>
 ```
 
-获取token方式参见 用户相关API
+获取token方式参见 [平台api概要](./index)
 
 当认证失败时，请求响应状态码为`200`，但返回以下响应：
 

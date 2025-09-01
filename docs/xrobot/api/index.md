@@ -12,9 +12,7 @@ const chapter_root = Chapters.xrobot_api;
 
 **Base URL**: `https://xrobo.qiniu.com`
 
-**认证方式**: Bearer Token
-
-## 注意事项
+**认证方式**: Bearer Token/API_Key
 
 1. 所有API接口都需要有效的认证令牌
 2. 认证令牌格式为 `Bearer <token>`
