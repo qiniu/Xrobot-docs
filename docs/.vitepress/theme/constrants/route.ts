@@ -91,6 +91,7 @@ const items_xrobot_api = [
     items: [
       { text: "用户API", link: "user" },
       { text: "智能体API", link: "agent" },
+      { text: "聊天记录API", link: "chat-history" },
       { text: "设备API", link: "device" },
       { text: "音色克隆API", link: "voice-clone" },
       { text: "其他API", link: "others" },
