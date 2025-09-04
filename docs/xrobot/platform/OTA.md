@@ -29,8 +29,10 @@ POST /api/ota/
 - Client-Id: 客户端的唯一标识符，由软件自动生成的 UUID v4（必需，擦除 FLASH 或重装后会变化）
 - User-Agent: 客户端的名字和版本号（必需，例如 esp-box-3/1.5.6）
 - Accept-Language: 客户端的当前语言（可选，例如 zh-CN）
-  请求体
-  请求体应为 JSON 格式，包含以下字段：
+
+
+### 请求体
+请求体应为 JSON 格式，包含以下字段：
 - application: 包含设备当前固件版本信息的对象（必需）
   - version: 当前固件版本号
   - elf_sha256: 用于校验固件文件完整性 Hash
@@ -45,9 +47,11 @@ POST /api/ota/
   - name: 开发板 SKU（与 user-agent 中的前面部分保持一致）
   - ssid: 设备接入的 Wi-Fi 名字
   - rssi: 设备接入的 Wi-Fi 信号强度
-    响应
-    成功响应
-    响应体为 JSON 格式，包含以下字段：
+
+### 响应
+
+#### 成功响应
+响应体为 JSON 格式，包含以下字段：
 - activation: 设备需要激活
   - code: 激活码
   - message: 屏幕显示消息
@@ -61,7 +65,7 @@ POST /api/ota/
   - version: 固件版本号
   - url: 固件下载链接（如果有更新）
 
-### 错误响应
+#### 错误响应
 
 - 400 Bad Request: 请求缺少必需的字段或字段无效 - error: 错误信息
 - 500 Internal Server Error: 服务器内部错误 - error: 错误信息
