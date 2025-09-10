@@ -74,6 +74,7 @@ POST /api/ota/
   以 Web 端模拟设备为例，也可以直接体验我们的 Web-demo -->
   <!-- todo Web-demo超链 -->
 
+## 请求示例
 ```Plain Text
 POST https://xrobo.qiniuapi.com/v1/ota/
 Host: xrobo.qiniuapi.com
@@ -88,7 +89,7 @@ Client-Id: web_test_client
   "version": 0,
   "uuid": "",
   "application": {
-    "name": "xiaoniu-web-test",
+    "name": "xiaoling-web-test",
     "version": "1.0.0",
     "compile_time": "2025-04-16 10:00:00",
     "idf_version": "4.4.3",
@@ -97,7 +98,8 @@ Client-Id: web_test_client
   "ota": { "label": "xiaoling-web-test" },
   "board": {
     "type": "xiaoling-web-test",
-    "ssid": "xiaoling-web-test",
+    "name": "xiaoling-web-test",
+    "ssid": "xxxxxx",
     "rssi": 0,
     "channel": 0,
     "ip": "192.168.1.1",
