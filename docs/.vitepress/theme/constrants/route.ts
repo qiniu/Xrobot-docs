@@ -77,8 +77,8 @@ const items_xrobot_platform = [
     collapsed: true,
     items: [
       { text: "OTA 网关", link: "OTA" },
-      { text: "WebSocket", link: "websocket" },
-      { text: "MQTT", link: "MQTT" },
+      { text: "WebSocket接入", link: "websocket接入" },
+      { text: "MQTT接入", link: "MQTT接入" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_platform)),
   },
 ];
