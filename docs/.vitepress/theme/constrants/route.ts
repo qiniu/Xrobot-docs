@@ -77,9 +77,23 @@ const items_xrobot_platform = [
     collapsed: true,
     items: [
       { text: "OTA 网关", link: "OTA" },
-      { text: "WebSocket", link: "websocket" },
-      { text: "MQTT", link: "MQTT" },
-    ].map((item) => apply_prefix(item, Chapters.xrobot_platform)),
+      {
+        text: "语音通信",
+        link: "#",
+        collapsed: true,
+        items: [
+          { text: "WebSocket接入", link: "websocket" },
+          { text: "MQTT接入", link: "MQTT" },
+        ].map((item) => apply_prefix(item, Chapters.xrobot_platform)),
+      },
+      { text: "事件接入", link: "event-access" },
+    ].map((item) => {
+      // 对于有子项的分组，只对子项应用前缀
+      if (item.items && item.text === "语音通信") {
+        return item;
+      }
+      return apply_prefix(item, Chapters.xrobot_platform);
+    }),
   },
 ];
 
@@ -123,6 +137,8 @@ const items_xrobot_guide = [
       { text: "开源小智固件接入", link: "xiaozhi-firmware" },
       { text: "开源小智硬件接入", link: "xiaozhi-hardware" },
       { text: "平台小程序接入", link: "platform-mp" },
+      { text: "拍照功能", link: "camera-feature" },
+      { text: "客户端demo", link: "client-demo" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_guide)),
   },
 ];
