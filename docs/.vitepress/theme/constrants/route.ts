@@ -79,7 +79,7 @@ const items_xrobot_platform = [
       { text: "OTA 网关", link: "OTA" },
       { text: "WebSocket", link: "websocket" },
       { text: "MQTT", link: "MQTT" },
-      { text: "蓝牙配网(Blufi)", link: "blufi-config" },
+      { text: "蓝牙配网(BluFi)", link: "blufi-config" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_platform)),
   },
 ];
