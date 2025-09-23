@@ -48,6 +48,22 @@ title: 蓝牙配网 BluFi 协议规范
 
 ### 3.1 帧结构定义
 
+```mermaid
+block-beta
+    columns 5
+    Type["Type<br/>1 byte"]:1
+    FrameCtrl["FrameCtrl<br/>1 byte"]:1
+    SeqNum["SeqNum<br/>1 byte"]:1
+    Length["Length<br/>1 byte"]:1
+    Payload["Payload<br/>0-243 bytes"]:1
+    
+    style Type fill:#e1f5fe
+    style FrameCtrl fill:#f3e5f5
+    style SeqNum fill:#e8f5e8
+    style Length fill:#fff3e0
+    style Payload fill:#fce4ec
+```
+
 ```
 +--------+--------+--------+--------+--------+...+--------+
 | Type   |FrameCtrl| SeqNum | Length |      Payload     |
@@ -235,7 +251,71 @@ Payload: <状态数据>
 
 ## 5. 协议流程
 
-### 5.1 连接建立流程
+### 5.1 整体配网流程图
+
+<details>
+<summary>整体配网流程图</summary>
+
+```mermaid
+flowchart TD
+    A[开始配网] --> B[设备发现]
+    B --> C{找到目标设备?}
+    C -->|否| B
+    C -->|是| D[建立BLE连接]
+    D --> E{连接成功?}
+    E -->|否| F[连接失败]
+    E -->|是| G[发现GATT服务]
+    G --> H[启用特征值通知]
+    H --> I[协议初始化]
+    I --> J[发送WiFi扫描请求]
+    J --> K[接收WiFi列表]
+    K --> L[用户选择WiFi网络]
+    L --> M[发送SSID配置]
+    M --> N[发送密码配置]
+    N --> O[发送连接命令]
+    O --> P[等待状态报告]
+    P --> Q{连接状态?}
+    Q -->|成功| R[配网完成]
+    Q -->|失败| S[显示错误信息]
+    S --> T{重试?}
+    T -->|是| L
+    T -->|否| U[配网失败]
+    F --> U
+```
+
+</details>
+
+### 5.2 连接建立流程
+
+<details>
+<summary>连接建立流程图</summary>
+
+```mermaid
+sequenceDiagram
+    participant C as 客户端
+    participant D as 目标设备
+    
+    Note over C,D: 1. 设备发现阶段
+    D->>D: 开启BLE广播
+    C->>C: 扫描BLE设备
+    C->>C: 过滤目标设备(DTXZ*/BLUFI_DEVICE*/ESP_*)
+    C->>C: 选择目标设备
+    
+    Note over C,D: 2. GATT连接阶段
+    C->>D: 发起BLE连接请求
+    D->>C: 连接确认
+    C->>D: 发现GATT服务(0000FFFF-...)
+    D->>C: 返回服务信息
+    C->>D: 启用接收特征值通知(0000FF02-...)
+    D->>C: 通知启用确认
+    
+    Note over C,D: 3. 协议初始化阶段
+    C->>C: 重置序列号为0
+    C->>D: 建立数据通道
+    Note over C,D: 连接建立完成
+```
+
+</details>
 
 1. **设备发现**
    - 设备开启BLE广播
@@ -251,7 +331,42 @@ Payload: <状态数据>
    - 重置序列号
    - 建立数据通道
 
-### 5.2 WiFi配网流程
+### 5.3 WiFi配网流程
+
+```mermaid
+sequenceDiagram
+    participant C as 客户端
+    participant D as 目标设备
+    participant W as WiFi路由器
+    
+    Note over C,D: 1. WiFi扫描阶段
+    C->>D: WiFi扫描请求(Type:0x24)
+    D->>D: 扫描周围WiFi网络
+    D->>C: WiFi列表响应(Type:0x45)
+    C->>C: 解析WiFi列表
+    C->>C: 用户选择目标WiFi
+    
+    Note over C,D: 2. 配置传输阶段
+    C->>D: 发送SSID配置(Type:0x09)
+    D->>C: 确认接收
+    C->>D: 发送密码配置(Type:0x0D)
+    D->>C: 确认接收
+    C->>D: 发送连接命令(Type:0x0C)
+    
+    Note over D,W: 3. WiFi连接阶段
+    D->>W: 尝试连接WiFi网络
+    W->>D: 连接结果
+    
+    Note over C,D: 4. 状态监控阶段
+    D->>C: 状态报告(Type:0x3D)
+    C->>C: 解析连接结果
+    
+    alt 连接成功
+        Note over C,D: 配网完成
+    else 连接失败
+        Note over C,D: 显示错误，可重试
+    end
+```
 
 1. **WiFi扫描**
    - 发送WiFi扫描请求
@@ -290,6 +405,73 @@ Payload: <状态数据>
 - 接收端按序列号重组数据
 
 ## 7. 错误处理
+
+<details>
+<summary>错误处理流程图</summary>
+
+```mermaid
+flowchart TD
+    A[检测到错误] --> B{错误类型}
+    
+    B -->|连接错误| C[连接错误处理]
+    B -->|传输错误| D[传输错误处理]
+    B -->|配网错误| E[配网错误处理]
+    
+    C --> C1{设备未找到}
+    C --> C2{连接超时}
+    C --> C3{服务不可用}
+    C --> C4{连接中断}
+    
+    C1 -->|是| C1A[重新扫描设备]
+    C2 -->|是| C2A[增加超时时间重试]
+    C3 -->|是| C3A[检查设备兼容性]
+    C4 -->|是| C4A[尝试重新连接]
+    
+    D --> D1{写入失败}
+    D --> D2{数据丢失}
+    D --> D3{序列号错误}
+    D --> D4{超时无响应}
+    
+    D1 -->|是| D1A[检查连接状态]
+    D2 -->|是| D2A[重传数据包]
+    D3 -->|是| D3A[重置序列号]
+    D4 -->|是| D4A[延长等待时间]
+    
+    E --> E1{密码错误}
+    E --> E2{网络不存在}
+    E --> E3{连接超时}
+    E --> E4{设备忙碌}
+    
+    E1 -->|是| E1A[提示用户重新输入密码]
+    E2 -->|是| E2A[重新扫描WiFi网络]
+    E3 -->|是| E3A[检查网络信号强度]
+    E4 -->|是| E4A[等待后重试]
+    
+    C1A --> F{重试次数}
+    C2A --> F
+    C3A --> F
+    C4A --> F
+    D1A --> F
+    D2A --> F
+    D3A --> F
+    D4A --> F
+    E1A --> G[用户重新操作]
+    E2A --> G
+    E3A --> G
+    E4A --> F
+    
+    F -->|< 最大重试次数| H[继续重试]
+    F -->|>= 最大重试次数| I[报告错误并退出]
+    
+    H --> J[释放资源]
+    I --> J
+    G --> K[重新开始配网流程]
+    
+    J --> L[错误处理完成]
+    K --> L
+```
+
+</details>
 
 ### 7.1 连接错误
 

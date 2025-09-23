@@ -29,7 +29,10 @@ title:  灵矽AI小程序+后台解决方案
 
 可以由管理员在后台将智能体添加到智能体广场，用户可以在小程序中查看并使用这些智能体。
 
-<img src="./imgs/platform-mp/agent-square.jpg" class="img-center" alt="智能体广场" />
+| <img src="./imgs/platform-mp/agent-square.jpg" class="img-center" alt="智能体广场" style="zoom:33%;" /> |
+| ------------------------------------------------------------ |
+
+
 
 3. 设备管理
 
