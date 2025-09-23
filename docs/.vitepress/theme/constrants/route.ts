@@ -79,6 +79,7 @@ const items_xrobot_platform = [
       { text: "OTA 网关", link: "OTA" },
       { text: "WebSocket", link: "websocket" },
       { text: "MQTT", link: "MQTT" },
+      { text: "蓝牙配网(Blufi)", link: "blufi-config" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_platform)),
   },
 ];
@@ -122,7 +123,7 @@ const items_xrobot_guide = [
       { text: "快速入门", link: "quick-start" },
       { text: "开源小智固件接入", link: "xiaozhi-firmware" },
       { text: "开源小智硬件接入", link: "xiaozhi-hardware" },
-      { text: "平台小程序接入", link: "platform-mp" },
+      { text: "灵矽AI小程序+后台解决方案", link: "platform-mp" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_guide)),
   },
 ];
