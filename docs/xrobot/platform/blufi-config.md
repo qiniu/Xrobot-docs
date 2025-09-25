@@ -869,4 +869,4 @@ sequenceDiagram
 
 | 芯片组   | 链接                                                         |
 | -------- | ------------------------------------------------------------ |
-| esp32-c3 | [下载]([https://algorithm.qnaigc.com/xiaoling-rom/xiaoling-bread-compact-blufi.bin](https://github.com/sunqirui1987/linx_blue_xiaozi/blob/main/robot%E5%9B%BA%E4%BB%B6%E7%BC%96%E8%AF%91%E8%AF%B4%E6%98%8E.pdf)) |
+| esp32-c3 | [下载](https://github.com/sunqirui1987/linx_blue_xiaozi/blob/main/robot%E5%9B%BA%E4%BB%B6%E7%BC%96%E8%AF%91%E8%AF%B4%E6%98%8E.pdf) |
