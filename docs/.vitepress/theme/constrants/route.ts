@@ -77,8 +77,9 @@ const items_xrobot_platform = [
     collapsed: true,
     items: [
       { text: "OTA 网关", link: "OTA" },
-      { text: "WebSocket接入", link: "websocket接入" },
-      { text: "MQTT接入", link: "MQTT接入" },
+      { text: "WebSocket", link: "websocket" },
+      { text: "MQTT", link: "MQTT" },
+      { text: "蓝牙配网(BluFi)", link: "blufi-config" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_platform)),
   },
 ];
@@ -91,6 +92,8 @@ const items_xrobot_api = [
     items: [
       { text: "用户API", link: "user" },
       { text: "智能体API", link: "agent" },
+      { text: "大语言模型API", link: "llm" },
+      { text: "知识库API", link: "knowledge" },
       { text: "聊天记录API", link: "chat-history" },
       { text: "设备API", link: "device" },
       { text: "音色克隆API", link: "voice-clone" },
@@ -122,7 +125,7 @@ const items_xrobot_guide = [
       { text: "快速入门", link: "quick-start" },
       { text: "开源小智固件接入", link: "xiaozhi-firmware" },
       { text: "开源小智硬件接入", link: "xiaozhi-hardware" },
-      { text: "平台小程序接入", link: "platform-mp" },
+      { text: "灵矽AI小程序+后台解决方案", link: "platform-mp" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_guide)),
   },
 ];
