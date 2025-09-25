@@ -865,8 +865,8 @@ sequenceDiagram
 
 - [微信小程序文档 蓝牙使用](https://developers.weixin.qq.com/miniprogram/dev/framework/device/ble.html#_4-%E4%B8%AD%E5%BF%83%E8%AE%BE%E5%A4%87%E7%9A%84%E4%BD%BF%E7%94%A8%E6%B5%81%E7%A8%8B)
 
-## 12. 七牛官方固件
+## 12. 开源蓝牙固件
 
 | 芯片组   | 链接                                                         |
 | -------- | ------------------------------------------------------------ |
-| esp32-c3 | [下载](https://algorithm.qnaigc.com/xiaoling-rom/xiaoling-bread-compact-blufi.bin) |
+| esp32-c3 | [下载]([https://algorithm.qnaigc.com/xiaoling-rom/xiaoling-bread-compact-blufi.bin](https://github.com/sunqirui1987/linx_blue_xiaozi/blob/main/robot%E5%9B%BA%E4%BB%B6%E7%BC%96%E8%AF%91%E8%AF%B4%E6%98%8E.pdf)) |
