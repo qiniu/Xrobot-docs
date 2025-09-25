@@ -92,6 +92,8 @@ const items_xrobot_api = [
     items: [
       { text: "用户API", link: "user" },
       { text: "智能体API", link: "agent" },
+      { text: "大语言模型API", link: "llm" },
+      { text: "知识库API", link: "knowledge" },
       { text: "聊天记录API", link: "chat-history" },
       { text: "设备API", link: "device" },
       { text: "音色克隆API", link: "voice-clone" },
@@ -106,9 +108,9 @@ const items_xrobot_mcp = [
     collapsed: true,
     link: Chapters.xrobot_mcp,
     items: [
-      { text: "示例：音乐网盘", link: "example-music-pan" },
-      // { text: "硬件MCP", link: "hardware-mcp" },
-      // { text: "软件MCP", link: "software-mcp" },
+     
+      { text: "端侧MCP", link: "hardware-mcp" },
+      { text: "云端MCP", link: "software-mcp" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_mcp)),
   },
 ];
