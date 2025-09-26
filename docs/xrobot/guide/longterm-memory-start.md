@@ -177,8 +177,7 @@ curl -X PUT "https://api.example.com/v1/memories/mem_a1b2c3d4e5f6789" \
 
 ### 7.2 进阶学习资源
 
-- [长期记忆API文档](../api/longterm_memory.md) - 完整的API接口说明
-- [智能体配置指南](./agent-config.md) - 智能体与长期记忆集成
+- [长期记忆API文档](../api/longterm-memory.md) - 完整的API接口说明
 - [WebSocket协议文档](../platform/websocket.md) - 了解通信协议
 
 ---

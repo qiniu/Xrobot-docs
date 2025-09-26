@@ -464,8 +464,6 @@ curl -d '{"query": "用户登录流程和步骤", "retrieval_model": {"top_k": 5
 ### 8.2 进阶学习资源
 
 - [知识库API文档](../api/knowledge.md) - 完整的API接口说明
-- [智能体配置指南](./agent-config.md) - 智能体与知识库集成
-- [性能优化手册](./performance-tuning.md) - 深入的性能优化技巧
 
 ---
 
