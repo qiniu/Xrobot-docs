@@ -172,11 +172,24 @@ sequenceDiagram
 
 ### 2.2 设备识别
 
-**设备名称规则**: 设备名称应匹配以下模式之一：
+**设备名称规则**: 设备名称name应匹配以下模式之一：
 
 - `DTXZ*`
 - `BLUFI_DEVICE*`
 - `ESP_*`
+
+**设备MAC地址获取**: 设备在广播时发送，客户端与设备连接前获取：
+
+1. 通常可以直接通过广播发现设备时的数据包的deviceId获取
+2. 由于一些[安全机制](https://developers.weixin.qq.com/miniprogram/dev/framework/device/bluetooth.html)，IOS不适用第一条（无法正常获取设备MAC地址）
+
+    解决方案：约定将设备MAC地址设置在`localName`中，参考[微信小程序文档](https://developers.weixin.qq.com/miniprogram/dev/api/device/bluetooth/wx.onBluetoothDeviceFound.html)
+
+    mac地址格式可以是
+    - AA:BB:CC:DD:EE:FF
+    - AA-BB-CC-DD-EE-FF
+    - AABBCCDDEEFF
+    满足正则`/[0-9A-Fa-f]{2}([-:]?)[0-9A-Fa-f]{2}(?:\1[0-9A-Fa-f]{2}){4}$/`即可，建议直接使用第一种，设备与智能体绑定所使用的mac地址格式也为第一种。
 
 **连接模式**:
 
