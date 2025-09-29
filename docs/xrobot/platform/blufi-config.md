@@ -185,11 +185,12 @@ sequenceDiagram
 
     解决方案：约定将设备MAC地址设置在`localName`中，参考[微信小程序文档](https://developers.weixin.qq.com/miniprogram/dev/api/device/bluetooth/wx.onBluetoothDeviceFound.html)
 
-    mac地址格式可以是
+    MAC地址格式可以是
     - AA:BB:CC:DD:EE:FF
     - AA-BB-CC-DD-EE-FF
     - AABBCCDDEEFF
-    满足正则`/[0-9A-Fa-f]{2}([-:]?)[0-9A-Fa-f]{2}(?:\1[0-9A-Fa-f]{2}){4}$/`即可，建议直接使用第一种，设备与智能体绑定所使用的mac地址格式也为第一种。
+
+    满足正则`/[0-9A-Fa-f]{2}([-:]?)[0-9A-Fa-f]{2}(?:\1[0-9A-Fa-f]{2}){4}$/`即可(注意$)，建议直接使用第一种，设备与智能体绑定所使用的MAC地址格式也为第一种。
 
 **连接模式**:
 
