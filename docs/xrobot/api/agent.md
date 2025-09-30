@@ -292,7 +292,7 @@ Authorization: Bearer <token>
 {
   "agentCode": "AGT_1754966279238",
   "agentName": "123test",
-  "asrModelId": "ASR_FunASR",
+  "asrModelId": "ASR_DoubaoASR",
   "vadModelId": "VAD_SileroVAD",
   "llmModelId": "LLM_AliLLM",
   "vllmModelId": "VLLM_QwenVLVLLM",
