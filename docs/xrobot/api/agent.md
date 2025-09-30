@@ -121,7 +121,7 @@ const updateAgentParameters = [
         type: 'string',
         required: false,
         description: '语音识别模型ID',
-        example: 'ASR_FunASR'
+        example: 'ASR_DoubaoASR'
       },
       {
         name: 'vadModelId',
