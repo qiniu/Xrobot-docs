@@ -328,7 +328,7 @@ Authorization: Bearer <token>
 {
     "agentCode": "AGT_1750667902769",
     "agentName": "test-lf",
-    "asrModelId": "ASR_FunASR",
+    "asrModelId": "ASR_DoubaoASR",
     "vadModelId": "VAD_SileroVAD",
     "llmModelId": "954ae0e0ab9be05f90eedc43bd50aa2a",
     "vllmModelId": "VLLM_ChatGLMVLLM",
