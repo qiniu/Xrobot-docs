@@ -1,11 +1,19 @@
 # 声纹识别使用最佳实践指南
 
 ## 1. 概述
-
+### 1.1 声纹识别概述
 声纹识别是灵矽AI平台的核心生物识别功能，基于3D-Speaker模型提供高精度的身份认证和用户识别能力。本指南将帮助您快速掌握声纹识别的录制、注册和优化技巧，最大化发挥声纹识别的准确性和稳定性。
 支持声纹识别的价值：
 - **个性化服务**：基于声纹识别实现个性化用户体验
 - **语音对话体验**：防止人声随意打断的干扰
+
+### 1.2 使用教程
+<video controls width="100%" style="max-width: 800px; margin: 0 auto; display: block;" poster="./imgs/knowledge/v_1.png">
+  <source src="https://xrobot-storage.qnaigc.com/%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E7%B4%A0%E6%9D%90%28%E5%8B%BF%E5%88%A0%29/voiceprint.mov" type="video/mp4">
+  您的浏览器不支持视频标签。请点击 <a href="https://xrobot-storage.qnaigc.com/%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E7%B4%A0%E6%9D%90%28%E5%8B%BF%E5%88%A0%29/voiceprint.mov" target="_blank">这里</a> 观看视频。
+</video>
+
+
 
 ## 2. 快速开始
 
