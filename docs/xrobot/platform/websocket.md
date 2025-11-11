@@ -87,6 +87,7 @@ sprintf(extra_headers, sizeof(extra_headers),
 ### 步骤2：设备发送 Hello 消息
 
 连接成功后，设备端发送初始化消息告知服务器基本参数。
+* **`play_buffer_duration`**：设备音频播放缓冲区的时长（单位：毫秒），默认值为 1000。此值越大，服务器的音频发送策略越积极，播放体验更流畅。
 
 #### OPUS格式Hello消息
 
@@ -102,7 +103,8 @@ sprintf(extra_headers, sizeof(extra_headers),
     "format": "opus",
     "sample_rate": 16000,
     "channels": 1,
-    "frame_duration": 60
+    "frame_duration": 60,
+    "play_buffer_duration": 1000
   }
 }
 ```
@@ -125,7 +127,8 @@ sprintf(extra_headers, sizeof(extra_headers),
     "endianness": "little",
     "frame_duration": 20,
     "frame_size": 320,
-    "sample_format": "signed_int16"
+    "sample_format": "signed_int16",
+    "play_buffer_duration": 1000
   }
 }
 ```
@@ -150,7 +153,8 @@ sprintf(extra_headers, sizeof(extra_headers),
     "format": "opus",
     "sample_rate": 16000,
     "channels": 1,
-    "frame_duration": 60
+    "frame_duration": 60,
+    "play_buffer_duration": 1000
   }
 }
 ```
@@ -242,7 +246,8 @@ WebSocket 支持 **🎵 音频数据帧**（二进制方式）以及 **文本帧
     "format": "opus",
     "sample_rate": 16000,
     "channels": 1,
-    "frame_duration": 60
+    "frame_duration": 60,
+    "play_buffer_duration": 1000
   }
 }
 ```
@@ -300,7 +305,8 @@ WebSocket 支持 **🎵 音频数据帧**（二进制方式）以及 **文本帧
     "format": "opus",
     "sample_rate": 24000,
     "channels": 1,
-    "frame_duration": 60
+    "frame_duration": 60,
+    "play_buffer_duration": 1000
   }
 }
 ```
@@ -423,7 +429,8 @@ MCP（Model Control Protocol）是物联网控制的新一代协议，用于设�
        "format": "opus",
        "sample_rate": 16000,
        "channels": 1,
-       "frame_duration": 60
+       "frame_duration": 60,
+       "play_buffer_duration": 1000
      }
    }
    ```
@@ -436,7 +443,8 @@ MCP（Model Control Protocol）是物联网控制的新一代协议，用于设�
      "session_id": "xxx",
      "audio_params": {
        "format": "opus",
-       "sample_rate": 16000
+       "sample_rate": 16000,
+       "play_buffer_duration": 1000
      }
    }
    ```
