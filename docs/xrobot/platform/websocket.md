@@ -87,6 +87,7 @@ sprintf(extra_headers, sizeof(extra_headers),
 ### 步骤2：设备发送 Hello 消息
 
 连接成功后，设备端发送初始化消息告知服务器基本参数。
+* 'play_buffer_duration' 设备允许的音频播放缓冲区时长，单位毫秒，默认1000毫秒。设置的更大，服务器的音频发送策略会更激进，播放会更流畅。
 
 #### OPUS格式Hello消息
 
