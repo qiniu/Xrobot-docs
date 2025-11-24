@@ -40,6 +40,6 @@ docker rm xrobot-docs
 
 运行新的docker服务
 ```shell
-docker run --name xrobot-docs -d -p 4173:4173 xrobot-docs:$TAG
+docker run --name xrobot-docs -d -p 4173:4173 --restart=always xrobot-docs:$TAG
 ```
 
