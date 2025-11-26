@@ -27,6 +27,7 @@ POST /api/ota/
 - Activation-Version: 激活版本（必需，设备芯片 efuse 区是否存储了有效的序列号，有则"2"，无则"1"）
 - Device-Id: 设备的唯一标识符（必需，使用 MAC 地址或由硬件 ID 生成的伪 MAC 地址）
 - Client-Id: 客户端的唯一标识符，由软件自动生成的 UUID v4（必需，擦除 FLASH 或重装后会变化）
+- Serial-Number: 设备的序列号（可选，如果设备通过序列号预注册的，则必须传入序列号）
 - User-Agent: 客户端的名字和版本号（必需，例如 esp-box-3/1.5.6）
 - Accept-Language: 客户端的当前语言（可选，例如 zh-CN）
 
@@ -36,7 +37,7 @@ POST /api/ota/
 - application: 包含设备当前固件版本信息的对象（必需）
   - version: 当前固件版本号
   - elf_sha256: 用于校验固件文件完整性 Hash
-- mac_address: MAC 地址（可选，与 HTTP header 里的 device-id 一致）
+- mac_address: MAC 地址（必需，注意：此字段的值必须与 HTTP 请求头中的 Device-Id 字段完全一致）
 - uuid: ClientId（可选，与 HTTP header 里的 client-id 一致）
 - chip_model_name: 设备的芯片型号，例如 esp32s3（可选）
 - flash_size: 设备的闪存大小（可选）
@@ -80,7 +81,7 @@ POST https://xrobo.qiniuapi.com/v1/ota/
 Host: xrobo.qiniuapi.com
 Accept-Language: zh-CN
 Content-Type: application/json
-Device-Id: D4:06:06:B6:A9:FB
+Device-Id: D4:06:06:B6:A9:FA
 Client-Id: web_test_client
 ```
 
