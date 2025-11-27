@@ -399,6 +399,14 @@ WebSocket 支持 **🎵 音频数据帧**（二进制方式）以及 **文本帧
 }
 ```
 
+##### 5. Notify 消息
+```json
+{
+    "type": "notify",
+    "event": "config_updated" // 智能体配置已更新，建议设备重新连接生效
+}
+```
+
 ### 2. MCP 相关消息
 
 MCP（Model Control Protocol）是物联网控制的新一代协议，用于设备能力发现、状态同步和控制指令。
