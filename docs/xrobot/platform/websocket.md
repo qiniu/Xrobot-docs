@@ -260,13 +260,15 @@ WebSocket 支持 **🎵 音频数据帧**（二进制方式）以及 **文本帧
   "session_id": "session_12345",
   "type": "listen",
   "state": "start",   // "start": 开始监听, "stop": 结束监听, "detect": 唤醒词检测
-  "mode": "manual"    // 支持"manual"、"auto"模式
+  "mode": "realtime"    // 支持"manual"、"auto"、"realtime"模式，推荐使用realtime
 }
 ```
 
 **监听模式说明：**
-- **manual**: 手动触发模式，设备端主动控制
-- **⚡ auto**: 自动触发模式，全双工，检测到语音则打断AI说话
+- **manual**: 手动触发模式，设备端可以按键控制
+- **auto**:   唤醒词触发模式，设备端发送唤醒词打断
+- **realtime**: 自由对话模式， 全双工，检测到语音则打断AI说话
+
 
 ##### 3. Abort 消息
 终止当前说话（TTS播放）或语音通道。
