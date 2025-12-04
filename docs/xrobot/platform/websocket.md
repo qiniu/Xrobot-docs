@@ -402,6 +402,28 @@ WebSocket 支持 **🎵 音频数据帧**（二进制方式）以及 **文本帧
 ```
 
 ##### 5. Notify 消息
+设备需要在 hello 消息的 features 字段中声明对 notify 事件的支持：
+```json
+{
+	  "type": "hello",
+	  "version": 1,
+	  "features": {
+	    "mcp": true,
+	    "notify": {
+	      "config_updated": true
+	    }
+	  },
+	  "transport": "websocket",
+	  "audio_params": {
+	    "format": "opus",
+	    "sample_rate": 16000,
+	    "channels": 1,
+	    "frame_duration": 60,
+	    "play_buffer_duration": 1000
+	  }
+}
+```
+然后智能体配置更新后，服务端会向设备端发送配置更新的通知
 ```json
 {
     "type": "notify",
