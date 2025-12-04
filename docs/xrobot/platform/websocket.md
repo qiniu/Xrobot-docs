@@ -402,7 +402,7 @@ WebSocket 支持 **🎵 音频数据帧**（二进制方式）以及 **文本帧
 ```
 
 ##### 5. Notify 消息
-设备需要 在hello 消息中通过 features 字段中的Notify中声明支持配置更新通知
+设备需要在 hello 消息的 features 字段中声明对 notify 事件的支持：
 ```json
 {
 	  "type": "hello",
