@@ -12,7 +12,27 @@ const getListHeaders = [
   { name: 'Authorization', value: 'Bearer <token>', required: true, description: '用户认证令牌，格式为 Bearer + 空格 + token' }
 ]
 
-const getAgentListRequest = `GET /xiaozhi/agent/list HTTP/1.1
+// 获取智能体列表 - 参数定义
+const getAgentListParameters = [
+  {
+    name: 'limit',
+    in: 'query',
+    type: 'integer',
+    required: false,
+    description: '单页数量，默认20，范围1-100',
+    example: '20'
+  },
+  {
+    name: 'cursor',
+    in: 'query',
+    type: 'string',
+    required: false,
+    description: '游标（上页最后一条ID，32位小写hex，格式：[a-f0-9]{32}）',
+    example: '4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d'
+  }
+]
+
+const getAgentListRequest = `GET /xiaozhi/agent/list?limit=20&cursor=4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d HTTP/1.1
 Host: https://xrobo.qiniu.com
 Authorization: Bearer <token>`
 
@@ -22,34 +42,60 @@ const getAgentListResponse = `{
   "msg": "success",
   "data": [
     {
-      "id": "31dad2a8042a40ec879ef92a7bc240ae",
-      "agentName": "1",
+      "id": "4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d",
+      "agentName": "小智助手",
       "ttsModelName": "",
       "ttsVoiceName": "豪放可爱女",
       "llmModelName": "qwen3极速版",
       "vllmModelName": "智谱视觉AI",
       "memModelId": "Memory_mem_local_short",
-      "systemPrompt": "[整体人设指导]\\n核心原则:你是一个名为\\"{{assistant_name}}\\"的AI助手，你的所有输出和行为都......",
+      "systemPrompt": "[整体人设指导]\\n核心原则:你是一个名为\\\"{{assistant_name}}\\\"的AI助手，你的所有输出和行为都......",
       "summaryMemory": null,
-      "lastConnectedAt": null,
-      "deviceCount": 0,
+      "lastConnectedAt": "2024-03-20 10:00:00",
+      "deviceCount": 5,
       "extra": null
-    },
+    }
+  ],
+  "nextCursor": "5a1b2c3d4e5f67890123456789abcdef"
+}`
+
+// 搜索智能体 - 参数定义
+const searchAgentParameters = [
+  {
+    name: 'q',
+    in: 'query',
+    type: 'string',
+    required: true,
+    description: '搜索前缀（前缀匹配，例如搜索"小智"可命中"小智助手"）',
+    example: '小智'
+  }
+]
+
+const searchAgentRequest = `GET /xiaozhi/agent/search?q=小智 HTTP/1.1
+Host: https://xrobo.qiniu.com
+Authorization: Bearer <token>`
+
+// 搜索智能体 - 响应示例
+const searchAgentResponse = `{
+  "code": 0,
+  "msg": "success",
+  "data": [
     {
-      "id": "835000b451d449a2b5392ee9f66d0498",
-      "agentName": "123",
+      "id": "4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d",
+      "agentName": "小智助手",
       "ttsModelName": "",
-      "ttsVoiceName": "湾湾小何",
+      "ttsVoiceName": "豪放可爱女",
       "llmModelName": "qwen3极速版",
       "vllmModelName": "智谱视觉AI",
       "memModelId": "Memory_mem_local_short",
-      "systemPrompt": "[角色设定]\\n你是{{assistant_name}}，来自中国台湾省的00后女生...",
+      "systemPrompt": "[整体人设指导]\\n核心原则:你是一个名为\\\"{{assistant_name}}\\\"的AI助手，你的所有输出和行为都......",
       "summaryMemory": null,
-      "lastConnectedAt": null,
-      "deviceCount": 0,
+      "lastConnectedAt": "2024-03-20 10:00:00",
+      "deviceCount": 5,
       "extra": null
     }
-  ]
+  ],
+  "nextCursor": null
 }`
 
 // 创建智能体 - 参数定义
@@ -405,21 +451,117 @@ Authorization: Bearer <token>
 
 ## API列表
 
-### 获取用户智能体列表
+### 获取用户智能体列表（支持分页）
 
 <ApiEndpoint
   host="https://xrobo.qiniu.com"
   basePath="/xiaozhi"
   endpoint="/agent/list"
   method="get"
-  title="获取用户智能体列表"
-  description="获取当前用户的所有智能体列表，包含智能体的基本信息和配置状态"
-  :parameters="[]"
+  title="获取用户智能体列表（支持分页）"
+  description="获取当前用户的智能体列表，支持分页查询。包含智能体的基本信息和配置状态"
+  :parameters="getAgentListParameters"
   :headers="getListHeaders"
   :requestExample="getAgentListRequest"
   :responseExample="getAgentListResponse"
   :statusCodes="getListStatusCodes"
 />
+
+::: info 分页规则说明
+**默认行为**：
+- `limit` 和 `cursor` 都不传：返回全量列表（兼容旧版本），`nextCursor` 为 `null`
+- 只传 `cursor`：`limit` 默认为 20
+- `limit <= 0`：自动修正为 20
+- `limit > 100`：自动修正为 100
+
+**游标说明**：
+- `nextCursor` 为 `null` 表示无更多数据
+- 游标格式为32位小写十六进制字符串（如：`4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d`）
+:::
+
+::: details 分页使用示例
+
+**示例1：获取全量列表（兼容模式）**
+```http
+GET /xiaozhi/agent/list
+```
+返回全量列表，`nextCursor` 为 `null`
+
+**示例2：首页查询**
+```http
+GET /xiaozhi/agent/list?limit=20
+```
+获取前20条记录
+
+**示例3：翻页查询**
+```http
+GET /xiaozhi/agent/list?limit=20&cursor=4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d
+```
+从指定游标位置继续获取20条记录
+
+**示例4：参数自动修正**
+```http
+GET /xiaozhi/agent/list?limit=0
+# 服务端自动修正为 limit=20
+
+GET /xiaozhi/agent/list?limit=1000
+# 服务端自动修正为 limit=100
+```
+
+**示例5：无效游标的错误响应**
+```http
+GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
+```
+```json
+{
+  "code": 500,
+  "msg": "无效的游标参数",
+  "data": null
+}
+```
+
+**示例6：数据已全部获取**
+```json
+{
+  "code": 0,
+  "msg": "success",
+  "data": [],
+  "nextCursor": null
+}
+```
+:::
+
+### 搜索智能体
+
+<ApiEndpoint
+  host="https://xrobo.qiniu.com"
+  basePath="/xiaozhi"
+  endpoint="/agent/search"
+  method="get"
+  title="搜索智能体"
+  description="按名称前缀匹配搜索智能体，当前为全量返回搜索结果"
+  :parameters="searchAgentParameters"
+  :headers="getListHeaders"
+  :requestExample="searchAgentRequest"
+  :responseExample="searchAgentResponse"
+  :statusCodes="searchAgentStatusCodes"
+/>
+
+::: warning 前缀匹配规则
+搜索采用**前缀匹配**方式（SQL逻辑等价于：`agent_name LIKE 'q%'`）
+
+- ✅ 搜索 `"小智"` 可以命中 `"小智助手"`
+- ✅ 搜索 `"小"` 可以命中 `"小智助手"`
+- ❌ 搜索 `"助手"` **无法**命中 `"小智助手"`（因为不是前缀）
+
+**使用建议**：从名称开头开始搜索才能匹配到结果
+:::
+
+::: info 搜索返回说明
+- 当前版本搜索结果为全量返回
+- `nextCursor` 固定为 `null`
+- 未来可能支持分页，届时会提供游标机制
+:::
 
 ::: info
 创建智能体时只需提供名称，其他配置可后续通过更新接口修改
