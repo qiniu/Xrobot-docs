@@ -427,6 +427,52 @@ const unauthorizedResponse = `{
   "msg": "未登录",
   "data": []
 }`
+
+// 更新设备智能体 - 参数定义
+const updateDeviceAgentParameters = [
+  {
+    name: 'mac_address',
+    type: 'string',
+    in: 'path',
+    required: true,
+    description: '设备 MAC 地址',
+    example: 'AA:BB:CC:DD:EE:FF'
+  },
+  {
+    name: 'agent_id',
+    type: 'string',
+    in: 'path',
+    required: true,
+    description: '智能体 ID（32位小写hex，对应 /agent/list、/agent/search 返回的 id 字段）',
+    example: '4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d'
+  }
+]
+
+const updateDeviceAgentRequest = `PUT /v1/devices/AA:BB:CC:DD:EE:FF/agent/4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d HTTP/1.1
+Host: https://xrobo.qiniu.com
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{}`
+
+const updateDeviceAgentResponse = `{
+  "code": 0,
+  "msg": "success",
+  "data": {}
+}`
+
+const updateDeviceAgentErrorResponse = `{
+  "code": 403,
+  "msg": "无权限操作该设备",
+  "data": null
+}`
+
+const updateDeviceAgentStatusCodes = [
+  { code: 0, description: 'OK - 操作成功', schema: 'ResultVoid' },
+  { code: 401, description: 'Unauthorized - 未登录或token无效', schema: 'ErrorResponse' },
+  { code: 403, description: 'Forbidden - 无权限操作该设备', schema: 'ErrorResponse' },
+  { code: 500, description: 'Internal Server Error - 服务端异常', schema: 'ErrorResponse' }
+]
 </script>
 
 ## 认证说明
@@ -621,6 +667,26 @@ GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
 
 ::: warning
 删除操作不可逆，请确认后再执行
+:::
+
+### 更新设备智能体
+
+<ApiEndpoint
+  host="https://xrobo.qiniu.com"
+  basePath="/v1"
+  endpoint="/devices/{mac_address}/agent/{agent_id}"
+  method="put"
+  title="更新设备智能体"
+  description="切换指定设备绑定的智能体。接口在更新设备表 ai_device.agent_id 的同时，会将该设备在 ai_agent_chat_history 中的 agent_id 一并更新为新的智能体 ID，保证历史聊天记录与当前智能体保持一致"
+  :parameters="updateDeviceAgentParameters"
+  :headers="commonHeaders"
+  :requestExample="updateDeviceAgentRequest"
+  :responseExample="updateDeviceAgentResponse"
+  :statusCodes="updateDeviceAgentStatusCodes"
+/>
+
+::: info
+此接口用于将设备切换绑定到不同的智能体
 :::
 
 ## 其他说明项
