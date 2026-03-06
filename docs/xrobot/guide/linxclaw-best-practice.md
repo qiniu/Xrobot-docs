@@ -40,15 +40,15 @@
 
 5. 部署后，启动服务LinxClaw
 
-| 项目 | 说明 |
-|------|------|
-| IP 地址 | LAS 实际实例 IP |
-| 端口 | 8088 |
-| 控制台地址 | `http://<LAS实例IP>:8088/chat` |
+   | 项目 | 说明 |
+   |------|------|
+   | IP 地址 | LAS 实际实例 IP |
+   | 端口 | 8088 |
+   | 控制台地址 | `http://<LAS实例IP>:8088/chat` |
 
-浏览器访问控制台:
+   浏览器访问控制台:
 
-![图 3](./imgs/linxclaw4.png)  
+   ![图 3](./imgs/linxclaw4.png)  
 
 ---
 
@@ -73,6 +73,8 @@
 在[灵矽平台](https://xrobo.qiniu.com/#)  的[我的模型](https://xrobo.qiniu.com/#/llm-edit)中，添加自定义模型。
    
    ![图 1](./imgs/linxclaw2.png)
+   
+   图中所需的参数从以下途经获得：
    1.1. **确定 API 地址**：
    - http://<LAS实例IP>:8088
 
@@ -95,42 +97,6 @@
 
 在[灵矽平台](https://xrobo.qiniu.com/#)智能体中选择模型，验证对话效果 
    ![图 4](./imgs/linxclaw5.png)  
-
-
-
-### 交互流程图
-
-```mermaid
-flowchart TD
-    A[设备] -->|语音/文字消息| B(灵矽平台)
-    B -->|ASR 语音转文字| C{消息处理}
-    C -->|转发文字消息| D[LinxClaw]
-    
-    D -->|执行工具调用| E[工具执行层]
-    E -->|调用外部服务/API| F[外部服务]
-    F -->|返回执行结果| E
-    E -->|返回结果| D
-    
-    D -->|处理结果| G[灵矽平台]
-    G -->|TTS 文字转语音| H[设备]
-    
-    style A fill:#e1f5fe,stroke:#01579b
-    style B fill:#fff3e0,stroke:#e65100
-    style D fill:#e8f5e9,stroke:#2e7d32
-    style E fill:#fce4ec,stroke:#c2185b
-    style F fill:#f3e5f5,stroke:#7b1fa2
-    style G fill:#fff3e0,stroke:#e65100
-    style H fill:#e1f5fe,stroke:#01579b
-```
-
-**流程说明**：
-
-1. **设备发送消息**：用户通过语音或文字向设备发送请求
-2. **灵矽平台处理**：灵矽平台接收消息，通过 ASR 将语音转换为文字
-3. **转发至 LinxClaw**：灵矽平台将文字消息通过 OpenAI 兼容 API 转发给 LinxClaw
-4. **工具执行**：LinxClaw 分析意图，调用相应的工具或外部服务执行任务
-5. **返回结果**：执行完成后，结果返回给灵矽平台
-6. **响应设备**：灵矽平台将结果通过 TTS 转换为语音，回复给设备
 
 ---
 
