@@ -73,8 +73,9 @@
 在[灵矽平台](https://xrobo.qiniu.com/#)  的[我的模型](https://xrobo.qiniu.com/#/llm-edit)中，添加自定义模型。
    
    ![图 1](./imgs/linxclaw2.png)
-   
+
    图中所需的参数从以下途经获得：
+
    1.1. **确定 API 地址**：
    - http://<LAS实例IP>:8088
 
@@ -89,9 +90,10 @@
      **选择模型**
      ![图 11](./imgs/linxclaw04.png)  
 
-   1.3 **获取apikey**
-      同样在LinxClaw 控制台中配置，如下
-     ![图 12](./imgs/linxclaw06.png)  
+   1.3. **获取apikey**
+
+ ![图 0](./imgs/linxclaw06.png)  
+
 
 #### 步骤二、对话中选择Linxclaw
 
