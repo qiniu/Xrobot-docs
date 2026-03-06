@@ -136,7 +136,7 @@ const items_xrobot_guide = [
       { text: "声纹识别最佳实践", link: "voice-start" },
       { text: "拍照功能", link: "camera-feature" },
       { text: "客户端demo", link: "client-demo" },
-      { text: "接入openclaw/linxclaw", link: "openclaw-best-practice" },
+      { text: "接入linxclaw", link: "linxclaw-best-practice" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_guide)),
   },
 ];
