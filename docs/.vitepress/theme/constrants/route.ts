@@ -81,6 +81,7 @@ const items_xrobot_platform = [
       { text: "MQTT", link: "MQTT" },
       { text: "Wi-Fi 配网", link: "wifi-config" },
       { text: "蓝牙配网(BluFi)", link: "blufi-config" },
+      { text: "设备切换智能体和音色", link: "agent-voice-switch" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_platform)),
   },
 ];

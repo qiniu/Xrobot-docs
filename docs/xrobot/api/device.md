@@ -375,6 +375,146 @@ const preregisterDeviceStatusCodes = [
   //   { code: 404, description: '智能体不存在' },
   //   { code: 500, description: '服务器内部错误' }
 ];
+
+// 查询预注册设备列表 API
+const listPreRegPathParams = [
+  {
+    name: "agent_id",
+    type: "string",
+    required: true,
+    location: "path",
+    description: "智能体ID，用于指定要查询预注册设备的智能体",
+  },
+];
+
+const listPreRegQueryParams = [
+  {
+    name: "cursor",
+    type: "string",
+    required: false,
+    location: "query",
+    description: "游标（上一页最后一条记录的 id），为空表示从第一页开始",
+  },
+  {
+    name: "limit",
+    type: "number",
+    required: false,
+    location: "query",
+    description: "每页条数，默认 100",
+  },
+];
+
+const listPreRegHeaders = [
+  {
+    name: "Authorization",
+    type: "string",
+    required: true,
+    description: "Bearer token，用户认证令牌",
+  },
+];
+
+const listPreRegResponse = `{
+  "code": 0,
+  "msg": "success",
+  "data": {
+    "devices": [
+      {
+        "id": "abc123def456",
+        "agent_id": "4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d",
+        "mac_address": "00:1A:2B:3C:4D:5E",
+        "serial_number": "SN123456",
+        "status": 0,
+        "created_at": "2026-04-03 10:00:00",
+        "updated_at": "2026-04-03 10:00:00"
+      }
+    ],
+    "next_cursor": "下一页游标"
+  }
+}`;
+
+const listPreRegStatusCodes = [
+  { code: 0, description: "成功获取预注册设备列表" },
+  { code: 401, description: "未授权，token无效或已过期" },
+  { code: 404, description: "智能体不存在" },
+  { code: 500, description: "服务器内部错误" },
+];
+
+// 通过 MAC 地址查询预注册设备 API
+const getPreRegByMacPathParams = [
+  {
+    name: "mac_address",
+    type: "string",
+    required: true,
+    location: "path",
+    description: "MAC 地址（格式：1a:2b:3c:4d:5e:6f）",
+  },
+];
+
+const getPreRegByMacHeaders = [
+  {
+    name: "Authorization",
+    type: "string",
+    required: true,
+    description: "Bearer token，用户认证令牌",
+  },
+];
+
+const getPreRegByMacResponse = `{
+  "code": 0,
+  "msg": "success",
+  "data": {
+    "id": "abc123def456",
+    "agent_id": "4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d",
+    "mac_address": "00:1A:2B:3C:4D:5E",
+    "serial_number": "",
+    "status": 0,
+    "created_at": "2026-04-03 10:00:00",
+    "updated_at": "2026-04-03 10:00:00"
+  }
+}`;
+
+const getPreRegByMacStatusCodes = [
+  { code: 0, description: "成功获取预注册设备" },
+  { code: 400, description: "参数格式错误（如 MAC 地址格式不正确）" },
+  { code: 401, description: "未授权，token无效或已过期" },
+  { code: 404, description: "设备未找到" },
+  { code: 500, description: "服务器内部错误" },
+];
+
+// 删除预注册设备 API
+const deletePreRegPathParams = [
+  {
+    name: "mac_address",
+    type: "string",
+    required: true,
+    location: "path",
+    description: "MAC 地址（格式：1a:2b:3c:4d:5e:6f）",
+  },
+];
+
+const deletePreRegHeaders = [
+  {
+    name: "Authorization",
+    type: "string",
+    required: true,
+    description: "Bearer token，用户认证令牌",
+  },
+];
+
+const deletePreRegResponse = `{
+  "code": 0,
+  "msg": "success",
+  "data": {}
+}`;
+
+const deletePreRegStatusCodes = [
+  { code: 0, description: "删除成功" },
+  { code: 400, description: "参数格式错误（如 MAC 地址格式不正确）" },
+  { code: 401, description: "未授权，token无效或已过期" },
+  { code: 403, description: "无权限操作该设备" },
+  { code: 404, description: "设备未找到" },
+  { code: 500, description: "服务器内部错误" },
+];
 </script>
 
 ## 1. 获取已绑定设备
@@ -469,6 +609,51 @@ const preregisterDeviceStatusCodes = [
   :requestExample="preregisterDeviceRequest"
   :responseExample="preregisterDeviceSuccessResponse"
   :statusCodes="preregisterDeviceStatusCodes"
+/>
+
+## 5. 查询预注册设备列表
+
+<ApiEndpoint
+  host="https://xrobo.qiniu.com"
+  basePath="/v1/pre-register"
+  endpoint="/agents/{agent_id}/devices"
+  method="get"
+  title="查询预注册设备列表"
+  description="获取指定智能体下所有预注册设备的列表，支持分页查询。"
+  :parameters="[...listPreRegPathParams, ...listPreRegQueryParams]"
+  :headers="listPreRegHeaders"
+  :responseExample="listPreRegResponse"
+  :statusCodes="listPreRegStatusCodes"
+/>
+
+## 6. 通过 MAC 地址查询预注册设备
+
+<ApiEndpoint
+  host="https://xrobo.qiniu.com"
+  basePath="/v1/pre-register"
+  endpoint="/devices/mac-address/{mac_address}"
+  method="get"
+  title="通过 MAC 地址查询预注册设备"
+  description="根据 MAC 地址查询预注册设备的详细信息。"
+  :parameters="getPreRegByMacPathParams"
+  :headers="getPreRegByMacHeaders"
+  :responseExample="getPreRegByMacResponse"
+  :statusCodes="getPreRegByMacStatusCodes"
+/>
+
+## 7. 删除预注册设备
+
+<ApiEndpoint
+  host="https://xrobo.qiniu.com"
+  basePath="/v1/pre-register"
+  endpoint="/devices/mac-address/{mac_address}"
+  method="delete"
+  title="删除预注册设备"
+  description="根据 MAC 地址删除预注册设备。"
+  :parameters="deletePreRegPathParams"
+  :headers="deletePreRegHeaders"
+  :responseExample="deletePreRegResponse"
+  :statusCodes="deletePreRegStatusCodes"
 />
 
 ## 设备实体结构
