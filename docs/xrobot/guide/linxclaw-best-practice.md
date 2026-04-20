@@ -4,8 +4,6 @@
 
 [灵矽平台](https://xrobo.qiniu.com/#) 通过深度集成 **LinxClaw** ，实现了 AI 能力从“语音对话”到“系统级闭环行动”的质变。LinxClaw 作为强大的 Agent 宿主，能将大模型的能力边界扩展至网页自动化、API 调度及复杂任务流执行。
 
----
-
 ## 第一步：部署 LinxClaw （基于七牛云 LAS）
 
 推荐使用七牛云全栈应用服务器（[LAS](https://developer.qiniu.com/las)）进行部署，其 Serverless 架构相比传统硬件部署不仅成本极低（约 1/500），且支持镜像一键直达。
