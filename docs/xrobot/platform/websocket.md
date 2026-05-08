@@ -299,7 +299,7 @@ WebSocket 支持 **🎵 音频数据帧**（二进制方式）以及 **文本帧
 **使用示例：**
 提示词配置参数:
 ```
-你是{{assistant_name}}，一个智能助手。
+你是{{assistant_title}}，一个智能助手。
 当前用户是{{user_name}}，所在地点是{{location}}。
 今天是{{date}}，天气{{weather}}。
 请根据这些信息与用户进行个性化交互。
@@ -311,7 +311,7 @@ hello消息（包含智能体提示词替换参数）:
   "transport": "websocket",
   "agent_params": {
     "custom_replace_prompt": {
-      "assistant_name": "小牛牛",
+      "assistant_title": "小牛牛", //备注：不要用assistant_name,这个变量已经被占用
       "user_name": "张三",
       "location": "北京",
       "date": "2024年12月1日",
