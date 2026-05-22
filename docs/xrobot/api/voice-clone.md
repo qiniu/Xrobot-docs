@@ -6,11 +6,27 @@ title: 音色克隆API
 // 创建音色栏位 API
 const createVoiceCloneBodyParams = [
   {
+    name: 'language',
+    type: 'string',
+    required: false,
+    location: 'body',
+    description: '音色语言，默认为 "zh"。免费版仅支持 zh(中文) 和 en(英语)，其他语言需使用 pro(付费) 版本：ja(日语), ko(韩语), es(西班牙语), pt(葡萄牙语), id(印尼语), de(德语), fr(法语), ar(阿拉伯语), hi(印地语), it(意大利语), tr(土耳其语), yue(粤语)',
+    example: 'zh'
+  },
+  {
+    name: 'tier',
+    type: 'string',
+    required: false,
+    location: 'body',
+    description: '付费等级，默认为 "free"，支持以下等级：free(免费), pro(付费)',
+    example: 'free'
+  },
+  {
     name: 'model_id',
     type: 'string',
-    required: true,
+    required: false,
     location: 'body',
-    description: '音色模型ID，固定值为 "QN_ACV"',
+    description: '参数已弃用，传入无影响',
     example: 'QN_ACV'
   }
 ]
@@ -33,20 +49,21 @@ const createVoiceCloneHeaders = [
 ]
 
 const createVoiceCloneRequest = `{
-  "model_id": "QN_ACV"
+  "language": "zh",
+  "tier": "free"
 }`
 
 const createVoiceCloneResponse = `{
-  "code": 0,
-  "msg": "",
-  "reqid": "req_12345678",
-  "data": {
-    "id": "voice_clone_abc123",
-    "name": "复刻音色-A1B2C",
-    "language": "",
-    "demo_url": "",
-    "state": "Init"
-  }
+    "code": 0,
+    "reqid": "0zooABHhub9fUgYA",
+    "data": {
+        "id": "95da00f77ad24c5ea246618b2a678cc6",
+        "name": "复刻音色-78cc6",
+        "language": "zh",
+        "demo_url": "",
+        "state": "Init",
+        "tier": "free"
+    }
 }`
 
 const createVoiceCloneStatusCodes = [
@@ -113,16 +130,16 @@ const trainVoiceCloneRequest = `{
 }`
 
 const trainVoiceCloneResponse = `{
-  "code": 0,
-  "msg": "",
-  "reqid": "req_12345678",
-  "data": {
-    "id": "voice_clone_abc123",
-    "name": "我的专属音色",
-    "language": "zh",
-    "demo_url": "https://example.com/demo.wav",
-    "state": "Training"
-  }
+    "code": 0,
+    "reqid": "-qM3AFjdjsVfUgYA",
+    "data": {
+        "id": "f54b728eb9eb4faf960d82fdfcc6403a",
+        "name": "复刻音色-6403a",
+        "language": "zh",
+        "demo_url": "https://example.com/demo.wav",
+        "state": "Training",
+        "tier": "free"
+    }
 }`
 
 const trainVoiceCloneStatusCodes = [
@@ -164,7 +181,8 @@ const getVoiceCloneResponse = `{
     "name": "我的专属音色",
     "language": "zh",
     "demo_url": "https://example.com/demo.wav",
-    "state": "Success"
+    "state": "Success",
+    "tier": "free"
   }
 }`
 
@@ -197,14 +215,16 @@ const listVoiceClonesResponse = `{
         "name": "我的专属音色",
         "language": "zh",
         "demo_url": "https://example.com/demo1.wav",
-        "state": "Success"
+        "state": "Success",
+        "tier": "free"
       },
       {
         "id": "voice_clone_def456",
         "name": "复刻音色-X9Y8Z",
         "language": "",
         "demo_url": "",
-        "state": "Training"
+        "state": "Training",
+        "tier": "pro"
       }
     ]
   }
@@ -248,6 +268,7 @@ const deleteVoiceCloneResponse = `{
 const deleteVoiceCloneStatusCodes = [
   { code: 0, description: '删除成功' },
   { code: 401, description: '未授权访问' },
+  { code: 403, description: '付费音色栏位不可删除' },
   { code: 404, description: '音色不存在' },
   { code: 500, description: '服务器内部错误' }
 ]
@@ -270,7 +291,7 @@ const deleteVoiceCloneStatusCodes = [
   endpoint="/v1/voice-clones"
   method="post"
   title="创建音色栏位"
-  description="创建一个新的音色栏位，为后续的音色训练做准备。创建成功后会返回音色ID和默认名称。"
+  description="创建一个新的音色栏位，为后续的音色训练做准备。创建成功后会返回音色ID和默认名称。(注意：音色栏位创建后，语言不可修改！)"
   :parameters="createVoiceCloneBodyParams"
   :headers="createVoiceCloneHeaders"
   :requestExample="createVoiceCloneRequest"
@@ -296,9 +317,10 @@ const deleteVoiceCloneStatusCodes = [
 
 ::: info
 
-1. **音色名称限制**: 音色名称最多20个字符，汉字、字母、数字都算作一个字符
-2. **音频文件要求**: 训练音频建议时长在10-60秒之间，音质清晰，无背景噪音
-3. **训练时间**: 音色训练通常需要几分钟到十几分钟，请耐心等待
+1. **付费复刻**: 付费音色栏位在进行音色复刻时，会消耗复刻音色额度！（仅更新名称时不会消耗）
+2. **音色名称限制**: 音色名称最多20个字符，汉字、字母、数字都算作一个字符
+3. **音频文件要求**: 训练音频建议时长在10-60秒之间，音质清晰，无背景噪音
+4. **训练时间**: 音色训练通常需要几分钟到十几分钟，请耐心等待
 :::
 
 ## 3. 获取音色信息
@@ -342,7 +364,7 @@ const deleteVoiceCloneStatusCodes = [
   endpoint="/v1/voice-clones/{id}"
   method="delete"
   title="删除音色"
-  description="删除指定的音色克隆。删除后该音色将无法恢复，请谨慎操作。"
+  description="删除指定的音色克隆。删除后该音色将无法恢复，请谨慎操作。(付费音色栏位不可删除！)"
   :parameters="deleteVoiceClonePathParams"
   :headers="deleteVoiceCloneHeaders"
   :responseExample="deleteVoiceCloneResponse"
