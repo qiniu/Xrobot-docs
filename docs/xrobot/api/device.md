@@ -125,22 +125,9 @@ const bindDeviceHeaders = [
 
 const bindDeviceResponse = `{
   "code": 0,
-  "message": "设备绑定成功",
+  "msg": "success",
   "data": {
-    "id": "aa:bb:cc:dd:ee:ff",
-    "userId": "user123",
-    "macAddress": "aa:bb:cc:dd:ee:ff",
-    "lastConnectedAt": "2024-01-15T10:30:00Z",
-    "autoUpdate": 1,
-    "board": "ESP32-S3",
-    "alias": "新设备",
-    "agentId": "4057d21254664408a2f58200d7ba01e0",
-    "appVersion": "1.2.3",
-    "sort": 1,
-    "updater": "user123",
-    "updateDate": "2024-01-15T10:30:00Z",
-    "creator": "user123",
-    "createDate": "2024-01-15T10:30:00Z"
+    "macAddress": "aa:bb:cc:dd:ee:ff"
   }
 }`;
 
