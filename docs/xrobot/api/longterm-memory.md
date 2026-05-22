@@ -32,9 +32,9 @@ title: 长期记忆 API
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `agentId` | string | 是 | 要关联的智能体ID |
-| `enabled` | boolean | 否 | 是否启用长期记忆功能，默认为true |
-| `memoryPrompt` | string | 否 | 自定义的记忆提取提示词 |
+| `agent_id` | string | 是 | 要关联的智能体ID |
+| `enabled` | boolean | 否 | 是否启用长期记忆功能，默认为 true |
+| `memory_prompt` | string | 否 | 自定义的记忆提取提示词 |
 
 #### 请求示例
 
@@ -46,9 +46,9 @@ Authorization: Bearer <token>
 
 ```json
 {
-    "agentId": "AGT_1750667902769",
+    "agent_id": "AGT_1750667902769",
     "enabled": true,
-    "memoryPrompt": "请从对话中提取用户的个人信息、偏好和重要事实，用于后续个性化服务。"
+    "memory_prompt": "请从对话中提取用户的个人信息、偏好和重要事实，用于后续个性化服务。"
 }
 ```
 
@@ -59,22 +59,61 @@ Authorization: Bearer <token>
     "code": 0,
     "msg": "success",
     "data": {
-        "memoryId": "mem_a1b2c3d4e5f6789",
-        "agentId": "AGT_1750667902769",
-        "enabled": true,
-        "memoryPrompt": "请从对话中提取用户的个人信息、偏好和重要事实，用于后续个性化服务。",
-        "createdAt": "2025-09-22T10:30:00Z"
+        "id": "mem_a1b2c3d4e5f6789",
+        "agent_id": "AGT_1750667902769",
+        "is_enabled": true,
+        "memory_prompt": "请从对话中提取用户的个人信息、偏好和重要事实，用于后续个性化服务。",
+        "created_at": "2025-09-22T10:30:00Z",
+        "updated_at": "2025-09-22T10:30:00Z"
     }
 }
 ```
 
-### 1.2 获取记忆容器配置
+### 1.2 获取记忆容器详情
+
+根据记忆容器ID查询详情。
+
+#### 接口信息
+
+**请求方式：** `GET /v1/memories/{memory_id}`
+
+#### 参数说明
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `memory_id` | string | 是 | 记忆容器的唯一标识符 |
+
+#### 请求示例
+
+```http
+GET /v1/memories/mem_a1b2c3d4e5f6789
+Authorization: Bearer <token>
+```
+
+#### 响应示例
+
+```json
+{
+    "code": 0,
+    "msg": "success",
+    "data": {
+        "id": "mem_a1b2c3d4e5f6789",
+        "agent_id": "AGT_1750667902769",
+        "is_enabled": true,
+        "memory_prompt": "请从对话中提取用户的个人信息、偏好和重要事实，用于后续个性化服务。",
+        "created_at": "2025-09-22T10:30:00Z",
+        "updated_at": "2025-09-22T10:30:00Z"
+    }
+}
+```
+
+### 1.3 获取记忆容器配置
 
 查询智能体的记忆容器配置信息。
 
 #### 接口信息
 
-**请求方式：** `GET /v1/agents/{agentId}/memory`
+**请求方式：** `GET /v1/agents/{agent_id}/memory`
 
 #### 参数说明
 
@@ -96,30 +135,31 @@ Authorization: Bearer <token>
     "code": 0,
     "msg": "success",
     "data": {
-        "memoryId": "mem_a1b2c3d4e5f6789",
-        "agentId": "AGT_1750667902769",
-        "enabled": true,
-        "memoryPrompt": "请从对话中提取用户的个人信息、偏好和重要事实，用于后续个性化服务。",
-        "createdAt": "2025-09-22T10:30:00Z"
+        "id": "mem_a1b2c3d4e5f6789",
+        "agent_id": "AGT_1750667902769",
+        "is_enabled": true,
+        "memory_prompt": "请从对话中提取用户的个人信息、偏好和重要事实，用于后续个性化服务。",
+        "created_at": "2025-09-22T10:30:00Z",
+        "updated_at": "2025-09-22T10:30:00Z"
     }
 }
 ```
 
-### 1.3 更新记忆容器配置
+### 1.4 更新记忆容器配置
 
 修改记忆容器的配置参数。
 
 #### 接口信息
 
-**请求方式：** `PUT /v1/memories/{memoryId}`
+**请求方式：** `PUT /v1/memories/{memory_id}`
 
 #### 参数说明
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `memoryId` | string | 是 | 记忆容器的唯一标识符 |
+| `memory_id` | string | 是 | 记忆容器的唯一标识符 |
 | `enabled` | boolean | 否 | 是否启用长期记忆功能 |
-| `memoryPrompt` | string | 否 | 自定义的记忆提取提示词 |
+| `memory_prompt` | string | 否 | 自定义的记忆提取提示词 |
 
 #### 请求示例
 
@@ -132,7 +172,7 @@ Authorization: Bearer <token>
 ```json
 {
     "enabled": true,
-    "memoryPrompt": "重点关注用户的饮食偏好、兴趣爱好和生活习惯，为个性化推荐提供依据。"
+    "memory_prompt": "重点关注用户的饮食偏好、兴趣爱好和生活习惯，为个性化推荐提供依据。"
 }
 ```
 
@@ -142,7 +182,14 @@ Authorization: Bearer <token>
 {
     "code": 0,
     "msg": "success",
-    "data": null
+    "data": {
+        "id": "mem_a1b2c3d4e5f6789",
+        "agent_id": "AGT_1750667902769",
+        "is_enabled": true,
+        "memory_prompt": "重点关注用户的饮食偏好、兴趣爱好和生活习惯，为个性化推荐提供依据。",
+        "created_at": "2025-09-22T10:30:00Z",
+        "updated_at": "2025-09-22T11:00:00Z"
+    }
 }
 ```
 
@@ -154,7 +201,7 @@ Authorization: Bearer <token>
 
 #### 接口信息
 
-**请求方式：** `POST /v1/memories/{memoryId}/attentions`
+**请求方式：** `POST /v1/memories/{memory_id}/attentions`
 
 #### 参数说明
 
@@ -163,7 +210,8 @@ Authorization: Bearer <token>
 | `memoryId` | string | 是 | 记忆容器ID |
 | `name` | string | 是 | 焦点的显示名称，如"用户饮食偏好" |
 | `description` | string | 是 | 详细描述，用于LLM推理提示词 |
-| `defaultValue` | string | 否 | 记忆变量的默认值 |
+| `default_value` | string | 否 | 记忆变量的默认值 |
+| `is_single_value` | boolean | 否 | 是否为单值模式，默认为 false（多值模式） |
 
 #### 请求示例
 
@@ -177,7 +225,8 @@ Authorization: Bearer <token>
 {
     "name": "用户饮食偏好",
     "description": "用户喜欢和不喜欢的食物类型，包括口味偏好、忌口食物等",
-    "defaultValue": "暂无记录"
+    "default_value": "暂无记录",
+    "is_single_value": false
 }
 ```
 
@@ -189,11 +238,13 @@ Authorization: Bearer <token>
     "msg": "success",
     "data": {
         "id": "att_29f49752b7b3467b",
-        "memoryId": "mem_a1b2c3d4e5f6789",
+        "memory_id": "mem_a1b2c3d4e5f6789",
         "name": "用户饮食偏好",
         "description": "用户喜欢和不喜欢的食物类型，包括口味偏好、忌口食物等",
-        "defaultValue": "暂无记录",
-        "createdAt": "2025-09-22T10:35:00Z"
+        "default_value": "暂无记录",
+        "is_single_value": false,
+        "created_at": "2025-09-22T10:35:00Z",
+        "updated_at": "2025-09-22T10:35:00Z"
     }
 }
 ```
@@ -204,7 +255,7 @@ Authorization: Bearer <token>
 
 #### 接口信息
 
-**请求方式：** `GET /v1/memories/{memoryId}/attentions`
+**请求方式：** `GET /v1/memories/{memory_id}/attentions`
 
 #### 参数说明
 
@@ -230,15 +281,19 @@ Authorization: Bearer <token>
             "id": "att_29f49752b7b3467b",
             "name": "用户饮食偏好",
             "description": "用户喜欢和不喜欢的食物类型，包括口味偏好、忌口食物等",
-            "defaultValue": "暂无记录",
-            "createdAt": "2025-09-22T10:35:00Z"
+            "default_value": "暂无记录",
+            "is_single_value": false,
+            "created_at": "2025-09-22T10:35:00Z",
+            "updated_at": "2025-09-22T10:35:00Z"
         },
         {
             "id": "att_c12135e914d14d5d",
             "name": "兴趣爱好",
             "description": "用户的休闲娱乐活动、运动项目、收藏爱好等",
-            "defaultValue": "暂无记录",
-            "createdAt": "2025-09-22T10:36:00Z"
+            "default_value": "暂无记录",
+            "is_single_value": false,
+            "created_at": "2025-09-22T10:36:00Z",
+            "updated_at": "2025-09-22T10:36:00Z"
         }
     ]
 }
@@ -246,21 +301,22 @@ Authorization: Bearer <token>
 
 ### 2.3 更新记忆变量
 
-修改已有记忆便令的定义信息。
+修改已有记忆变量的定义信息。
 
 #### 接口信息
 
-**请求方式：** `PUT /v1/memories/{memoryId}/attentions/{attentionId}`
+**请求方式：** `PUT /v1/memories/{memory_id}/attentions/{attention_id}`
 
 #### 参数说明
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `memoryId` | string | 是 | 记忆容器ID |
-| `attentionId` | string | 是 | 记忆变量ID |
+| `attention_id` | string | 是 | 记忆变量ID |
 | `name` | string | 否 | 新的显示名称 |
 | `description` | string | 否 | 新的描述 |
-| `defaultValue` | string | 否 | 新的默认值 |
+| `default_value` | string | 否 | 新的默认值 |
+| `is_single_value` | boolean | 否 | 是否为单值模式 |
 
 #### 请求示例
 
@@ -273,7 +329,8 @@ Authorization: Bearer <token>
 ```json
 {
     "name": "用户饮食与健康偏好",
-    "description": "用户的饮食偏好、健康需求、过敏信息和营养目标"
+    "description": "用户的饮食偏好、健康需求、过敏信息和营养目标",
+    "is_single_value": true
 }
 ```
 
@@ -285,10 +342,13 @@ Authorization: Bearer <token>
     "msg": "success",
     "data": {
         "id": "att_29f49752b7b3467b",
+        "memory_id": "mem_a1b2c3d4e5f6789",
         "name": "用户饮食与健康偏好",
         "description": "用户的饮食偏好、健康需求、过敏信息和营养目标",
-        "defaultValue": "暂无记录",
-        "updatedAt": "2025-09-22T11:00:00Z"
+        "default_value": "暂无记录",
+        "is_single_value": true,
+        "created_at": "2025-09-22T10:35:00Z",
+        "updated_at": "2025-09-22T11:00:00Z"
     }
 }
 ```
@@ -299,14 +359,14 @@ Authorization: Bearer <token>
 
 #### 接口信息
 
-**请求方式：** `DELETE /v1/memories/{memoryId}/attentions/{attentionId}`
+**请求方式：** `DELETE /v1/memories/{memory_id}/attentions/{attention_id}`
 
 #### 参数说明
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `memoryId` | string | 是 | 记忆容器ID |
-| `attentionId` | string | 是 | 记忆变量ID |
+| `attention_id` | string | 是 | 记忆变量ID |
 
 #### 请求示例
 
@@ -321,7 +381,7 @@ Authorization: Bearer <token>
 {
     "code": 0,
     "msg": "success",
-    "data": null
+    "data": {}
 }
 ```
 
@@ -337,16 +397,16 @@ Authorization: Bearer <token>
 
 #### 接口信息
 
-**请求方式：** `POST /v1/memories/{memoryId}/identifiers/{identifyId}/attention_values/{attentionId}`
+**请求方式：** `POST /v1/memories/{memory_id}/identifiers/{identify_id}/attention_values/{attention_id}`
 
 #### 参数说明
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `memoryId` | string | 是 | 记忆容器ID |
-| `identifyId` | string | 是 | 终端用户身份标识（如设备MAC地址） |
-| `attentionId` | string | 是 | 记忆变量ID |
-| `value` | any | 是 | 要设置的值（建议JSON格式） |
+| `identify_id` | string | 是 | 终端用户身份标识（如设备MAC地址） |
+| `attention_id` | string | 是 | 记忆变量ID |
+| `value` | any | 是 | 要设置的值（建议JSON格式或字符串） |
 
 #### 请求示例
 
@@ -358,7 +418,7 @@ Authorization: Bearer <token>
 
 ```json
 {
-    "value": ["川菜", "辣味", "不吃海鲜", "偏爱素食"]
+    "value": "川菜、辣味、不吃海鲜、偏爱素食"
 }
 ```
 
@@ -368,9 +428,13 @@ Authorization: Bearer <token>
 {
     "code": 0,
     "msg": "success",
-    "data": null
+    "data": {}
 }
 ```
+
+::: tip 说明
+此接口为 upsert 操作，如果已存在对应记录则更新，不存在则创建。
+:::
 
 ### 3.2 获取用户记忆值列表
 
@@ -378,14 +442,14 @@ Authorization: Bearer <token>
 
 #### 接口信息
 
-**请求方式：** `GET /v1/memories/{memoryId}/identifiers/{identifyId}/attention_values`
+**请求方式：** `GET /v1/memories/{memory_id}/identifiers/{identify_id}/attention_values`
 
 #### 参数说明
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `memoryId` | string | 是 | 记忆容器ID |
-| `identifyId` | string | 是 | 终端用户身份标识 |
+| `identify_id` | string | 是 | 终端用户身份标识 |
 
 #### 请求示例
 
@@ -405,17 +469,30 @@ Authorization: Bearer <token>
             "id": "att_29f49752b7b3467b",
             "name": "用户饮食偏好",
             "description": "用户喜欢和不喜欢的食物类型，包括口味偏好、忌口食物等",
-            "values": ["川菜", "辣味", "不吃海鲜", "偏爱素食"]
+            "values": [
+                "川菜",
+                "辣味",
+                "不吃海鲜",
+                "偏爱素食"
+            ]
         },
         {
             "id": "att_c12135e914d14d5d",
             "name": "兴趣爱好",
             "description": "用户的休闲娱乐活动、运动项目、收藏爱好等",
-            "values": ["跑步", "摄影", "古典音乐"]
+            "values": [
+                "跑步",
+                "摄影",
+                "古典音乐"
+            ]
         }
     ]
 }
 ```
+
+::: tip 说明
+返回值是一个数组，每个元素包含 attention 的基本信息（id、name、description）及其对应的值列表（values）。
+:::
 
 ## 四、记忆片段管理
 
@@ -425,16 +502,16 @@ Authorization: Bearer <token>
 
 #### 接口信息
 
-**请求方式：** `POST /v1/memories/{memoryId}/identifiers/{identifyId}/nodes`
+**请求方式：** `POST /v1/memories/{memory_id}/identifiers/{identify_id}/nodes`
 
 #### 参数说明
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `memoryId` | string | 是 | 记忆容器ID |
-| `identifyId` | string | 是 | 终端用户标识 |
-| `content` | string | 是 | 片段内容 |
-| `sourceSessionId` | string | 否 | 来源会话ID |
+| `identify_id` | string | 是 | 终端用户标识 |
+| `content` | string | 是 | 片段内容（最大10000字符） |
+| `source_session_id` | string | 否 | 来源会话ID |
 
 #### 请求示例
 
@@ -447,7 +524,7 @@ Authorization: Bearer <token>
 ```json
 {
     "content": "用户提到下周要去成都出差，希望了解当地的川菜餐厅推荐",
-    "sourceSessionId": "session_1234567890"
+    "source_session_id": "session_1234567890"
 }
 ```
 
@@ -459,11 +536,11 @@ Authorization: Bearer <token>
     "msg": "success",
     "data": {
         "id": "node_9ea227d54b654ac5",
-        "memoryId": "mem_a1b2c3d4e5f6789",
-        "identifyId": "mac_00:1B:44:11:3A:B7",
+        "memory_id": "mem_a1b2c3d4e5f6789",
+        "identify_id": "mac_00:1B:44:11:3A:B7",
         "content": "用户提到下周要去成都出差，希望了解当地的川菜餐厅推荐",
-        "sourceSessionId": "session_1234567890",
-        "createdAt": "2025-09-22T11:30:00Z"
+        "source_session_id": "session_1234567890",
+        "created_at": "2025-09-22T11:30:00Z"
     }
 }
 ```
@@ -474,21 +551,19 @@ Authorization: Bearer <token>
 
 #### 接口信息
 
-**请求方式：** `GET /v1/memories/{memoryId}/identifiers/{identifyId}/nodes`
+**请求方式：** `GET /v1/memories/{memory_id}/identifiers/{identify_id}/nodes`
 
 #### 参数说明
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `memoryId` | string | 是 | 记忆容器ID |
-| `identifyId` | string | 是 | 终端用户标识 |
-| `limit` | integer | 否 | 分页大小，默认20 |
-| `offset` | integer | 否 | 分页偏移量，默认0 |
+| `identify_id` | string | 是 | 终端用户标识 |
 
 #### 请求示例
 
 ```http
-GET /v1/memories/mem_a1b2c3d4e5f6789/identifiers/mac_00:1B:44:11:3A:B7/nodes?limit=10&offset=0
+GET /v1/memories/mem_a1b2c3d4e5f6789/identifiers/mac_00:1B:44:11:3A:B7/nodes
 Authorization: Bearer <token>
 ```
 
@@ -501,34 +576,82 @@ Authorization: Bearer <token>
     "data": [
         {
             "id": "node_9ea227d54b654ac5",
+            "memory_id": "mem_a1b2c3d4e5f6789",
+            "identify_id": "mac_00:1B:44:11:3A:B7",
             "content": "用户提到下周要去成都出差，希望了解当地的川菜餐厅推荐",
-            "sourceSessionId": "session_1234567890",
-            "createdAt": "2025-09-22T11:30:00Z"
+            "source_session_id": "session_1234567890",
+            "created_at": "2025-09-22T11:30:00Z"
         },
         {
             "id": "node_8fb116c43a543bd4",
+            "memory_id": "mem_a1b2c3d4e5f6789",
+            "identify_id": "mac_00:1B:44:11:3A:B7",
             "content": "用户表示不喜欢海鲜，对虾蟹过敏",
-            "sourceSessionId": "session_0987654321",
-            "createdAt": "2025-09-21T15:20:00Z"
+            "source_session_id": "session_0987654321",
+            "created_at": "2025-09-21T15:20:00Z"
         }
     ]
 }
 ```
 
-### 4.3 删除记忆片段
+::: tip 说明
+记忆片段查询默认只返回最近7天内的记录。
+:::
 
-删除指定的记忆片段。
+### 4.3 获取记忆片段详情
+
+根据ID查询单个记忆片段的详情。
 
 #### 接口信息
 
-**请求方式：** `DELETE /v1/memories/{memoryId}/identifiers/{identifyId}/nodes/{nodeId}`
+**请求方式：** `GET /v1/memories/{memory_id}/identifiers/{identify_id}/nodes/{node_id}`
 
 #### 参数说明
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `memoryId` | string | 是 | 记忆容器ID |
-| `identifyId` | string | 是 | 终端用户标识 |
+| `identify_id` | string | 是 | 终端用户标识 |
+| `nodeId` | string | 是 | 记忆片段ID |
+
+#### 请求示例
+
+```http
+GET /v1/memories/mem_a1b2c3d4e5f6789/identifiers/mac_00:1B:44:11:3A:B7/nodes/node_9ea227d54b654ac5
+Authorization: Bearer <token>
+```
+
+#### 响应示例
+
+```json
+{
+    "code": 0,
+    "msg": "success",
+    "data": {
+        "id": "node_9ea227d54b654ac5",
+        "memory_id": "mem_a1b2c3d4e5f6789",
+        "identify_id": "mac_00:1B:44:11:3A:B7",
+        "content": "用户提到下周要去成都出差，希望了解当地的川菜餐厅推荐",
+        "source_session_id": "session_1234567890",
+        "created_at": "2025-09-22T11:30:00Z"
+    }
+}
+```
+
+### 4.4 删除记忆片段
+
+删除指定的记忆片段。
+
+#### 接口信息
+
+**请求方式：** `DELETE /v1/memories/{memory_id}/identifiers/{identify_id}/nodes/{node_id}`
+
+#### 参数说明
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `memoryId` | string | 是 | 记忆容器ID |
+| `identify_id` | string | 是 | 终端用户标识 |
 | `nodeId` | string | 是 | 记忆片段ID |
 
 #### 请求示例
@@ -544,6 +667,65 @@ Authorization: Bearer <token>
 {
     "code": 0,
     "msg": "success",
+    "data": {}
+}
+```
+
+### 4.5 更新记忆片段
+
+修改指定记忆片段的内容。
+
+#### 接口信息
+
+**请求方式：** `PUT /v1/memories/{memory_id}/identifiers/{identify_id}/nodes/{node_id}`
+
+#### 参数说明
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `memoryId` | string | 是 | 记忆容器ID |
+| `identify_id` | string | 是 | 终端用户标识 |
+| `nodeId` | string | 是 | 记忆片段ID |
+| `content` | string | 是 | 新的片段内容（最大10000字符） |
+
+#### 请求示例
+
+```http
+PUT /v1/memories/mem_a1b2c3d4e5f6789/identifiers/00:1B:44:11:3A:B7/nodes/node_9ea227d54b654ac5
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+    "content": "用户下周要去成都出差，希望了解当地的川菜餐厅推荐，同时对海鲜过敏。"
+}
+```
+
+#### 响应示例
+
+**成功响应**：
+
+```json
+{
+    "code": 0,
+    "msg": "success",
+    "data": {
+        "id": "node_9ea227d54b654ac5",
+        "memory_id": "mem_a1b2c3d4e5f6789",
+        "identify_id": "00:1B:44:11:3A:B7",
+        "content": "用户下周要去成都出差，希望了解当地的川菜餐厅推荐，同时对海鲜过敏。",
+        "source_session_id": "session_1234567890",
+        "created_at": "2025-09-22T11:30:00Z",
+        "updated_at": "2025-09-22T14:00:00Z"
+    }
+}
+```
+
+**失败响应（片段不存在）**：
+
+```json
+{
+    "code": 612,
+    "msg": "node not found",
     "data": null
 }
 ```
@@ -556,15 +738,15 @@ Authorization: Bearer <token>
 
 #### 接口信息
 
-**请求方式：** `POST /v1/agents/{agentId}/identifiers/{identifyId}/memory/infer`
+**请求方式：** `POST /v1/agents/{agent_id}/identifiers/{identify_id}/memory/infer`
 
 #### 参数说明
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `agentId` | string | 是 | 智能体ID |
-| `identifyId` | string | 是 | 用户或设备的唯一标识 |
-| `dialogContent` | string | 是 | 当前对话上下文，OpenAI chat格式的JSON字符串 |
+| `identify_id` | string | 是 | 用户或设备的唯一标识 |
+| `dialog_content` | string | 是 | 当前对话上下文，OpenAI chat格式的JSON字符串 |
 
 #### 请求示例
 
@@ -576,7 +758,7 @@ Authorization: Bearer <token>
 
 ```json
 {
-    "dialogContent": "[{\"role\":\"user\",\"content\":\"我最近开始健身了，想了解一些高蛋白低脂的食物推荐\"},{\"role\":\"assistant\",\"content\":\"很棒的决定！高蛋白低脂的食物有...\"}]"
+    "dialog_content": "[{\"role\":\"user\",\"content\":\"我最近开始健身了，想了解一些高蛋白低脂的食物推荐\"},{\"role\":\"assistant\",\"content\":\"很棒的决定！高蛋白低脂的食物有...\"}]"
 }
 ```
 
@@ -587,8 +769,7 @@ Authorization: Bearer <token>
     "code": 0,
     "msg": "success",
     "data": {
-        "taskId": "task_abc123def456",
-        "status": "processing"
+        "task_id": "task_abc123def456"
     }
 }
 ```
@@ -599,16 +780,15 @@ Authorization: Bearer <token>
 
 #### 接口信息
 
-**请求方式：** `POST /v1/agents/{agentId}/identifiers/{identifyId}/memory/recall`
+**请求方式：** `POST /v1/agents/{agent_id}/identifiers/{identify_id}/memory/recall`
 
 #### 参数说明
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `agentId` | string | 是 | 智能体ID |
-| `identifyId` | string | 是 | 用户或设备的唯一标识 |
-| `attentionValueLimit` | integer | 否 | 记忆焦点值召回上限，默认50 |
-| `memoryNodeLimit` | integer | 否 | 记忆片段召回上限，默认10 |
+| `identify_id` | string | 是 | 用户或设备的唯一标识 |
+| `attention_value_limit` | integer | 否 | 记忆变量值召回上限，默认50 |
 
 #### 请求示例
 
@@ -620,8 +800,7 @@ Authorization: Bearer <token>
 
 ```json
 {
-    "attentionValueLimit": 20,
-    "memoryNodeLimit": 5
+    "attention_value_limit": 20
 }
 ```
 
@@ -632,29 +811,30 @@ Authorization: Bearer <token>
     "code": 0,
     "msg": "success",
     "data": {
-        "attentionValues": [
+        "attention_values": {
+            "用户饮食偏好": "川菜, 辣味, 不吃海鲜, 偏爱素食",
+            "兴趣爱好": "跑步, 摄影, 古典音乐"
+        },
+        "memory_nodes": [
             {
-                "name": "用户饮食偏好",
-                "values": ["川菜", "辣味", "不吃海鲜", "偏爱素食"]
-            },
-            {
-                "name": "兴趣爱好",
-                "values": ["跑步", "摄影", "古典音乐"]
-            }
-        ],
-        "memoryNodes": [
-            {
+                "id": "node_9ea227d54b654ac5",
                 "content": "用户提到下周要去成都出差，希望了解当地的川菜餐厅推荐",
-                "createdAt": "2025-09-22T11:30:00Z"
+                "updated_at": "2025-09-22T11:30:00Z"
             },
             {
+                "id": "node_8fb116c43a543bd4",
                 "content": "用户表示不喜欢海鲜，对虾蟹过敏",
-                "createdAt": "2025-09-21T15:20:00Z"
+                "updated_at": "2025-09-21T15:20:00Z"
             }
         ]
     }
 }
 ```
+
+::: tip 说明
+- `attention_values` 是一个 map，key 为 attention 的 name，value 为聚合后的字符串值（多个值以 `, ` 分隔）；首次召回时若无记录则返回 default_value
+- `memory_nodes` 默认只返回最近7天内的记忆片段
+:::
 
 ::: tip MCP服务集成
 记忆召回功能已集成到MCP服务中，智能体可以通过`mcp.memory.search(agent_id, identify_id, query)`接口自动调用。
@@ -675,7 +855,7 @@ Authorization: Bearer <token>
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | string | 是 | 智能体的唯一标识符 |
-| `memModelId` | string | 否 | 记忆模型ID，启用长期记忆时设置 |
+| `mem_model_id` | string | 否 | 记忆模型ID，启用长期记忆时设置 |
 | `extra.memory` | object | 否 | 长期记忆个性化配置参数 |
 
 #### 长期记忆个性化配置
@@ -685,9 +865,9 @@ Authorization: Bearer <token>
 | 参数 | 类型 | 说明 | 默认值 |
 |------|------|------|--------|
 | `enabled` | boolean | 是否启用长期记忆 | false |
-| `autoInfer` | boolean | 是否自动推理更新记忆 | true |
-| `recallLimit` | integer | 记忆召回数量限制 | 10 |
-| `retentionDays` | integer | 记忆保留天数（0为永久） | 0 |
+| `auto_infer` | boolean | 是否自动推理更新记忆 | true |
+| `recall_limit` | integer | 记忆召回数量限制 | 10 |
+| `retention_days` | integer | 记忆保留天数（0为永久） | 0 |
 
 #### 请求示例
 
@@ -699,16 +879,16 @@ Authorization: Bearer <token>
 
 ```json
 {
-    "agentCode": "AGT_1750667902769",
-    "agentName": "智能助手小智",
-    "memModelId": "Memory_longterm",
-    "systemPrompt": "你是一个智能助手，能够记住用户的偏好和历史对话，提供个性化服务。",
+    "agent_code": "AGT_1750667902769",
+    "agent_name": "智能助手小智",
+    "mem_model_id": "Memory_longterm",
+    "system_prompt": "你是一个智能助手，能够记住用户的偏好和历史对话，提供个性化服务。",
     "extra": {
         "memory": {
             "enabled": true,
-            "autoInfer": true,
-            "recallLimit": 15,
-            "retentionDays": 365
+            "auto_infer": true,
+            "recall_limit": 15,
+            "retention_days": 365
         }
     }
 }
@@ -728,25 +908,28 @@ Authorization: Bearer <token>
 
 | 错误码 | 说明 | 解决方案 |
 |--------|------|----------|
-| `40001` | 记忆容器不存在 | 请先为智能体创建记忆容器 |
+| `612` | 记忆容器不存在 | 请先为智能体创建记忆容器 |
+| `614` | 记忆容器已存在 | 该智能体已创建过记忆容器 |
 | `40002` | 记忆焦点不存在 | 请检查记忆焦点ID是否正确 |
-| `40003` | 用户身份标识无效 | 请提供有效的identifyId |
+| `40003` | 用户身份标识无效 | 请提供有效的 identify_id |
 | `40004` | 记忆推理任务失败 | 请检查对话内容格式是否正确 |
 | `50001` | 记忆存储服务异常 | 请稍后重试或联系技术支持 |
 
 ## 最佳实践
 
-### 记忆焦点设计建议
+### 记忆变量设计建议
 
-1. **合理规划焦点数量**：建议每个智能体的记忆焦点不超过20个
+1. **合理规划变量数量**：建议每个智能体的记忆变量不超过20个
 2. **清晰的名称和描述**：便于LLM理解和推理
-3. **避免过于细粒度**：将相关信息合并到同一焦点中
+3. **避免过于细粒度**：将相关信息合并到同一变量中
+4. **单值与多值模式**：`is_single_value` 为 true 时，每个用户在该变量上只能有一个值
 
 ### 性能优化建议
 
 1. **适当设置召回限制**：避免一次性召回过多记忆内容
 2. **定期清理无用片段**：删除过时或无价值的记忆片段
 3. **合理使用自动推理**：在对话量大的场景下可考虑降低推理频率
+4. **注意时间范围**：记忆片段查询默认只返回最近7天内的记录
 
 ### 数据隐私保护
 
