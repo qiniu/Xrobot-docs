@@ -20,14 +20,6 @@ const createVoiceCloneBodyParams = [
     location: 'body',
     description: '付费等级，默认为 "free"，支持以下等级：free(免费), pro(付费)',
     example: 'free'
-  },
-  {
-    name: 'model_id',
-    type: 'string',
-    required: false,
-    location: 'body',
-    description: '参数已弃用，传入无影响',
-    example: 'QN_ACV'
   }
 ]
 
