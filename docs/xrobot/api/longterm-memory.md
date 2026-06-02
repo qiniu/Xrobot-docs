@@ -559,11 +559,12 @@ Authorization: Bearer <token>
 |------|------|------|------|
 | `memoryId` | string | 是 | 记忆容器ID |
 | `identify_id` | string | 是 | 终端用户标识 |
+| `last_days` | integer | 否 | 查询最近 N 天内的记忆片段，不传则返回全部 |
 
 #### 请求示例
 
 ```http
-GET /v1/memories/mem_a1b2c3d4e5f6789/identifiers/mac_00:1B:44:11:3A:B7/nodes
+GET /v1/memories/mem_a1b2c3d4e5f6789/identifiers/mac_00:1B:44:11:3A:B7/nodes?last_days=7
 Authorization: Bearer <token>
 ```
 
@@ -595,7 +596,7 @@ Authorization: Bearer <token>
 ```
 
 ::: tip 说明
-记忆片段查询默认只返回最近7天内的记录。
+记忆片段查询可通过 `last_days` 参数控制时间范围，不传则返回所有记录。
 :::
 
 ### 4.3 获取记忆片段详情
