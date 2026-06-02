@@ -411,8 +411,7 @@ const listPreRegResponse = `{
         "mac_address": "00:1A:2B:3C:4D:5E",
         "serial_number": "SN123456",
         "status": 0,
-        "created_at": "2026-04-03 10:00:00",
-        "updated_at": "2026-04-03 10:00:00"
+        "created_at": "2026-04-03 10:00:00"
       }
     ],
     "next_cursor": "下一页游标"
@@ -455,8 +454,7 @@ const getPreRegByMacResponse = `{
     "mac_address": "00:1A:2B:3C:4D:5E",
     "serial_number": "",
     "status": 0,
-    "created_at": "2026-04-03 10:00:00",
-    "updated_at": "2026-04-03 10:00:00"
+    "created_at": "2026-04-03 10:00:00"
   }
 }`;
 

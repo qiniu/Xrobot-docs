@@ -44,6 +44,7 @@ const getAgentListResponse = `{
     {
       "id": "4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d",
       "agentName": "小智助手",
+      "assistantName": "助手阿伟",
       "ttsModelName": "",
       "ttsVoiceName": "豪放可爱女",
       "llmModelName": "qwen3极速版",
@@ -83,6 +84,7 @@ const searchAgentResponse = `{
     {
       "id": "4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d",
       "agentName": "小智助手",
+      "assistantName": "助手阿伟",
       "ttsModelName": "",
       "ttsVoiceName": "豪放可爱女",
       "llmModelName": "qwen3极速版",
@@ -107,6 +109,14 @@ const createAgentParameters = [
         required: true,
         description: '智能体名称',
         example: '客服助手'
+    },
+    {
+        name: 'assistantName',
+        in: 'body',
+        type: 'string',
+        required: true,
+        description: '助手昵称',
+        example: '助手阿伟'
     }
 ]
 
@@ -116,7 +126,8 @@ Content-Type: application/json
 Authorization: Bearer <token>
 
 {
-  "agentName": "客服助手"
+  "agentName": "客服助手",
+  "assistantName": "助手阿伟"
 }`
 
 const createAgentResponse = `{
@@ -161,6 +172,13 @@ const updateAgentParameters = [
         required: false,
         description: '智能体名称',
         example: '123test'
+      },
+      {
+        name: 'assistantName',
+        type: 'string',
+        required: false,
+        description: '助手昵称',
+        example: '助手阿伟'
       },
       {
         name: 'asrModelId',
@@ -338,6 +356,7 @@ Authorization: Bearer <token>
 {
   "agentCode": "AGT_1754966279238",
   "agentName": "123test",
+  "assistantName": "助手阿伟",
   "asrModelId": "ASR_DoubaoASR",
   "vadModelId": "VAD_SileroVAD",
   "llmModelId": "LLM_AliLLM",
@@ -610,7 +629,7 @@ GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
 :::
 
 ::: info
-创建智能体时只需提供名称，其他配置可后续通过更新接口修改
+创建智能体时需要提供智能体名称和助手昵称，其他配置可后续通过更新接口修改
 :::
 
 ### 创建智能体
@@ -621,7 +640,7 @@ GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
   endpoint="/agent"
   method="post"
   title="创建智能体"
-  description="创建一个新的智能体，只需要提供智能体名称，系统会自动分配其他默认配置，返回data为新智能体的ID，可用于更新、删除等api"
+  description="创建一个新的智能体，需要提供智能体名称和助手昵称。系统会自动分配其他默认配置，返回data为新智能体的ID，可用于更新、删除等api"
   :parameters="createAgentParameters"
   :headers="commonHeaders"
   :requestExample="createAgentRequest"
