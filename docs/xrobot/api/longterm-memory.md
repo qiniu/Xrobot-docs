@@ -391,9 +391,9 @@ Authorization: Bearer <token>
 
 ## 三、记忆值管理
 
-### 3.1 创建或更新记忆值
+### 3.1 设置单个记忆值
 
-为特定用户在某个记忆变量上设置或更新值。
+为特定用户在某个记忆变量上设置值。POST 接口为 upsert 操作，根据记忆变量的单值/多值模式有不同的行为。
 
 #### 接口信息
 
@@ -401,12 +401,12 @@ Authorization: Bearer <token>
 
 #### 参数说明
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `memoryId` | string | 是 | 记忆容器ID |
-| `identify_id` | string | 是 | 终端用户身份标识（如设备MAC地址） |
-| `attention_id` | string | 是 | 记忆变量ID |
-| `value` | any | 是 | 要设置的值（建议JSON格式或字符串） |
+| 参数 | 类型 | 位置 | 必填 | 说明 |
+|------|------|------|------|------|
+| `memory_id` | string | 路径参数 | 是 | 记忆容器ID |
+| `identify_id` | string | 路径参数 | 是 | 终端用户身份标识（如设备MAC地址） |
+| `attention_id` | string | 路径参数 | 是 | 记忆变量ID |
+| `value` | string | 请求体 | 是 | 要设置的值（最大255字符） |
 
 #### 请求示例
 
@@ -418,7 +418,7 @@ Authorization: Bearer <token>
 
 ```json
 {
-    "value": "川菜、辣味、不吃海鲜、偏爱素食"
+    "value": "川菜"
 }
 ```
 
@@ -432,11 +432,78 @@ Authorization: Bearer <token>
 }
 ```
 
+**失败响应（请求格式错误）**：
+
+```json
+{
+    "code": 400,
+    "msg": "invalid request",
+    "data": null
+}
+```
+
 ::: tip 说明
-此接口为 upsert 操作，如果已存在对应记录则更新，不存在则创建。
+- **单值模式**（`is_single_value: true`）：覆盖该变量已有的唯一值
+- **多值模式**（`is_single_value: false`）：如果值已存在则更新时间戳（不重复插入），不存在则插入新值
 :::
 
-### 3.2 获取用户记忆值列表
+### 3.2 批量替换记忆值
+
+批量替换特定用户在某个记忆变量上的所有值。
+
+#### 接口信息
+
+**请求方式：** `PUT /v1/memories/{memory_id}/identifiers/{identify_id}/attention_values/{attention_id}`
+
+#### 参数说明
+
+| 参数 | 类型 | 位置 | 必填 | 说明 |
+|------|------|------|------|------|
+| `memory_id` | string | 路径参数 | 是 | 记忆容器ID |
+| `identify_id` | string | 路径参数 | 是 | 终端用户身份标识（如设备MAC地址） |
+| `attention_id` | string | 路径参数 | 是 | 记忆变量ID |
+| `values` | string[] | 请求体 | 是 | 要设置的值数组（每个值最大255字符） |
+
+#### 请求示例
+
+```http
+PUT /v1/memories/mem_a1b2c3d4e5f6789/identifiers/mac_00:1B:44:11:3A:B7/attention_values/att_29f49752b7b3467b
+Content-Type: application/json
+Authorization: Bearer <token>
+```
+
+```json
+{
+    "values": ["川菜", "辣味", "不吃海鲜", "偏爱素食"]
+}
+```
+
+#### 响应示例
+
+```json
+{
+    "code": 0,
+    "msg": "success",
+    "data": {}
+}
+```
+
+**失败响应（单值模式传多个值）**：
+
+```json
+{
+    "code": 400,
+    "msg": "single-value attention accepts only one value",
+    "data": null
+}
+```
+
+::: tip 说明
+- **单值模式**（`is_single_value: true`）：`values` 数组只能包含一个元素
+- **多值模式**（`is_single_value: false`）：可传入多个值，或传入空数组 `[]` 清空所有值
+:::
+
+### 3.3 获取用户记忆值列表
 
 查询特定用户的所有记忆变量及其对应值。
 
@@ -909,6 +976,8 @@ Authorization: Bearer <token>
 
 | 错误码 | 说明 | 解决方案 |
 |--------|------|----------|
+| `400` | 请求格式错误（如请求体不是JSON对象） | 检查请求格式是否正确 |
+| `400` | 单值模式传入多个值 | 单值模式只能传入一个值 |
 | `612` | 记忆容器不存在 | 请先为智能体创建记忆容器 |
 | `614` | 记忆容器已存在 | 该智能体已创建过记忆容器 |
 | `40002` | 记忆焦点不存在 | 请检查记忆焦点ID是否正确 |
