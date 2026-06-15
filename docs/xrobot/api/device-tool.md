@@ -68,12 +68,27 @@ const listDeviceToolsResponse = `{
   }
 }`
 
-const saveDeviceToolRequest = `{
+const createDeviceToolRequest = `{
   "name": "self.audio_speaker.set_volume",
   "desc": "设置音量。"
 }`
 
-const saveDeviceToolResponse = `{
+const createDeviceToolResponse = `{
+  "code": 0,
+  "data": {
+    "id": "9f4b1d7c2e8a4f5b9c0d1e2f3a4b5c6d",
+    "name": "self.audio_speaker.set_volume",
+    "desc": "设置音量。",
+    "updated_at": "2026-06-10T14:30:00+08:00"
+  }
+}`
+
+const updateDeviceToolRequest = `{
+  "name": "self.audio_speaker.set_volume",
+  "desc": "设置音量。"
+}`
+
+const updateDeviceToolResponse = `{
   "code": 0,
   "data": {
     "id": "9f4b1d7c2e8a4f5b9c0d1e2f3a4b5c6d",
@@ -125,6 +140,7 @@ const deleteDeviceToolStatusCodes = [
   endpoint="/device/tools"
   method="get"
   title="查询设备工具描述"
+  description="获取当前用户已配置的设备工具描述列表。"
   :headers="deviceToolHeaders"
   :responseExample="listDeviceToolsResponse"
   :statusCodes="listDeviceToolsStatusCodes"
@@ -140,8 +156,8 @@ const deleteDeviceToolStatusCodes = [
   title="新增设备工具描述"
   :parameters="deviceToolBodyParams"
   :headers="deviceToolWriteHeaders"
-  :requestExample="saveDeviceToolRequest"
-  :responseExample="saveDeviceToolResponse"
+  :requestExample="createDeviceToolRequest"
+  :responseExample="createDeviceToolResponse"
   :statusCodes="createDeviceToolStatusCodes"
 />
 
@@ -155,8 +171,8 @@ const deleteDeviceToolStatusCodes = [
   title="更新设备工具描述"
   :parameters="[...deviceToolIdPathParams, ...deviceToolBodyParams]"
   :headers="deviceToolWriteHeaders"
-  :requestExample="saveDeviceToolRequest"
-  :responseExample="saveDeviceToolResponse"
+  :requestExample="updateDeviceToolRequest"
+  :responseExample="updateDeviceToolResponse"
   :statusCodes="updateDeviceToolStatusCodes"
 />
 
