@@ -1,5 +1,6 @@
 ---
 title: 用户API文档
+search: false
 ---
 
 <script setup>
