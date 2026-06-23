@@ -92,7 +92,6 @@ const items_xrobot_api = [
     collapsed: true,
     link: Chapters.xrobot_api,
     items: [
-      { text: "用户API", link: "user" },
       { text: "智能体API", link: "agent" },
       { text: "大语言模型API", link: "llm" },
       { text: "知识库API", link: "knowledge" },

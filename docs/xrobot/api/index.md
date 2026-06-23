@@ -12,15 +12,13 @@ const chapter_root = Chapters.xrobot_api;
 
 **Base URL**: `https://xrobo.qiniu.com`
 
-**认证方式**: Bearer Token/API_Key
+**认证方式**: Bearer Token/API-KEY
 
 1. 所有API接口都需要有效的认证令牌
-2. 认证令牌格式为 `Bearer <token>`
+2. 开放API推荐使用 API-KEY，认证格式为 `Bearer <api_key>`
 
-    `<token>`有两种获取方式，推荐第一种：
+    `<api_key>` 在[灵矽AI控制台](https://xrobo.qiniu.com/#/api-key-management)创建。
 
-    - API-KEY: 在[灵矽AI控制台](https://xrobo.qiniu.com/#/api-key-management)创建 （推荐）
-    - [用户API - 登录](./user)
 
 ### 通用响应格式
 
