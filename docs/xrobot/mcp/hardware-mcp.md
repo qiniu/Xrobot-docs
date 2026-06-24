@@ -1,65 +1,59 @@
 ---
 title: 灵矽AI平台与设备端MCP协议交互指南
----   
+---
 
 ## 概述
 
-MCP（Model Context Protocol）是新一代推荐用于物联网控制的协议，通过标准 JSON-RPC 2.0 格式在后台与设备间发现和调用"工具"（Tool），实现灵活的设备控制。
+MCP（Model Context Protocol）用于让灵矽AI平台通过标准 JSON-RPC 2.0 消息发现并调用设备端能力。设备端是 MCP Server，灵矽AI平台是 MCP Client；MCP 消息承载在基础 WebSocket 文本消息中，外层使用灵矽设备协议，内层使用 JSON-RPC 2.0。
 
-本文详细介绍灵矽AI平台（MCP客户端）与设备端（MCP服务器）之间的协作流程，帮助开发者实现大模型通过MCP协议控制万物的能力。
+本文说明设备端需要发送和接收的字段，重点覆盖 `hello` 能力声明、`initialize`、`tools/list`、`tools/call` 以及工具结果格式。
 
 ## 目录
 
 - [概述](#概述)
-- [目录](#目录)
 - [典型使用流程](#典型使用流程)
-  - [流程图](#流程图)
 - [协议格式规范](#协议格式规范)
-  - [整体消息结构](#整体消息结构)
-  - [JSON-RPC 2.0字段说明](#json-rpc-20字段说明)
 - [详细交互流程](#详细交互流程)
-  - [步骤1：连接建立与能力通告](#步骤1连接建立与能力通告)
-  - [步骤2：初始化MCP会话](#步骤2初始化mcp会话)
-  - [步骤3：发现设备工具列表](#步骤3发现设备工具列表)
-    - [响应格式一：标准工具列表（向后兼容）](#响应格式一标准工具列表向后兼容)
-    - [响应格式二：带类型标识的工具列表（推荐）](#响应格式二带类型标识的工具列表推荐)
-  - [步骤4：调用设备工具](#步骤4调用设备工具)
-- [设备端工具注册方法](#设备端工具注册方法)
-  - [AddTool方法说明](#addtool方法说明)
-  - [典型注册示例](#典型注册示例)
+- [工具定义规范](#工具定义规范)
+- [错误处理](#错误处理)
+- [设备端工具注册建议](#设备端工具注册建议)
+
 ## 典型使用流程
 
-MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备上的"工具"（Tool）进行：
+MCP 交互主要围绕平台发现并调用设备端工具进行：
 
-```
+```text
 时间线：
 ┌─────────────┐                    ┌─────────────────┐
 │   设备端    │                    │   灵矽AI平台    │
-│ (MCP服务器) │                    │  (MCP客户端)    │
+│ (MCP Server)│                    │  (MCP Client)   │
 └─────────────┘                    └─────────────────┘
        │                                    │
-       │ ①── hello 消息（能力声明）──→       │
+       │ ① hello，声明 features.mcp=true ─→ │
        │                                    │
-       │ ←── ② initialize（会话初始化）──    │
+       │ ←──────── ② hello 响应 ─────────── │
        │                                    │
-       │ ③── 响应（服务器能力）──→           │
+       │ ←──── ③ mcp.initialize(id=1) ───── │
        │                                    │
-       │ ←── ④ tools/list（工具发现）──      │
+       │ ④ initialize 响应(id=1) ─────────→ │
        │                                    │
-       │ ⑤── 工具列表响应 ──→                │
+       │ ←──── ⑤ mcp.tools/list(id=2) ───── │
        │                                    │
-       │ ←── ⑥ tools/call（工具调用）──      │
+       │ ⑥ tools/list 响应(id=2) ─────────→ │
        │                                    │
-       │ ⑦── 执行结果响应 ──→                │
+       │ ←──── ⑦ mcp.tools/call(id>=3) ──── │
+       │                                    │
+       │ ⑧ tools/call 响应(id>=3) ────────→ │
        │                                    │
 ```
 
-**详细步骤说明：**
+步骤说明：
 
-1. **🚀 设备启动**：设备启动后通过基础协议（如 WebSocket/MQTT）与灵矽AI建立连接
-2. **🤝 初始化会话**：灵矽AI通过 MCP 协议的 `initialize` 方法初始化会话
-3. **🔍 发现工具**：灵矽AI通过 `tools/list` 获取设备支持的所有工具及参数说明
-4. **⚡ 执行控制**：灵矽AI通过 `tools/call` 调用具体工具，实现对设备的控制
+1. 设备建立 WebSocket 连接后，先发送基础协议 `hello`。
+2. 只有 `hello.features.mcp` 为布尔值 `true` 时，平台才会启动设备端 MCP。
+3. 平台会发送 `initialize`，并立即发送第一次 `tools/list`。
+4. 设备返回工具列表后，平台把普通工具暴露给大模型；RPC-only 工具只用于内部后续调用。
+5. 大模型需要控制设备时，平台发送 `tools/call`，设备执行后返回结果。
 
 ### 流程图
 
@@ -67,360 +61,597 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
 
 ## 协议格式规范
 
-根据 MCP 协议规范，MCP 消息是封装在基础通信协议（如 WebSocket 或 MQTT）的消息体中的。其内部结构遵循 [JSON-RPC 2.0](https://www.jsonrpc.org/specification) 规范。
+### 基础消息外层
 
-### 整体消息结构
+所有 WebSocket 文本消息都必须带 `type` 字段。MCP 消息的外层固定为 `type: "mcp"`，JSON-RPC 2.0 内容放在 `payload` 中。
+
+通用消息骨架如下。实际发送时，`method/params`、`result`、`error` 会根据消息类型择一出现，不会同时全部出现。
 
 ```json
 {
-  "session_id": "...",    // 会话ID
-  "type": "mcp",          // 消息类型，固定为"mcp"
-  "payload": {             // JSON-RPC 2.0负载
+  "type": "mcp",
+  "payload": {
     "jsonrpc": "2.0",
-    "method": "...",      // 方法名 (如 "initialize", "tools/list", "tools/call")
-    "params": { ... },     // 方法参数 (对于 request)
-    "id": ...,            // 请求ID (对于 request 和 response)
-    "result": { ... },     // 方法执行结果 (对于 success response)
-    "error": { ... }       // 错误信息 (对于 error response)
+    "id": "<request_id>",
+    "method": "<method_name>",
+    "params": {},
+    "result": {},
+    "error": {
+      "code": "<error_code>",
+      "message": "<error_message>"
+    }
   }
 }
 ```
 
-### JSON-RPC 2.0字段说明
+字段说明：
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `jsonrpc` | string | 固定的字符串 "2.0" |
-| `method` | string | 要调用的方法名称（对于 Request） |
-| `params` | object | 方法的参数，一个结构化值，通常为对象（对于 Request） |
-| `id` | number/string | 请求的标识符，客户端发送请求时提供，服务器响应时原样返回。用于匹配请求和响应 |
-| `result` | any | 方法成功执行时的结果（对于 Success Response） |
-| `error` | object | 方法执行失败时的错误信息（对于 Error Response） |
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| `type` | string | 是 | MCP 消息固定为 `"mcp"` |
+| `payload` | object | 是 | JSON-RPC 2.0 消息体 |
+| `payload.jsonrpc` | string | 是 | 固定为 `"2.0"` |
+| `payload.id` | number | 请求/响应必填 | 请求标识。设备响应必须返回对应 ID |
+| `payload.method` | string | request/notification 必填 | 方法名，如 `initialize`、`tools/list`、`tools/call` |
+| `payload.params` | object | request/notification 可选 | 方法参数 |
+| `payload.result` | any | success response 必填 | 成功响应结果 |
+| `payload.error` | object/string | error response 必填 | 失败响应错误信息 |
+
+注意事项：
+
+- 当前协议只解析 `payload` 字段，不解析旧字段 `data`。
+- MCP 外层不携带 `session_id`。`session_id` 只会出现在平台返回的基础协议 `hello`、`stt`、`tts`、`llm` 等消息中。
+- MCP 的 `payload.id` 需要是数字型整数；设备响应时不要使用字符串 ID。
+
+平台当前使用的请求 ID：
+
+| 请求 | 方法 | ID |
+| --- | --- | --- |
+| 初始化 | `initialize` | `1` |
+| 工具发现 | `tools/list` | `2` |
+| 工具调用 | `tools/call` | 从 `3` 开始递增 |
 
 ## 详细交互流程
 
 ### 步骤1：连接建立与能力通告
 
-> **⏰ 时机**：设备启动并成功连接到灵矽AI平台后  
-> **📤 发送方**：设备端  
-> **📋 消息类型**：基础协议的 "hello" 消息  
-> **🎯 目的**：声明设备支持的能力列表，包括 MCP 协议支持
+| 项目 | 说明 |
+| --- | --- |
+| 时机 | 设备启动并成功连接到灵矽AI平台后 |
+| 发送方 | 设备端 |
+| 消息类型 | 基础协议 `hello` 消息 |
+| 目的 | 声明设备支持的能力列表，包括 MCP 协议支持 |
 
-```
-┌─────────────┐                    ┌─────────────────┐
-│   设备端    │ ──── hello 消息 ──→ │   灵矽AI平台    │
-│ (MCP服务器) │                    │  (MCP客户端)    │
-└─────────────┘                    └─────────────────┘
-```
+设备端先发送基础协议 `hello`。平台只有在收到 `features.mcp: true` 后才会初始化设备端 MCP。
 
-**📨 设备端 → 灵矽平台**
+`hello` 的完整字段、音频参数和平台响应请参考 [WebSocket 协议：设备发送 Hello 消息](../platform/websocket.md#步骤2设备发送-hello-消息) 与 [WebSocket 协议：服务器 Hello 响应](../platform/websocket.md#步骤3服务器hello响应)。在 MCP 场景中，需要重点确认设备端 `hello.features.mcp` 为布尔值 `true`。
 
-```json
-{
-  "type": "hello",
-  "version": "1.0",
-  "features": {
-    "mcp": true
-  },
-  "transport": "websocket", // 或 "mqtt"
-  "audio_params": { },
-  "session_id": "device_session_123" // 设备收到服务器hello后可能设置
-}
-```
+### 步骤2：初始化 MCP 会话
 
-### 步骤2：初始化MCP会话
+| 项目 | 说明 |
+| --- | --- |
+| 时机 | 平台收到设备 `hello`，并确认设备支持 MCP 后 |
+| 发送方 | 灵矽AI平台 |
+| MCP 方法 | `initialize` |
+| 目的 | 建立 MCP 会话，交换客户端与设备端能力信息 |
 
-> **⏰ 时机**：灵矽AI平台收到设备 "hello" 消息，确认设备支持 MCP 后  
-> **📤 发送方**：灵矽AI平台（客户端）  
-> **🔧 方法**：`initialize`  
-> **🎯 目的**：建立 MCP 会话，交换客户端和服务器能力信息
+该消息外层必须是 `type: "mcp"`，JSON-RPC 内容放在 `payload` 中。
 
-```
-┌─────────────┐                    ┌─────────────────┐
-│   设备端    │ ←── initialize ──── │   灵矽AI平台    │
-│ (MCP服务器) │                    │  (MCP客户端)    │
-└─────────────┘                    └─────────────────┘
-```
-
-**📨 灵矽平台 → 设备端**
+平台发送字段结构：
 
 ```json
 {
-  "jsonrpc": "2.0",
-  "method": "initialize",
-  "params": {
-    "capabilities": {
-      // 客户端能力，可选
-      
-      // 摄像头视觉相关
-      "vision": {
-        "url": "http://example.com/vision", // 摄像头: 图片处理地址(必须是http地址, 不是websocket地址)
-        "token": "vision_token_123" // url token
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {
+        "roots": {
+          "listChanged": true
+        },
+        "sampling": {},
+        "vision": {
+          "url": "<vision_http_url>",
+          "token": "<optional_auth_token>"
+        }
+      },
+      "clientInfo": {
+        "name": "<client_name>",
+        "version": "<client_version>"
       }
-      
-      // ... 其他客户端能力
-    }
-  },
-  "id": 1 // 请求 ID
-}
-```
-
-**⏱️ 设备响应时机**：设备收到 initialize 请求并处理后
-
-**📨 设备端 → 灵矽平台**
-
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 1, // 匹配请求 ID
-  "result": {
-    "protocolVersion": "2024-11-05",
-    "capabilities": {
-      "tools": {} // 这里的 tools 似乎不列出详细信息，需要 tools/list
-    },
-    "serverInfo": {
-      "name": "智能音箱设备", // 设备名称 (BOARD_NAME)
-      "version": "1.2.3" // 设备固件版本
     }
   }
 }
 ```
+
+字段说明：
+
+| 字段 | 说明 |
+| --- | --- |
+| `protocolVersion` | 平台使用的 MCP 协议版本 |
+| `clientInfo.name` | 平台客户端名称 |
+| `clientInfo.version` | 平台客户端版本 |
+| `capabilities.roots.listChanged` | 平台支持 roots 列表变化能力 |
+| `capabilities.sampling` | 平台声明 sampling 能力 |
+| `capabilities.vision` | 可选。存在时表示平台提供 HTTP 视觉解释接口 |
+| `capabilities.vision.url` | HTTP 地址，不是 WebSocket 地址 |
+| `capabilities.vision.token` | 可选。服务端启用鉴权时提供 |
+
+平台发送参考 Demo（示例值仅用于说明）：
+
+```json
+{
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {
+        "roots": {
+          "listChanged": true
+        },
+        "sampling": {},
+        "vision": {
+          "url": "http://example.com/mcp/vision/explain",
+          "token": "optional_auth_token"
+        }
+      },
+      "clientInfo": {
+        "name": "XiaozhiClient",
+        "version": "1.0.0"
+      }
+    }
+  }
+}
+```
+
+设备端响应字段结构：
+
+```json
+{
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {
+        "tools": {}
+      },
+      "serverInfo": {
+        "name": "<device_name>",
+        "version": "<device_version>"
+      }
+    }
+  }
+}
+```
+
+平台只记录 `initialize` 响应是否成功；工具详情以 `tools/list` 为准。如果设备返回 `id: 1` 的 `error`，本次 MCP 初始化会终止。
 
 ### 步骤3：发现设备工具列表
 
-> **⏰ 时机**：灵矽AI平台需要获取设备当前支持的具体功能（工具）列表时  
-> **📤 发送方**：灵矽AI平台（客户端）  
-> **🔧 方法**：`tools/list`  
-> **🎯 目的**：获取设备支持的所有工具及其参数说明
+| 项目 | 说明 |
+| --- | --- |
+| 时机 | 平台需要获取设备当前支持的工具列表时 |
+| 发送方 | 灵矽AI平台 |
+| MCP 方法 | `tools/list` |
+| 目的 | 获取设备支持的所有工具及参数说明 |
 
-```
-┌─────────────┐                    ┌─────────────────┐
-│   设备端    │ ←── tools/list ──── │   灵矽AI平台    │
-│ (MCP服务器) │                    │  (MCP客户端)    │
-└─────────────┘                    └─────────────────┘
-```
+平台发送 `tools/list` 获取设备工具。第一次请求不带 `params`；分页续拉时才会带 `params.cursor`。所有 `tools/list` 请求使用 `id: 2`。
 
-**📨 灵矽平台 → 设备端**
+平台第一次发送字段结构：
 
 ```json
 {
-  "jsonrpc": "2.0",
-  "method": "tools/list",
-  "params": {
-    "cursor": "" // 用于分页，首次请求为空字符串
-  },
-  "id": 2 // 请求 ID
-}
-```
-
-**⏱️ 设备响应时机**：设备收到 tools/list 请求并生成工具列表后
-
-**📨 设备端 → 灵矽平台**
-
-#### 响应格式一：标准工具列表（向后兼容）
-
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 2, // 匹配请求 ID
-  "result": {
-    "tools": [ // 工具对象列表
-      {
-        "name": "self.get_device_status",
-        "description": "获取设备当前状态信息",
-        "inputSchema": {
-          "type": "object",
-          "properties": {},
-          "required": []
-        }
-      },
-      {
-        "name": "self.audio_speaker.set_volume",
-        "description": "设置音箱音量",
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "volume": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 100,
-              "description": "音量大小，范围0-100"
-            }
-          },
-          "required": ["volume"]
-        }
-      }
-      // ... 更多工具
-    ],
-    "nextCursor": null // 如果列表很大需要分页，这里会包含下一个请求的 cursor 值
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/list"
   }
 }
 ```
 
-#### 响应格式二：带类型标识的工具列表（推荐）
-
-为了同时支持标准工具（tool）和 RPC 函数调用（rpc），新增 `type` 字段用于区分工具类型：
+分页续拉时平台发送字段结构：
 
 ```json
 {
-  "jsonrpc": "2.0",
-  "id": 2, // 匹配请求 ID
-  "result": {
-    "tools": [ // 工具对象列表
-      {
-        "name": "self.get_device_status",
-        "description": "获取设备当前状态信息",
-        "type": <int>, // 函数类型，0 表示 tool 函数，1 表示 rpc 函数
-        "inputSchema": {
-          "type": "object",
-          "properties": {},
-          "required": []
-        }
-      },
-      {
-        "name": "self.audio_speaker.set_volume",
-        "description": "设置音箱音量",
-        "type": 0, // 函数类型，0 表示 tool 函数
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "volume": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 100,
-              "description": "音量大小，范围0-100"
-            }
-          },
-          "required": ["volume"]
-        }
-      }
-      // ... 更多工具
-    ],
-    "nextCursor": null // 如果列表很大需要分页，这里会包含下一个请求的 cursor 值
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/list",
+    "params": {
+      "cursor": "<next_cursor>"
+    }
   }
 }
 ```
 
-**字段说明**：
+设备端响应字段结构：
 
-- `type`：函数类型标识，0 表示 tool 函数，1 表示 rpc 函数
-- 其他字段与标准 MCP 工具定义保持一致
+```json
+{
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "tools": [
+        {
+          "name": "<tool_name>",
+          "description": "<tool_description>",
+          "inputSchema": {
+            "type": "object",
+            "properties": {},
+            "required": []
+          }
+        },
+        {
+          "name": "<rpc_tool_name>",
+          "description": "<rpc_tool_description>",
+          "type": "rpc",
+          "inputSchema": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      ],
+      "nextCursor": null
+    }
+  }
+}
+```
 
-**分页处理**：如果 `nextCursor` 字段非空，客户端需要再次发送 `tools/list` 请求，并在 `params` 中带上这个 cursor 值以获取下一页工具。
+设备端响应参考 Demo（示例值仅用于说明）：
+
+```json
+{
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "tools": [
+        {
+          "name": "self.get_device_status",
+          "description": "获取设备当前状态信息",
+          "inputSchema": {
+            "type": "object",
+            "properties": {},
+            "required": []
+          }
+        },
+        {
+          "name": "self.audio_speaker.set_volume",
+          "description": "设置音箱音量",
+          "type": 0,
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "volume": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "音量大小，范围 0-100"
+              }
+            },
+            "required": ["volume"]
+          }
+        },
+        {
+          "name": "self.system.reboot",
+          "description": "重启设备，仅供内部 RPC 调用",
+          "type": "rpc",
+          "inputSchema": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      ],
+      "nextCursor": null
+    }
+  }
+}
+```
+
+`tools/list` 结果字段说明：
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| `tools` | array | 是 | 工具列表。缺失或不是数组会导致本次 MCP 初始化失败 |
+| `tools[].name` | string | 是 | 设备端原始工具名。为空会被跳过 |
+| `tools[].description` | string | 否 | 工具说明，会提供给大模型理解工具用途 |
+| `tools[].inputSchema` | object | 否 | JSON Schema。缺失时平台按 `{"type":"object"}` 处理 |
+| `tools[].type` | number/string | 否 | 缺省或 `0` 表示普通工具；`1` 或 `"rpc"` 表示 RPC-only 工具 |
+| `nextCursor` | string/null | 否 | 非空字符串表示还有下一页 |
+
+分页规则：
+
+- 如果 `nextCursor` 是非空字符串，平台会继续发送 `tools/list`，并带上该 cursor。
+- 如果 `nextCursor` 为空、`null` 或缺失，平台认为工具列表已结束。
+- 多页工具会先暂存，只有最后一页结束后才一次性生效。
+
+兼容说明：
+
+当前协议也兼容设备用 `payload.method: "tools/list"` 加 `payload.params.tools` 的通知式返回，但推荐设备端始终使用标准 JSON-RPC response，即 `id: 2` 加 `result.tools`。
 
 ### 步骤4：调用设备工具
 
-> **⏰ 时机**：灵矽AI平台需要执行设备上的某个具体功能时  
-> **📤 发送方**：灵矽AI平台（客户端）  
-> **🔧 方法**：`tools/call`  
-> **🎯 目的**：调用设备上的具体工具，执行实际的控制操作
+| 项目 | 说明 |
+| --- | --- |
+| 时机 | 平台需要执行设备上的某个具体功能时 |
+| 发送方 | 灵矽AI平台 |
+| MCP 方法 | `tools/call` |
+| 目的 | 调用设备上的具体工具，执行实际控制操作 |
 
-```
-┌─────────────┐                    ┌─────────────────┐
-│   设备端    │ ←── tools/call ──── │   灵矽AI平台    │
-│ (MCP服务器) │                    │  (MCP客户端)    │
-└─────────────┘                    └─────────────────┘
-```
+平台需要控制设备时，会发送 `tools/call`。调用 ID 从 `3` 开始递增，超时时间为 30 秒。
 
-**📨 灵矽平台 → 设备端**
+平台发送字段结构：
 
 ```json
 {
-  "jsonrpc": "2.0",
-  "method": "tools/call",
-  "params": {
-    "name": "self.audio_speaker.set_volume", // 要调用的工具名称
-    "arguments": {
-      // 工具参数，对象格式
-      "volume": 50 // 参数名及其值
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "method": "tools/call",
+    "params": {
+      "name": "<tool_name>",
+      "arguments": {
+        "<argument_name>": "<argument_value>"
+      }
+    }
+  }
+}
+```
+
+平台发送参考 Demo（示例值仅用于说明）：
+
+```json
+{
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "method": "tools/call",
+    "params": {
+      "name": "self.audio_speaker.set_volume",
+      "arguments": {
+        "volume": 50
+      }
+    }
+  }
+}
+```
+
+设备端成功响应字段结构：
+
+```json
+{
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "<tool_result_text>"
+        }
+      ],
+      "isError": false
+    }
+  }
+}
+```
+
+设备端成功响应参考 Demo（示例值仅用于说明）：
+
+```json
+{
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "音量已设置为 50%"
+        }
+      ],
+      "isError": false
+    }
+  }
+}
+```
+
+设备端也可以返回非标准结构，平台会把 `result` 转成字符串；但推荐使用 `content[].text`，平台会提取所有非空文本并用换行拼接。
+
+这里的 `content[].type` 是工具结果内容块类型，当前推荐返回 `"text"`；它和 `tools/list` 中用于区分普通工具/RPC-only 工具的 `tools[].type` 不是同一个字段。
+
+设备端工具执行失败时，可以返回 JSON-RPC error：
+
+```json
+{
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "error": {
+      "code": -32601,
+      "message": "<error_message>"
+    }
+  }
+}
+```
+
+也可以返回工具结果错误：
+
+```json
+{
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "result": {
+      "isError": true,
+      "error": "<error_message>"
+    }
+  }
+}
+```
+
+两种错误都会让平台认为本次工具调用失败。
+
+## 工具定义规范
+
+### 工具类型
+
+这里的 `type` 指的是 `tools/list` 响应中单个工具对象的类型字段，完整路径为 `payload.result.tools[].type`，不是 MCP 外层的 `type: "mcp"`，也不是工具调用结果里的 `payload.result.content[].type`。
+
+位置示例：
+
+```json
+{
+  "type": "mcp",
+  "payload": {
+    "result": {
+      "tools": [
+        {
+          "name": "<tool_name>",
+          "type": "<tool_type>"
+        }
+      ]
+    }
+  }
+}
+```
+
+具体取值见上方 `tools/list` 结果字段说明中的 `tools[].type`。普通工具会进入大模型工具列表；RPC-only 工具会注册到平台，但不会作为普通工具提供给大模型。
+
+### 工具名规范化
+
+设备在 `tools/list` 中上报的是原始工具名，平台内部会把它规范化成适合大模型函数调用的名称。真正下发 `tools/call` 时，平台会再还原为设备原始工具名。
+
+规范化规则：
+
+- 首尾空白会被去掉。
+- 字母、数字、下划线 `_`、短横线 `-` 会保留。
+- 点号、斜杠、中文等其他字符会替换成 `_`。
+- 如果第一个字符不是字母或 `_`，平台会添加 `tool_` 前缀。
+- 规范化后最长 64 个字符。
+
+示例：
+
+| 设备上报原始名称 | 平台内部名称 |
+| --- | --- |
+| `self.screen.set_theme` | `self_screen_set_theme` |
+| `self.audio_speaker.set_volume` | `self_audio_speaker_set_volume` |
+| `9light_mode` | `tool_9light_mode` |
+| `灯/光` | `___` |
+
+如果两个原始工具名规范化后发生冲突，平台会保留先注册的工具，丢弃后注册的冲突工具。因此设备端应尽量使用稳定、唯一、ASCII 友好的工具名。
+
+### inputSchema 建议
+
+`inputSchema` 推荐使用 JSON Schema object。字段结构示例：
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "<argument_name>": {
+      "type": "<argument_type>",
+      "description": "<argument_description>"
     }
   },
-  "id": 3 // 请求 ID
+  "required": ["<argument_name>"]
 }
 ```
 
-**⏱️ 设备响应时机**：设备收到 tools/call 请求，执行相应的工具函数后
-
-**📨 设备端 → 灵矽平台（成功响应）**
+参考 Demo（示例值仅用于说明）：
 
 ```json
 {
-  "jsonrpc": "2.0",
-  "id": 3, // 匹配请求 ID
-  "result": {
-    "content": [
-      {
-        "type": "text",
-        "text": "音量已设置为50%"
+  "type": "object",
+  "properties": {
+    "volume": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "音量大小，范围 0-100"
+    }
+  },
+  "required": ["volume"]
+}
+```
+
+平台会做兼容修正：
+
+- `inputSchema` 缺失或不是对象时，按 `{"type":"object"}` 处理。
+- `type` 缺失时，补为 `"object"`。
+- `required` 只保留非空字符串字段名。
+- `properties` 不是对象时会被忽略。
+
+## 错误处理
+
+| 场景 | 平台行为 |
+| --- | --- |
+| 设备未在 `hello.features.mcp` 声明 `true` | 不启动 MCP，忽略后续设备 MCP 消息 |
+| MCP 外层使用 `data` 而不是 `payload` | 不会被当前协议解析 |
+| 设备响应 ID 不是数字 | 响应会被忽略 |
+| `initialize` 返回 `error` | 本次 MCP 初始化终止 |
+| `tools/list` 缺失 `result.tools` 或 `params.tools` | 本次 MCP 初始化终止 |
+| `tools/list` 返回 `error` | 本次 MCP 初始化终止，暂存工具会被丢弃 |
+| `tools/call` 30 秒内无响应 | 本次调用超时 |
+| `tools/call` 返回 JSON-RPC `error` | 本次调用失败 |
+| `tools/call` 返回 `result.isError: true` | 本次调用失败，`result.error` 会作为错误原因 |
+
+## 设备端工具注册建议
+
+设备端可以通过本地 MCP Server 的工具注册接口把硬件能力暴露出来。无论底层接口名称是什么，最终上报给平台的工具应满足以下要求：
+
+- `name` 稳定唯一，建议使用模块化命名，如 `self.audio_speaker.set_volume`。
+- `description` 用自然语言说明功能、限制和副作用，方便大模型选择工具。
+- `inputSchema` 明确每个参数的类型、取值范围和必填项。
+- 普通工具不写 `type` 或写 `type: 0`；仅供平台内部调用的函数写 `type: "rpc"` 或 `type: 1`。
+- 工具执行结果优先返回 `content[].text`，便于平台把结果放回对话上下文。
+
+典型工具列表片段：
+
+```json
+{
+  "name": "self.light.set_rgb",
+  "description": "设置设备 RGB 灯光颜色",
+  "type": 0,
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "r": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "g": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "b": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
       }
-    ],
-    "isError": false
+    },
+    "required": ["r", "g", "b"]
   }
-}
-```
-
-**📨 设备端 → 灵矽平台（错误响应）**
-
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 3,
-  "error": {
-    "code": -32601,
-    "message": "未知工具: self.non_existent_tool"
-  }
-}
-```
-
-## 设备端工具注册方法
-
-### AddTool方法说明
-
-设备通过 `McpServer::AddTool` 方法注册可被灵矽AI平台调用的"工具"。其常用函数签名如下：
-
-```cpp
-void AddTool(
-    const std::string& name,           // 工具名称，建议唯一且有层次感，如 self.dog.forward
-    const std::string& description,    // 工具描述，简明说明功能，便于大模型理解
-    const PropertyList& properties,    // 输入参数列表（可为空），支持类型：布尔、整数、字符串
-    std::function<ReturnValue(const PropertyList&)> callback // 工具被调用时的回调实现
-);
-```
-
-**参数说明**：
-
-- `name`：工具唯一标识，建议用"模块.功能"命名风格
-- `description`：自然语言描述，便于 AI/用户理解
-- `properties`：参数列表，支持类型有布尔、整数、字符串，可指定范围和默认值
-- `callback`：收到调用请求时的实际执行逻辑，返回值可为 bool/int/string
-
-### 典型注册示例
-
-以下是典型的工具注册示例（以 ESP-Hi 为例）：
-
-```cpp
-void InitializeTools() {
-    auto& mcp_server = McpServer::GetInstance();
-    
-    // 例1：无参数，控制机器人前进
-    mcp_server.AddTool("self.dog.forward", "机器人向前移动", PropertyList(), 
-        [this](const PropertyList&) -> ReturnValue {
-            servo_dog_ctrl_send(DOG_STATE_FORWARD, NULL);
-            return true;
-        });
-    
-    // 例2：带参数，设置灯光 RGB 颜色
-    mcp_server.AddTool("self.light.set_rgb", "设置RGB颜色", PropertyList({
-        Property("r", kPropertyTypeInteger, 0, 255),
-        Property("g", kPropertyTypeInteger, 0, 255),
-        Property("b", kPropertyTypeInteger, 0, 255)
-    }), [this](const PropertyList& properties) -> ReturnValue {
-        int r = properties["r"].value<int>();
-        int g = properties["g"].value<int>();
-        int b = properties["b"].value<int>();
-        led_on_ = true;
-        SetLedColor(r, g, b);
-        return true;
-    });
 }
 ```
