@@ -195,22 +195,6 @@ const deleteChatHistoryParameters = [
   }
 ]
 
-// 删除聊天记录 - 响应字段
-const deleteChatHistoryResponseFields = [
-  { field: 'code', type: 'int', description: '业务状态码，0 表示成功' },
-  { field: 'reqid', type: 'string', description: '请求ID，用于排查问题' },
-  { field: 'data.deleted_count', type: 'int64', description: '删除的记录数量' }
-]
-
-// 删除聊天记录 - 错误响应
-const deleteChatHistoryErrors = [
-  { code: 400, description: 'MAC 地址格式不合法', example: '{"code":400,"msg":"invalid mac address. format: 1a:2b:3c:4d:5e:6f"}' },
-  { code: 401, description: '未授权', example: 'HTTP 401' },
-  { code: 403, description: '当前用户不是设备拥有者', example: '{"code":403,"msg":"permission denied"}' },
-  { code: 404, description: '设备不存在', example: '{"code":404,"msg":"device not found"}' },
-  { code: 599, description: '数据库或其他服务端内部错误', example: '{"code":599,"msg":"<error>"}' }
-]
-
 // 通用状态码定义
 const commonStatusCodes = [
   { code: 0, description: 'OK - 操作成功', schema: 'ResultVoid' },
