@@ -13,6 +13,12 @@ MCP（Model Context Protocol）用于让灵矽AI平台通过标准 JSON-RPC 2.0 
 - [概述](#概述)
 - [典型使用流程](#典型使用流程)
 - [协议格式规范](#协议格式规范)
+  - [基础消息外层](#基础消息外层)
+  - [消息类型](#消息类型)
+  - [错误码](#错误码)
+  - [编码与传输要求](#编码与传输要求)
+  - [注意事项](#注意事项)
+  - [平台请求 ID 分配](#平台请求-id-分配)
 - [详细交互流程](#详细交互流程)
 - [工具定义规范](#工具定义规范)
 - [设备端工具注册建议](#设备端工具注册建议)
@@ -94,21 +100,117 @@ MCP 交互主要围绕平台发现并调用设备端工具进行：
 | `payload.method` | string | request/notification 必填 | 方法名，如 `initialize`、`tools/list`、`tools/call` |
 | `payload.params` | object | request/notification 可选 | 方法参数 |
 | `payload.result` | any | success response 必填 | 成功响应结果 |
-| `payload.error` | object/string | error response 必填 | 失败响应错误信息 |
+| `payload.error` | object | error response 必填 | 失败响应错误信息，包含 `code` 和 `message` |
 
-注意事项：
+### 消息类型
+
+MCP 协议中的 JSON-RPC 2.0 消息分为三种类型：
+
+#### 请求（Request）
+
+由平台发送给设备端，包含 `id`、`method` 和可选的 `params`。设备端必须返回一个带有相同 `id` 的响应。
+
+```json
+{
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/list"
+  }
+}
+```
+
+#### 成功响应（Success Response）
+
+设备端处理成功后返回，包含 `id` 和 `result`，不包含 `method` 和 `error`。
+
+```json
+{
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "tools": []
+    }
+  }
+}
+```
+
+#### 错误响应（Error Response）
+
+设备端处理失败时返回，包含 `id` 和 `error`，不包含 `method` 和 `result`。
+
+```json
+{
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  }
+}
+```
+
+### 错误码
+
+`error` 对象包含 `code`（整数）和 `message`（字符串）两个字段。错误码遵循 JSON-RPC 2.0 标准定义：
+
+| 错误码 | 含义 | 说明 |
+| --- | --- | --- |
+| `-32700` | Parse error | 服务端收到无效的 JSON |
+| `-32600` | Invalid Request | JSON 有效但不是合法的 JSON-RPC 请求 |
+| `-32601` | Method not found | 请求的方法不存在或不可用 |
+| `-32602` | Invalid params | 方法参数无效 |
+| `-32603` | Internal error | 服务端内部错误 |
+| `-32000` ~ `-32099` | Server error | 预留给实现层自定义的服务端错误 |
+
+设备端可以使用 `-32000` ~ `-32099` 范围内的错误码来表示业务层错误。例如：
+
+```json
+{
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "error": {
+      "code": -32000,
+      "message": "设备正在充电中，无法执行移动操作"
+    }
+  }
+}
+```
+
+### 编码与传输要求
+
+- **字符编码**：所有消息必须使用 UTF-8 编码。
+- **消息格式**：每条 WebSocket 文本帧承载一条完整的 JSON 消息，不支持分片拼接。
+- **字段顺序**：JSON 字段顺序不影响解析，设备端无需保证字段顺序。
+- **额外字段**：设备端或平台在消息中携带的未定义字段会被忽略，不会报错。
+
+### 注意事项
 
 - 当前协议只解析 `payload` 字段，不解析旧字段 `data`。
 - MCP 外层不携带 `session_id`。`session_id` 只会出现在平台返回的基础协议 `hello`、`stt`、`tts`、`llm` 等消息中。
 - MCP 的 `payload.id` 需要是数字型整数；设备响应时不要使用字符串 ID。
+- 设备端应在 30 秒内返回响应。超时后平台会认为该请求失败。
+- 同一连接上的请求是串行的，平台在收到前一个响应（或超时）后才会发送下一个请求。
 
-平台当前使用的请求 ID：
+### 平台请求 ID 分配
+
+平台当前使用固定的请求 ID 分配策略：
 
 | 请求 | 方法 | ID |
 | --- | --- | --- |
 | 初始化 | `initialize` | `1` |
 | 工具发现 | `tools/list` | `2` |
 | 工具调用 | `tools/call` | 从 `3` 开始递增 |
+
+设备端响应时必须原样返回请求中的 `id` 值。如果设备同时收到多个请求（如断线重连场景），应根据 `id` 区分并分别响应。
 
 ## 详细交互流程
 
