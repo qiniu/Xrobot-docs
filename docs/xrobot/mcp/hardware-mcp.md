@@ -15,7 +15,6 @@ MCP（Model Context Protocol）用于让灵矽AI平台通过标准 JSON-RPC 2.0 
 - [协议格式规范](#协议格式规范)
 - [详细交互流程](#详细交互流程)
 - [工具定义规范](#工具定义规范)
-- [错误处理](#错误处理)
 - [设备端工具注册建议](#设备端工具注册建议)
 
 ## 典型使用流程
@@ -477,40 +476,6 @@ MCP 交互主要围绕平台发现并调用设备端工具进行：
 
 这里的 `content[].type` 是工具结果内容块类型，当前推荐返回 `"text"`；它和 `tools/list` 中用于区分普通工具/RPC-only 工具的 `tools[].type` 不是同一个字段。
 
-设备端工具执行失败时，可以返回 JSON-RPC error：
-
-```json
-{
-  "type": "mcp",
-  "payload": {
-    "jsonrpc": "2.0",
-    "id": 3,
-    "error": {
-      "code": -32601,
-      "message": "<error_message>"
-    }
-  }
-}
-```
-
-也可以返回工具结果错误：
-
-```json
-{
-  "type": "mcp",
-  "payload": {
-    "jsonrpc": "2.0",
-    "id": 3,
-    "result": {
-      "isError": true,
-      "error": "<error_message>"
-    }
-  }
-}
-```
-
-两种错误都会让平台认为本次工具调用失败。
-
 ## 工具定义规范
 
 ### 工具类型
@@ -536,29 +501,6 @@ MCP 交互主要围绕平台发现并调用设备端工具进行：
 ```
 
 具体取值见上方 `tools/list` 结果字段说明中的 `tools[].type`。普通工具会进入大模型工具列表；RPC-only 工具会注册到平台，但不会作为普通工具提供给大模型。
-
-### 工具名规范化
-
-设备在 `tools/list` 中上报的是原始工具名，平台内部会把它规范化成适合大模型函数调用的名称。真正下发 `tools/call` 时，平台会再还原为设备原始工具名。
-
-规范化规则：
-
-- 首尾空白会被去掉。
-- 字母、数字、下划线 `_`、短横线 `-` 会保留。
-- 点号、斜杠、中文等其他字符会替换成 `_`。
-- 如果第一个字符不是字母或 `_`，平台会添加 `tool_` 前缀。
-- 规范化后最长 64 个字符。
-
-示例：
-
-| 设备上报原始名称 | 平台内部名称 |
-| --- | --- |
-| `self.screen.set_theme` | `self_screen_set_theme` |
-| `self.audio_speaker.set_volume` | `self_audio_speaker_set_volume` |
-| `9light_mode` | `tool_9light_mode` |
-| `灯/光` | `___` |
-
-如果两个原始工具名规范化后发生冲突，平台会保留先注册的工具，丢弃后注册的冲突工具。因此设备端应尽量使用稳定、唯一、ASCII 友好的工具名。
 
 ### inputSchema 建议
 
@@ -600,20 +542,6 @@ MCP 交互主要围绕平台发现并调用设备端工具进行：
 - `type` 缺失时，补为 `"object"`。
 - `required` 只保留非空字符串字段名。
 - `properties` 不是对象时会被忽略。
-
-## 错误处理
-
-| 场景 | 平台行为 |
-| --- | --- |
-| 设备未在 `hello.features.mcp` 声明 `true` | 不启动 MCP，忽略后续设备 MCP 消息 |
-| MCP 外层使用 `data` 而不是 `payload` | 不会被当前协议解析 |
-| 设备响应 ID 不是数字 | 响应会被忽略 |
-| `initialize` 返回 `error` | 本次 MCP 初始化终止 |
-| `tools/list` 缺失 `result.tools` 或 `params.tools` | 本次 MCP 初始化终止 |
-| `tools/list` 返回 `error` | 本次 MCP 初始化终止，暂存工具会被丢弃 |
-| `tools/call` 30 秒内无响应 | 本次调用超时 |
-| `tools/call` 返回 JSON-RPC `error` | 本次调用失败 |
-| `tools/call` 返回 `result.isError: true` | 本次调用失败，`result.error` 会作为错误原因 |
 
 ## 设备端工具注册建议
 
