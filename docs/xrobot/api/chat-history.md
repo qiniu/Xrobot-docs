@@ -93,6 +93,24 @@ Content-Type: application/octet-stream
 
 [Binary audio data]`
 
+// 删除聊天记录 - 请求示例
+const deleteChatHistoryRequest = `DELETE /v1/devices/AA:C8:BD:B8:00:77/chat-history HTTP/1.1
+Host: xrobo.qiniu.com
+Authorization: Bearer <token>`
+
+// 删除聊天记录 - curl 示例
+const deleteChatHistoryCurl = `curl -X DELETE "https://xrobo.qiniu.com/v1/devices/AA:C8:BD:B8:00:77/chat-history" \\
+  -H "Authorization: Bearer f9b859fa515af888cfdf53d03dc0d561"`
+
+// 删除聊天记录 - 响应示例
+const deleteChatHistoryResponse = `{
+  "code": 0,
+  "reqid": "v8ghAP2OBo4QVQYA",
+  "data": {
+    "deleted_count": 55
+  }
+}`
+
 // 获取聊天记录列表 - 参数定义
 const getSessionsParameters = [
   {
@@ -165,10 +183,31 @@ const playAudioParameters = [
   }
 ]
 
+// 删除聊天记录 - 参数定义
+const deleteChatHistoryParameters = [
+  {
+    name: 'mac_address',
+    type: 'string',
+    in: 'path',
+    required: true,
+    description: '设备MAC地址，格式: 1a:2b:3c:4d:5e:6f',
+    example: 'AA:C8:BD:B8:00:77'
+  }
+]
+
 // 通用状态码定义
 const commonStatusCodes = [
   { code: 0, description: 'OK - 操作成功', schema: 'ResultVoid' },
   { code: 401, description: 'Unauthorized - 未登录或token无效', schema: 'ErrorResponse' }
+]
+
+const deleteChatHistoryStatusCodes = [
+  { code: 0, description: 'OK - 成功删除聊天记录', schema: 'ResultDeleteChatHistory' },
+  { code: 400, description: 'Bad Request - MAC 地址格式不合法', schema: 'ErrorResponse' },
+  { code: 401, description: 'Unauthorized - 未登录或token无效', schema: 'ErrorResponse' },
+  { code: 403, description: 'Forbidden - 当前用户不是设备拥有者', schema: 'ErrorResponse' },
+  { code: 404, description: 'Not Found - 设备不存在', schema: 'ErrorResponse' },
+  { code: 599, description: 'Internal Server Error - 数据库或其他服务端内部错误', schema: 'ErrorResponse' }
 ]
 
 const getListStatusCodes = [
@@ -262,3 +301,25 @@ const unauthorizedResponse = `{
 ::: info
 响应为二进制音频文件（WAV格式），可用于下载或直接播放。此接口应与获取音频对应的播放ID接口一同使用。
 :::
+
+### 删除聊天记录
+
+按设备 MAC 地址删除聊天记录。
+
+::: info
+目前只删除数据库记录，OSS 上的音频文件由 60 天自动清理机制处理。
+:::
+
+<ApiEndpoint
+  host="https://xrobo.qiniu.com"
+  basePath="/v1"
+  endpoint="/devices/{mac_address}/chat-history"
+  method="delete"
+  title="删除聊天记录"
+  description="按设备 MAC 地址删除聊天记录（隐私保护功能）"
+  :parameters="deleteChatHistoryParameters"
+  :headers="getListHeaders"
+  :requestExample="deleteChatHistoryRequest"
+  :responseExample="deleteChatHistoryResponse"
+  :statusCodes="deleteChatHistoryStatusCodes"
+/>
