@@ -95,7 +95,7 @@ Content-Type: application/octet-stream
 
 // 删除聊天记录 - 请求示例
 const deleteChatHistoryRequest = `DELETE /v1/devices/AA:C8:BD:B8:00:77/chat-history HTTP/1.1
-Host: https://xrobo.qiniu.com
+Host: xrobo.qiniu.com
 Authorization: Bearer <token>`
 
 // 删除聊天记录 - curl 示例
