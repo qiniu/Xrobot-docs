@@ -136,7 +136,7 @@ Client-Id: web_test_client
     "url": "https://xrobo.qiniuapi.com/v1/ota/INVALID_FIRMWARE_FOR_TEST"
   },
   "websocket": {
-    "url": "ws://xrobo-io.qiniuapi.com/v1/ws2"
+    "url": "ws://xrobo-io.qiniuapi.com/v1/ws/"
   }
 }
 ```
