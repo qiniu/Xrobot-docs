@@ -74,7 +74,7 @@ const int CHANNELS = 1;       // 声道数（单声道）
 
 ### 2. WebSocket连接配置
 
-- **服务器地址**: `ws://xrobo-io.qiniuapi.com/v1/ws/`
+- **服务器地址**: `ws://xrobo-io.qiniuapi.com/v1/ws2`
 - **音频编码**: Opus格式
 - **帧持续时间**: 60ms
 - **协议版本**: v1
