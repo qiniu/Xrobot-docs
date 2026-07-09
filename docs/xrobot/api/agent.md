@@ -100,6 +100,57 @@ const searchAgentResponse = `{
   "nextCursor": null
 }`
 
+const searchAgentStatusCodes = [
+  { code: 0, description: 'OK - 成功搜索智能体', schema: 'ResultListAgentDTO' },
+  { code: 401, description: 'Unauthorized - 未登录或token无效', schema: 'ErrorResponse' }
+]
+
+// 获取智能体详情 - 参数定义
+const getAgentDetailParameters = [
+  {
+    name: 'id',
+    in: 'path',
+    type: 'string',
+    required: true,
+    description: '智能体ID',
+    example: 'xxxxxxxxx'
+  }
+]
+
+const getAgentDetailRequest = `GET /xiaozhi/agent/xxxxxx HTTP/1.1
+Host: https://xrobo.qiniu.com
+Authorization: Bearer <token>`
+
+const getAgentDetailResponse = `{
+  "code": 0,
+  "msg": "success",
+  "data": {
+    "id": "xxxx",
+    "agentName": "小智助手",
+    "assistantName": "助手阿伟",
+    "llmModelId": "LLM_AliLLM",
+    "ttsVoiceId": "xxxxxxx",
+    "memModelId": "Memory_mem_local_short",
+    "intentModelId": "Intent_intent_llm",
+    "chatHistoryConf": 1,
+    "systemPrompt": "...",
+    "summaryMemory": null,
+    "language": "中文",
+    "langCode": "zh",
+    "datasetIds": [],
+    "deviceCount": 5,
+    "lastConnectedAt": "2026-07-09 09:00:00",
+    "createdAt": "2026-07-01 12:00:00",
+    "updatedAt": "2026-07-09 09:00:00"
+  }
+}`
+
+const getAgentDetailStatusCodes = [
+  { code: 0, description: 'OK - 成功获取智能体详情', schema: 'ResultAgentInfoVO' },
+  { code: 401, description: 'Unauthorized - 未授权或token无效', schema: 'ErrorResponse' },
+  { code: 500, description: 'Internal Server Error - 智能体不存在', schema: 'ErrorResponse' }
+]
+
 // 创建智能体 - 参数定义
 const createAgentParameters = [
     {
@@ -707,5 +758,21 @@ GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
 ::: info
 此接口用于将设备切换绑定到不同的智能体
 :::
+
+### 获取智能体详情
+
+<ApiEndpoint
+  host="https://xrobo.qiniu.com"
+  basePath="/xiaozhi"
+  endpoint="/agent/{id}"
+  method="get"
+  title="获取智能体详情"
+  description="获取指定智能体的配置详情，包括基础信息、模型配置、提示词、知识库绑定、设备数量和最近连接时间"
+  :parameters="getAgentDetailParameters"
+  :headers="getListHeaders"
+  :requestExample="getAgentDetailRequest"
+  :responseExample="getAgentDetailResponse"
+  :statusCodes="getAgentDetailStatusCodes"
+/>
 
 ## 其他说明项
