@@ -453,7 +453,7 @@ Authorization: Bearer <token>
 
 ::: warning 不要用同一个 key 套所有模型
 由于 key 和类型因模型而异，接入前请**按目标模型查它声明的确切 key 和类型**，再决定怎么传；换模型时需重新确认。
-
+:::
 ### 请求示例
 
 以下为通用写法示例，`<llmModelId>` 填目标模型 ID，`body` 内的 key/值请以该模型 schema 为准：
