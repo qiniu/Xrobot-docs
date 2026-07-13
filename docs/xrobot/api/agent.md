@@ -358,6 +358,64 @@ const updateAgentParameters = [
         description: '额外高级配置信息',
         children: [
           {
+            name: 'llm',
+            type: 'object',
+            required: false,
+            description: 'LLM 个性化配置。标准参数越界会被自动夹取到边界值（不报错）；custom_params 走模型 schema 校验，非法参数直接拒绝',
+            children: [
+              {
+                name: 'temperature',
+                type: 'number',
+                required: false,
+                description: '温度，控制输出随机性（接受范围 0.0~2.0，越界夹取）',
+                example: 0.7
+              },
+              {
+                name: 'top_p',
+                type: 'number',
+                required: false,
+                description: '核采样参数（接受范围 0.0~1.0，越界夹取）',
+                example: 1.0
+              },
+              {
+                name: 'frequency_penalty',
+                type: 'number',
+                required: false,
+                description: '频率惩罚（接受范围 -2.0~2.0，越界夹取）',
+                example: 0.0
+              },
+              {
+                name: 'max_tokens',
+                type: 'integer',
+                required: false,
+                description: '最长回复长度（接受范围 1~8192，越界夹取）',
+                example: 500
+              },
+              {
+                name: 'enable_search',
+                type: 'boolean',
+                required: false,
+                description: '是否联网搜索',
+                example: false
+              },
+              {
+                name: 'custom_params',
+                type: 'object',
+                required: false,
+                description: '大模型自定义参数，按所选 LLM 模型的 schema 校验，非法参数直接拒绝（400）。支持哪些参数取决于所选模型、且会随模型调整而变化，详见「大语言模型 API」文档',
+                children: [
+                  {
+                    name: 'body',
+                    type: 'object',
+                    required: false,
+                    description: '自定义参数键值对，key 与类型由所选模型的 schema 决定，接入前需先查询该模型 schema 再传',
+                    example: '{ "<自定义参数key>": "<按 schema 取值>" }'
+                  }
+                ]
+              }
+            ]
+          },
+          {
             name: 'voice',
             type: 'object',
             required: false,
@@ -443,6 +501,18 @@ Authorization: Bearer <token>
     }
   ],
   "extra": {
+    "llm": {
+      "temperature": 0.7,
+      "top_p": 1.0,
+      "frequency_penalty": 0.0,
+      "max_tokens": 500,
+      "enable_search": false,
+      "custom_params": {
+        "body": {
+          "<自定义参数key>": "<按 schema 取值>"
+        }
+      }
+    },
     "voice": {
       "speed": 1,
       "pitch": 1,
@@ -717,6 +787,10 @@ GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
 
 ::: info
 更新智能体时，只需传递需要修改的字段，未传递的字段可以不传
+:::
+
+::: tip LLM 参数说明
+`extra.llm` 下的标准参数（temperature、top_p 等）越界会被自动夹取、不报错；`extra.llm.custom_params.body` 下的自定义参数会按所选模型的 schema 校验，非法参数直接拒绝。支持哪些自定义参数取决于所选模型、且会随模型调整而变化，具体 key/类型请以模型 schema 查询结果为准，详见 [大语言模型 API](./llm.md) 的「大模型自定义参数（custom_params）」一节。
 :::
 
 ### 删除智能体
