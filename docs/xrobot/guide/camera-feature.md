@@ -60,13 +60,13 @@ sequenceDiagram
 
 ### 4. 视觉分析接口
 
-设备端将捕获的图片发送到视觉分析接口（可通过mcp里面的capabilities获取url以及token）：
+设备端将捕获的图片发送到视觉分析接口。接口地址和鉴权 token 由平台在 MCP 初始化阶段下发，请以 `initialize` 消息中的 `capabilities.vision.url` 和 `capabilities.vision.token` 为准，详见 [MCP 初始化能力字段](../mcp/hardware-mcp.md#步骤2初始化-mcp-会话)。
 
-**接口地址**：`https://xrobo-io.qiniuapi.com/mcp/vision/explain`
+**接口地址**：使用 `capabilities.vision.url`
 
 **请求示例**：
 ```bash
-curl -X POST "https://xrobo-io.qiniuapi.com/mcp/vision/explain" \
+curl -X POST "<vision_http_url>" \
     -H "Authorization: Bearer xxx" \
     -H "Device-Id: xxxx" \
     -H "Client-Id: xxxx" \
