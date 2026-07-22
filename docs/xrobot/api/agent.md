@@ -67,12 +67,31 @@ const searchAgentParameters = [
     in: 'query',
     type: 'string',
     required: true,
-    description: '搜索前缀（前缀匹配，例如搜索"小智"可命中"小智助手"）',
+    description: '搜索关键词',
     example: '小智'
+  },
+  {
+    name: 'type',
+    in: 'query',
+    type: 'string',
+    required: false,
+    description: '搜索类型，支持 name（智能体名称）、mac（设备 MAC 地址）、agent_id（智能体 ID）。缺省默认为 name',
+    example: 'mac'
   }
 ]
 
-const searchAgentRequest = `GET /xiaozhi/agent/search?q=小智 HTTP/1.1
+const searchAgentRequest = `// 示例 1：按名称前缀搜索（默认）
+GET /xiaozhi/agent/search?q=小智&type=name HTTP/1.1
+Host: https://xrobo.qiniu.com
+Authorization: Bearer <token>
+
+// 示例 2：按设备 MAC 地址精确搜索
+GET /xiaozhi/agent/search?q=AA:BB:CC:DD:EE:FF&type=mac HTTP/1.1
+Host: https://xrobo.qiniu.com
+Authorization: Bearer <token>
+
+// 示例 3：按智能体 ID 精确搜索
+GET /xiaozhi/agent/search?q=4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d&type=agent_id HTTP/1.1
 Host: https://xrobo.qiniu.com
 Authorization: Bearer <token>`
 
@@ -725,7 +744,7 @@ GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
   endpoint="/agent/search"
   method="get"
   title="搜索智能体"
-  description="按名称前缀匹配搜索智能体，当前为全量返回搜索结果"
+  description="支持按名称前缀、设备 MAC 地址或智能体 ID 搜索智能体"
   :parameters="searchAgentParameters"
   :headers="getListHeaders"
   :requestExample="searchAgentRequest"
@@ -733,20 +752,12 @@ GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
   :statusCodes="searchAgentStatusCodes"
 />
 
-::: warning 前缀匹配规则
-搜索采用**前缀匹配**方式（SQL逻辑等价于：`agent_name LIKE 'q%'`）
+::: tip 搜索类型与匹配规则
+- **name（智能体名称，默认）**：采用**前缀匹配**方式（SQL 逻辑等价于 `agent_name LIKE 'q%'`，例如搜索 `"小智"` 可命中 `"小智助手"`）
+- **mac（设备 MAC 地址）**：采用**精确匹配**，查询绑定该 MAC 设备且归属于当前用户的智能体
+- **agent_id（智能体 ID）**：采用**精确匹配**，按智能体 ID 查询归属于当前用户的智能体
 
-- ✅ 搜索 `"小智"` 可以命中 `"小智助手"`
-- ✅ 搜索 `"小"` 可以命中 `"小智助手"`
-- ❌ 搜索 `"助手"` **无法**命中 `"小智助手"`（因为不是前缀）
-
-**使用建议**：从名称开头开始搜索才能匹配到结果
-:::
-
-::: info 搜索返回说明
-- 当前版本搜索结果为全量返回
-- `nextCursor` 固定为 `null`
-- 未来可能支持分页，届时会提供游标机制
+📌 **说明**：搜索结果目前为全量返回，响应体中的 `nextCursor` 固定为 `null`，无需处理游标分页。
 :::
 
 ::: info
