@@ -73,8 +73,7 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
 
 ```json
 {
-  "session_id": "...",    // 会话ID
-  "type": "mcp",          // 消息类型，固定为"mcp"
+  "type": "mcp",           // 消息类型，固定为"mcp"
   "payload": {             // JSON-RPC 2.0负载
     "jsonrpc": "2.0",
     "method": "...",      // 方法名 (如 "initialize", "tools/list", "tools/call")
@@ -118,13 +117,12 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
 ```json
 {
   "type": "hello",
-  "version": "1.0",
+  "version": 1,
   "features": {
     "mcp": true
   },
-  "transport": "websocket", // 或 "mqtt"
-  "audio_params": { },
-  "session_id": "device_session_123" // 设备收到服务器hello后可能设置
+  "transport": "websocket",
+  "audio_params": { }
 }
 ```
 
@@ -146,22 +144,30 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
 
 ```json
 {
-  "jsonrpc": "2.0",
-  "method": "initialize",
-  "params": {
-    "capabilities": {
-      // 客户端能力，可选
-      
-      // 摄像头视觉相关
-      "vision": {
-        "url": "http://example.com/vision", // 摄像头: 图片处理地址(必须是http地址, 不是websocket地址)
-        "token": "vision_token_123" // url token
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2024-11-05",
+      "clientInfo": {
+        "name": "XiaozhiClient",
+        "version": "1.0.0"
+      },
+      "capabilities": {
+        "roots": {
+          "listChanged": true
+        },
+        "sampling": {},
+        // 摄像头视觉相关（可选）
+        "vision": {
+          "url": "<视觉分析接口地址>",  // 图片处理地址，设备端从此字段读取
+          "token": "vision_token_123"                     // url token（可选）
+        }
       }
-      
-      // ... 其他客户端能力
-    }
-  },
-  "id": 1 // 请求 ID
+    },
+    "id": 1
+  }
 }
 ```
 
@@ -171,16 +177,19 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
 
 ```json
 {
-  "jsonrpc": "2.0",
-  "id": 1, // 匹配请求 ID
-  "result": {
-    "protocolVersion": "2024-11-05",
-    "capabilities": {
-      "tools": {} // 这里的 tools 似乎不列出详细信息，需要 tools/list
-    },
-    "serverInfo": {
-      "name": "智能音箱设备", // 设备名称 (BOARD_NAME)
-      "version": "1.2.3" // 设备固件版本
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {
+        "tools": {}
+      },
+      "serverInfo": {
+        "name": "智能音箱设备", // 设备名称 (BOARD_NAME)
+        "version": "1.2.3"     // 设备固件版本
+      }
     }
   }
 }
@@ -204,14 +213,16 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
 
 ```json
 {
-  "jsonrpc": "2.0",
-  "method": "tools/list",
-  "params": {
-    "cursor": "" // 用于分页，首次请求为空字符串
-  },
-  "id": 2 // 请求 ID
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "method": "tools/list",
+    "id": 2
+  }
 }
 ```
+
+> 首次请求不携带 `params`；分页时才在 `payload.params` 中带上 `cursor` 值。
 
 **⏱️ 设备响应时机**：设备收到 tools/list 请求并生成工具列表后
 
@@ -221,38 +232,41 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
 
 ```json
 {
-  "jsonrpc": "2.0",
-  "id": 2, // 匹配请求 ID
-  "result": {
-    "tools": [ // 工具对象列表
-      {
-        "name": "self.get_device_status",
-        "description": "获取设备当前状态信息",
-        "inputSchema": {
-          "type": "object",
-          "properties": {},
-          "required": []
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "tools": [
+        {
+          "name": "self.get_device_status",
+          "description": "获取设备当前状态信息",
+          "inputSchema": {
+            "type": "object",
+            "properties": {},
+            "required": []
+          }
+        },
+        {
+          "name": "self.audio_speaker.set_volume",
+          "description": "设置音箱音量",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "volume": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "音量大小，范围0-100"
+              }
+            },
+            "required": ["volume"]
+          }
         }
-      },
-      {
-        "name": "self.audio_speaker.set_volume",
-        "description": "设置音箱音量",
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "volume": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 100,
-              "description": "音量大小，范围0-100"
-            }
-          },
-          "required": ["volume"]
-        }
-      }
-      // ... 更多工具
-    ],
-    "nextCursor": null // 如果列表很大需要分页，这里会包含下一个请求的 cursor 值
+        // ... 更多工具
+      ],
+      "nextCursor": null // 如果列表很大需要分页，这里会包含下一个请求的 cursor 值
+    }
   }
 }
 ```
@@ -263,40 +277,43 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
 
 ```json
 {
-  "jsonrpc": "2.0",
-  "id": 2, // 匹配请求 ID
-  "result": {
-    "tools": [ // 工具对象列表
-      {
-        "name": "self.get_device_status",
-        "description": "获取设备当前状态信息",
-        "type": <int>, // 函数类型，0 表示 tool 函数，1 表示 rpc 函数
-        "inputSchema": {
-          "type": "object",
-          "properties": {},
-          "required": []
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "tools": [
+        {
+          "name": "self.get_device_status",
+          "description": "获取设备当前状态信息",
+          "type": 0, // 函数类型，0 表示 tool 函数，1 表示 rpc 函数
+          "inputSchema": {
+            "type": "object",
+            "properties": {},
+            "required": []
+          }
+        },
+        {
+          "name": "self.audio_speaker.set_volume",
+          "description": "设置音箱音量",
+          "type": 0, // 函数类型，0 表示 tool 函数
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "volume": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "音量大小，范围0-100"
+              }
+            },
+            "required": ["volume"]
+          }
         }
-      },
-      {
-        "name": "self.audio_speaker.set_volume",
-        "description": "设置音箱音量",
-        "type": 0, // 函数类型，0 表示 tool 函数
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "volume": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 100,
-              "description": "音量大小，范围0-100"
-            }
-          },
-          "required": ["volume"]
-        }
-      }
-      // ... 更多工具
-    ],
-    "nextCursor": null // 如果列表很大需要分页，这里会包含下一个请求的 cursor 值
+        // ... 更多工具
+      ],
+      "nextCursor": null // 如果列表很大需要分页，这里会包含下一个请求的 cursor 值
+    }
   }
 }
 ```
@@ -326,16 +343,18 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
 
 ```json
 {
-  "jsonrpc": "2.0",
-  "method": "tools/call",
-  "params": {
-    "name": "self.audio_speaker.set_volume", // 要调用的工具名称
-    "arguments": {
-      // 工具参数，对象格式
-      "volume": 50 // 参数名及其值
-    }
-  },
-  "id": 3 // 请求 ID
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "self.audio_speaker.set_volume",
+      "arguments": {
+        "volume": 50
+      }
+    },
+    "id": 3
+  }
 }
 ```
 
@@ -345,16 +364,19 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
 
 ```json
 {
-  "jsonrpc": "2.0",
-  "id": 3, // 匹配请求 ID
-  "result": {
-    "content": [
-      {
-        "type": "text",
-        "text": "音量已设置为50%"
-      }
-    ],
-    "isError": false
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "音量已设置为50%"
+        }
+      ],
+      "isError": false
+    }
   }
 }
 ```
@@ -363,11 +385,14 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
 
 ```json
 {
-  "jsonrpc": "2.0",
-  "id": 3,
-  "error": {
-    "code": -32601,
-    "message": "未知工具: self.non_existent_tool"
+  "type": "mcp",
+  "payload": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "error": {
+      "code": -32601,
+      "message": "未知工具: self.non_existent_tool"
+    }
   }
 }
 ```
