@@ -111,7 +111,7 @@
           >
             <div class="params-table">
               <!-- 使用 ParameterTable 组件来渲染参数 -->
-              <ParameterTable :parameters="parameters" />
+              <ParameterTable :parameters="parameters" :expanded-params="expandedParams" @update:expanded-params="val => expandedParams = val" />
             </div>
           </div>
         </div>
@@ -367,6 +367,9 @@ const isSectionExpanded = reactive({
   responseExample: true,
   statusCodes: true,
 });
+
+// 嵌套参数的展开状态
+const expandedParams = ref<Set<string>>(new Set());
 
 // 切换整体展开状态
 const toggleOverallExpand = () => {
