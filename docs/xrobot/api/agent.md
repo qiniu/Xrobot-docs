@@ -187,6 +187,54 @@ const createAgentParameters = [
         required: true,
         description: '助手昵称',
         example: '助手阿伟'
+    },
+    {
+        name: 'langCode',
+        in: 'body',
+        type: 'string',
+        required: false,
+        description: '语言编码，不传时使用默认模板。可通过 GET /v1/languages 获取可选语言',
+        example: 'zh'
+    },
+    {
+        name: 'ttsVoiceId',
+        in: 'body',
+        type: 'string',
+        required: false,
+        description: '音色ID，不传时使用系统或默认模板。可通过 GET /v1/voices 获取可选音色',
+        example: 'a5b85a7ba5b24a9a96e24aa88b500d2f'
+    },
+    {
+        name: 'systemPrompt',
+        in: 'body',
+        type: 'string',
+        required: false,
+        description: '角色设定，不传时使用默认模板配置',
+        example: '你是一个专业的客服助手'
+    },
+    {
+        name: 'llmModelId',
+        in: 'body',
+        type: 'string',
+        required: false,
+        description: '大语言模型配置ID，不传时使用默认模板。DeepSeek V4 Flash（推荐）：f3626c105383d71654a57f2bb8a973f3；其他可选模型通过 GET /v1/agents/models/llm 获取',
+        example: 'f3626c105383d71654a57f2bb8a973f3'
+    },
+    {
+        name: 'memModelId',
+        in: 'body',
+        type: 'string',
+        required: false,
+        description: '记忆模型ID，不传时使用默认模板。无记忆：Memory_nomem；长期记忆：Memory_long_term_memory',
+        example: 'Memory_nomem'
+    },
+    {
+        name: 'intentModelId',
+        in: 'body',
+        type: 'string',
+        required: false,
+        description: '意图模型ID，不传时使用默认模板。无意图识别：Intent_nointent；分离意图识别：Intent_intent_llm；统一意图识别：Intent_function_call',
+        example: 'Intent_intent_llm'
     }
 ]
 
@@ -197,7 +245,9 @@ Authorization: Bearer <token>
 
 {
   "agentName": "客服助手",
-  "assistantName": "助手阿伟"
+  "assistantName": "助手阿伟",
+  "llmModelId": "f3626c105383d71654a57f2bb8a973f3",
+  "intentModelId": "Intent_intent_llm"
 }`
 
 const createAgentResponse = `{
@@ -761,7 +811,7 @@ GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
 :::
 
 ::: info
-创建智能体时需要提供智能体名称和助手昵称，其他配置可后续通过更新接口修改
+创建智能体时可指定大语言模型和意图模型；未传模型ID时使用默认模板配置，也可在创建后通过更新接口修改
 :::
 
 ### 创建智能体
@@ -772,7 +822,7 @@ GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
   endpoint="/agent"
   method="post"
   title="创建智能体"
-  description="创建一个新的智能体，需要提供智能体名称和助手昵称。系统会自动分配其他默认配置，返回data为新智能体的ID，可用于更新、删除等api"
+  description="创建一个新的智能体，可在创建时指定大语言模型和意图模型。未指定的模型使用默认模板配置，返回data为新智能体的ID，可用于更新、删除等api"
   :parameters="createAgentParameters"
   :headers="commonHeaders"
   :requestExample="createAgentRequest"
