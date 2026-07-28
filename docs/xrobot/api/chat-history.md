@@ -5,7 +5,6 @@ title: 聊天记录 API
 
 <script setup lang="ts">
 const commonHeaders = [
-  { name: 'Content-Type', value: 'application/json', required: true, description: '请求内容类型' },
   { name: 'Authorization', value: 'Bearer <token>', required: true, description: '用户认证令牌，格式为 Bearer + 空格 + token' }
 ]
 
