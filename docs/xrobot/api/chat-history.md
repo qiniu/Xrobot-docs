@@ -90,7 +90,7 @@ const getSignedUrlResponse = `{
   "code": 0,
   "msg": "success",
   "data": {
-    "signed_url": "https://xrobot-obj.qnlinx.com/chat-history/2026/07/28/audio.wav?e=1753847660&token=xxx..."
+    "signed_url": "https://xrobot-obj.qnlinx.com/chat-history/2026/07/28/audio.wav?e=<Unix时间戳>&token=<签名token>"
   }
 }`
 
