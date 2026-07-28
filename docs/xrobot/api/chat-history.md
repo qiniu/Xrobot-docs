@@ -277,12 +277,6 @@ const unauthorizedResponse = `{
   :statusCodes="commonStatusCodes"
 />
 
-::: info 使用方式
-| 操作 | 方式 |
-|------|------|
-| 播放 | `<audio src="signed_url">` |
-| 下载 | 直接用签名 URL 发起 GET 请求 |
-:::
 
 ::: info 注意事项
 - **需认证**：此接口需要用户登录 token
