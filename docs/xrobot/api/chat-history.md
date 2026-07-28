@@ -51,47 +51,49 @@ const getChatHistoryResponse = `{
   "msg": "success",
   "data": [
     {
-      "createdAt": "2025-08-28 15:57:16",
+      "createdAt": "2026-07-28 11:57:26",
       "chatType": 1,
-      "content": "那你西啊，帮我邀请一下大家来参加我们的展会。😊",
-      "audioId": "aa2f6e1aadde09585e7a2acd165dfe9e",
-      "macAddress": "09689edfb5a74846ad8f2a6512c26a73"
+      "content": "你好，请问我是谁？",
+      "audioId": null,
+      "audioUrl": "https://xrobot-obj.qnlinx.com/chat-history/2026/07/28/audio.wav",
+      "macAddress": "09689edfb5a74846ad8f2a6512c26a73",
+      "toolInfo": "",
+      "toolDuration": 0,
+      "clientListenMode": "auto"
     },
     {
-      "createdAt": "2025-08-28 15:57:19",
-      "chatType": 1,
-      "content": "这个有意思多了。😊",
-      "audioId": "e8d7f48c8a30473279f4bf9c714bc3ae",
-      "macAddress": "09689edfb5a74846ad8f2a6512c26a73"
+      "createdAt": "2026-07-28 11:57:27",
+      "chatType": 2,
+      "content": "哦？这不是那个整天围着电子屏幕打转的人吗？",
+      "audioId": null,
+      "audioUrl": "https://xrobot-obj.qnlinx.com/chat-history/2026/07/28/response.wav",
+      "macAddress": "09689edfb5a74846ad8f2a6512c26a73",
+      "toolInfo": "",
+      "toolDuration": 0,
+      "clientListenMode": "auto"
     },
     ...
   ]
 }`
 
-// 获取音频对应的播放ID - 请求示例
-const getAudioPlayIdRequest = `GET /xiaozhi/agent/audio/d9b8fdbc0ce492a0feb7a87e92c4eaf5 HTTP/1.1
+// 生成音频签名 URL - 请求示例
+const getSignedUrlRequest = `POST /v1/objects/signed-url HTTP/1.1
 Host: https://xrobo.qiniu.com
-Authorization: Bearer <token>`
+Authorization: Bearer <token>
+Content-Type: application/json
 
-// 获取音频对应的播放ID - 响应示例
-const getAudioPlayIdResponse = `{
-  "code": 0,
-  "msg": "success",
-  "data": "a040a914-ba53-42f4-a878-08293bf5877a"
+{
+  "url": "https://xrobot-obj.qnlinx.com/chat-history/2026/07/28/audio.wav"
 }`
 
-// 播放对话音频 - 请求示例
-const playAudioRequest = `GET /xiaozhi/agent/play/a040a914-ba53-42f4-a878-08293bf5877a HTTP/1.1
-Host: https://xrobo.qiniu.com
-Authorization: Bearer <token>`
-
-// 播放对话音频 - 响应示例
-const playAudioResponse = `HTTP/1.1 200 OK
-Content-Disposition: attachment; filename="play.wav"
-Content-Length: 7724
-Content-Type: application/octet-stream
-
-[Binary audio data]`
+// 生成音频签名 URL - 响应示例
+const getSignedUrlResponse = `{
+  "code": 0,
+  "msg": "success",
+  "data": {
+    "signed_url": "https://xrobot-obj.qnlinx.com/chat-history/2026/07/28/audio.wav?e=1753847660&token=xxx..."
+  }
+}`
 
 // 删除聊天记录 - 请求示例
 const deleteChatHistoryRequest = `DELETE /v1/devices/AA:C8:BD:B8:00:77/chat-history HTTP/1.1
@@ -159,27 +161,15 @@ const getChatHistoryParameters = [
   }
 ]
 
-// 获取音频对应的播放ID - 参数定义
-const getAudioPlayIdParameters = [
+// 生成音频签名 URL - 参数定义
+const getSignedUrlParameters = [
   {
-    name: 'audioId',
+    name: 'url',
     type: 'string',
-    in: 'path',
+    in: 'body',
     required: true,
-    description: '音频ID，从聊天记录详情中获取',
-    example: 'd9b8fdbc0ce492a0feb7a87e92c4eaf5'
-  }
-]
-
-// 播放对话音频 - 参数定义
-const playAudioParameters = [
-  {
-    name: 'playId',
-    type: 'string',
-    in: 'path',
-    required: true,
-    description: '播放ID，从获取音频对应的播放ID接口中获取',
-    example: 'a040a914-ba53-42f4-a878-08293bf5877a'
+    description: '需要签名的音频 URL（从聊天记录详情中获取的 audioUrl）',
+    example: 'https://xrobot-obj.qnlinx.com/chat-history/2026/07/28/audio.wav'
   }
 ]
 
@@ -259,47 +249,45 @@ const unauthorizedResponse = `{
 />
 
 ::: info
-响应中的data是一个聊天消息数组，按时间顺序排列，每条消息包含创建时间、聊天类型、内容、音频ID和MAC地址。
+响应中的data是一个聊天消息数组，按时间顺序排列，每条消息包含：
+- `createdAt`：创建时间
+- `chatType`：消息类型（1=用户，2=AI，3=工具调用）
+- `content`：消息内容
+- `audioId`：音频ID（已废弃，始终为null）
+- `audioUrl`：音频文件地址，需要签名后才能访问
+- `macAddress`：设备MAC地址
+- `toolInfo`：工具调用信息
+- `toolDuration`：工具执行耗时（毫秒）
+- `clientListenMode`：客户端聆听模式（realtime/auto）
 :::
 
-### 获取对话音频的播放ID
+### 生成音频签名 URL
 
 <ApiEndpoint
   host="https://xrobo.qiniu.com"
-  basePath="/xiaozhi"
-  endpoint="/agent/audio/{audioId}"
-  method="get"
-  title="获取对话音频的播放ID"
-  description="通过音频ID（从聊天记录详情中获取）获取对应的播放ID，用于后续播放音频"
-  :parameters="getAudioPlayIdParameters"
-  :headers="getListHeaders"
-  :requestExample="getAudioPlayIdRequest"
-  :responseExample="getAudioPlayIdResponse"
-  :statusCodes="getListStatusCodes"
-/>
-
-::: info
-此接口用于获取播放ID，应与播放对话音频接口一同使用。
-:::
-
-### 播放对话音频
-
-<ApiEndpoint
-  host="https://xrobo.qiniu.com"
-  basePath="/xiaozhi"
-  endpoint="/agent/play/{playId}"
-  method="get"
-  title="播放对话音频"
-  description="通过播放ID下载音频文件，返回二进制音频数据，支持直接播放或下载"
-  :parameters="playAudioParameters"
-  :headers="getListHeaders"
-  :requestExample="playAudioRequest"
-  :responseExample="playAudioResponse"
+  basePath="/v1"
+  endpoint="/objects/signed-url"
+  method="post"
+  title="生成音频签名 URL"
+  description="为聊天记录中的音频文件生成签名 URL，支持直接播放或下载"
+  :parameters="getSignedUrlParameters"
+  :headers="commonHeaders"
+  :requestExample="getSignedUrlRequest"
+  :responseExample="getSignedUrlResponse"
   :statusCodes="commonStatusCodes"
 />
 
-::: info
-响应为二进制音频文件（WAV格式），可用于下载或直接播放。此接口应与获取音频对应的播放ID接口一同使用。
+::: info 使用方式
+| 操作 | 方式 |
+|------|------|
+| 播放 | `<audio src="signed_url">` |
+| 下载 | 直接用签名 URL 发起 GET 请求 |
+:::
+
+::: info 注意事项
+- **需认证**：此接口需要用户登录 token
+- **签名有效期**：1 小时（`e` 参数为 Unix 时间戳）
+- **自动兼容**：旧 bucket URL 会直接返回原 URL，无需二次处理
 :::
 
 ### 删除聊天记录
