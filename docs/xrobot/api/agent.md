@@ -407,14 +407,14 @@ const updateAgentParameters = [
                 name: 'max_tokens',
                 type: 'integer',
                 required: false,
-                description: '最长回复长度（接受范围 1~8192，越界夹取）',
+                description: '单轮最大输出回复 token 数（范围 1~8192，越界夹取）',
                 example: 500
               },
               {
                 name: 'enable_search',
                 type: 'boolean',
                 required: false,
-                description: '是否联网搜索',
+                description: '是否启用联网搜索',
                 example: false
               },
               {
@@ -438,35 +438,137 @@ const updateAgentParameters = [
             name: 'voice',
             type: 'object',
             required: false,
-            description: '语音配置',
+            description: '语音合成（TTS）配置',
             children: [
+              {
+                name: 'volume',
+                type: 'number',
+                required: false,
+                description: '音量（范围 1.0~100.0，默认 50.0）',
+                example: 50
+              },
               {
                 name: 'speed',
                 type: 'number',
                 required: false,
-                description: '语速',
+                description: '语速（范围 0.5~2.0，默认 1.0）',
                 example: 1
               },
               {
                 name: 'pitch',
                 type: 'number',
                 required: false,
-                description: '音调',
+                description: '语调（范围 0.5~2.0，默认 1.0）',
                 example: 1
-              },
-              {
-                name: 'volume',
-                type: 'number',
-                required: false,
-                description: '音量',
-                example: 50
               },
               {
                 name: 'emotion',
                 type: 'string',
                 required: false,
-                description: '情感',
+                description: '情绪类型，如 "happy"、"sad" 等（取决于音色支持的情绪列表）',
                 example: 'default'
+              },
+              {
+                name: 'quality',
+                type: 'string',
+                required: false,
+                description: '音质等级（可选值：low | medium | high | lossless）',
+                example: 'medium'
+              },
+              {
+                name: 'enable_tts_emotion',
+                type: 'boolean',
+                required: false,
+                description: '是否启用多情感模式，开启后 emotion 字段才生效',
+                example: false
+              }
+            ]
+          },
+          {
+            name: 'asr',
+            type: 'object',
+            required: false,
+            description: '语音识别（ASR）配置',
+            children: [
+              {
+                name: 'disable_emotion',
+                type: 'boolean',
+                required: false,
+                description: '是否禁用情绪识别',
+                example: false
+              },
+              {
+                name: 'enable_auto_lang',
+                type: 'boolean',
+                required: false,
+                description: '混合语种识别开关。开启后 ASR 不锁定语种，由引擎自动检测',
+                example: false
+              }
+            ]
+          },
+          {
+            name: 'goodbye',
+            type: 'object',
+            required: false,
+            description: '结束语配置',
+            children: [
+              {
+                name: 'prompt',
+                type: 'string',
+                required: false,
+                description: '结束语提示词',
+                example: ''
+              },
+              {
+                name: 'language',
+                type: 'string',
+                required: false,
+                description: '结束语语言',
+                example: ''
+              },
+              {
+                name: 'emotion',
+                type: 'string',
+                required: false,
+                description: '结束语情绪',
+                example: ''
+              },
+              {
+                name: 'content',
+                type: 'string',
+                required: false,
+                description: '结束语内容',
+                example: ''
+              }
+            ]
+          },
+          {
+            name: 'voiceprint',
+            type: 'object',
+            required: false,
+            description: '声纹配置',
+            children: [
+              {
+                name: 'chat_only_enabled',
+                type: 'boolean',
+                required: false,
+                description: '是否仅在对话模式启用声纹识别',
+                example: false
+              }
+            ]
+          },
+          {
+            name: 'disabled_builtin_tools',
+            type: 'array',
+            required: false,
+            description: '禁用的内置工具列表。传空数组表示不清空任何工具',
+            children: [
+              {
+                name: 'item',
+                type: 'string',
+                required: false,
+                description: '要禁用的内置工具名称',
+                example: ''
               }
             ]
           }
@@ -533,11 +635,27 @@ Authorization: Bearer <token>
       }
     },
     "voice": {
-      "speed": 1,
-      "pitch": 1,
       "volume": 50,
-      "emotion": "default"
-    }
+      "speed": 1.0,
+      "pitch": 1.0,
+      "emotion": "default",
+      "quality": "medium",
+      "enable_tts_emotion": false
+    },
+    "asr": {
+      "disable_emotion": false,
+      "enable_auto_lang": false
+    },
+    "goodbye": {
+      "prompt": "",
+      "language": "",
+      "emotion": "",
+      "content": ""
+    },
+    "voiceprint": {
+      "chat_only_enabled": false
+    },
+    "disabled_builtin_tools": []
   }
 }`
 

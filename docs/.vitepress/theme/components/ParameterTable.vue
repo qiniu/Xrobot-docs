@@ -16,7 +16,31 @@
         class="table-row"
         :style="{ paddingLeft: (param.level || 0) * 20 + 12 + 'px' }"
       >
-        <code class="param-name">{{ param.name }}</code>
+        <div class="param-name-wrapper">
+          <!-- 展开/折叠按钮 -->
+          <button
+            v-if="param.children && param.children.length > 0"
+            class="expand-btn"
+            @click="toggleExpand(param.name)"
+            :aria-label="isExpanded(param.name) ? '折叠' : '展开'"
+          >
+            <svg
+              :class="{ rotated: isExpanded(param.name) }"
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+          <code class="param-name">{{ param.name }}</code>
+        </div>
         <span class="param-type">{{ param.type }}</span>
         <span
           :class="['param-required', param.required ? 'required' : 'optional']"
@@ -28,25 +52,47 @@
       </div>
       <!-- 递归渲染子参数 -->
       <ParameterTable
-        v-if="param.children && param.children.length > 0"
+        v-if="param.children && param.children.length > 0 && isExpanded(param.name)"
         :parameters="param.children"
         :level="(param.level || 0) + 1"
+        :expanded-params="expandedParams"
+        @update:expanded-params="$emit('update:expandedParams', $event)"
       />
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { type Parameter } from "../types/api"; // Adjust path as needed
+import type { Parameter } from "../types/api";
 
 interface ParameterTableProps {
   parameters: Parameter[];
   level?: number;
+  expandedParams: Set<string>;
 }
 
-withDefaults(defineProps<ParameterTableProps>(), {
+const props = withDefaults(defineProps<ParameterTableProps>(), {
   level: 0,
+  expandedParams: () => new Set(),
 });
+
+const emit = defineEmits<{
+  (e: 'update:expandedParams', value: Set<string>): void;
+}>();
+
+// 检查是否展开
+const isExpanded = (name: string) => props.expandedParams.has(name);
+
+// 切换展开状态
+const toggleExpand = (name: string) => {
+  const newSet = new Set(props.expandedParams);
+  if (newSet.has(name)) {
+    newSet.delete(name);
+  } else {
+    newSet.add(name);
+  }
+  emit('update:expandedParams', newSet);
+};
 </script>
 
 <style scoped>
@@ -80,6 +126,41 @@ withDefaults(defineProps<ParameterTableProps>(), {
 /* Indentation for nested parameters */
 .table-row .param-name {
   /* No specific style here, padding-left on the row handles it */
+}
+
+/* 参数名包装器，包含展开按钮 */
+.param-name-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 展开/折叠按钮 - 与 ApiEndpoint.vue 保持一致 */
+.expand-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--vp-c-text-3);
+  transition: color 0.2s;
+}
+
+.expand-btn:hover {
+  color: var(--vp-c-text-1);
+}
+
+.expand-btn svg {
+  transition: transform 0.3s ease-out;
+  transform: rotate(0deg);
+}
+
+.expand-btn svg.rotated {
+  transform: rotate(90deg);
 }
 
 /* Inherit styles from ApiEndpoint.vue for consistency */
