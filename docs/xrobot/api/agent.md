@@ -233,8 +233,8 @@ const createAgentParameters = [
         in: 'body',
         type: 'string',
         required: false,
-        description: '意图模型ID，不传时使用默认模板。无意图识别：Intent_nointent；分离意图识别：Intent_intent_llm；统一意图识别：Intent_function_call',
-        example: 'Intent_intent_llm'
+        description: '意图模型ID，不传时使用默认模板。无意图识别：Intent_nointent；统一意图识别：Intent_function_call',
+        example: 'Intent_function_call'
     }
 ]
 
@@ -247,7 +247,7 @@ Authorization: Bearer <token>
   "agentName": "客服助手",
   "assistantName": "助手阿伟",
   "llmModelId": "f3626c105383d71654a57f2bb8a973f3",
-  "intentModelId": "Intent_intent_llm"
+  "intentModelId": "Intent_function_call"
 }`
 
 const createAgentResponse = `{
