@@ -293,6 +293,20 @@ WebSocket 支持 **🎵 音频数据帧**（二进制方式）以及 **文本帧
 }
 ```
 
+在 `listen.detect` 消息中增加 `text_response` 字段，可指定需要播放的内容：
+
+```json
+{
+  "session_id": "session_12345",
+  "type": "listen",
+  "state": "detect",
+  "text": "定时提醒触发",
+  "text_response": "该喝水了"
+}
+```
+
+`text_response` 为需要播放的音频文字。
+
 ##### 5. Hello 消息扩展：智能体提示词替换
 此功能通过在 `hello` 消息中添加 `agent_params` 字段，允许设备端在建立连接时传递动态参数，用于替换智能体系统提示词中的占位符。
 
@@ -679,4 +693,3 @@ MCP（Model Control Protocol）是物联网控制的新一代协议，用于设�
 - 建议预留足够的播放缓冲区（通过 `play_buffer_duration` 参数告知服务器）以保证播放流畅性
 - 如遇到解码错误，请检查音频参数配置是否与服务器返回的参数一致
 :::
-
