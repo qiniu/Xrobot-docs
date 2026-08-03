@@ -923,21 +923,18 @@ Authorization: Bearer <token>
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | string | 是 | 智能体的唯一标识符 |
-| `mem_model_id` | string | 否 | 记忆模型ID，启用长期记忆时设置 |
-| `extra.memory` | object | 否 | 长期记忆个性化配置参数 |
+| `mem_model_id` | string | 否 | 记忆模型ID |
 
-#### 长期记忆个性化配置
+**mem_model_id 可选值：**
 
-`extra.memory` 字段用于个性化记忆配置，支持以下参数：
-
-| 参数 | 类型 | 说明 | 默认值 |
-|------|------|------|--------|
-| `enabled` | boolean | 是否启用长期记忆 | false |
-| `auto_infer` | boolean | 是否自动推理更新记忆 | true |
-| `recall_limit` | integer | 记忆召回数量限制 | 10 |
-| `retention_days` | integer | 记忆保留天数（0为永久） | 0 |
+| 值 | 说明 |
+|------|------|
+| `Memory_nomem` | 无记忆 - 智能体不保留任何历史对话记忆 |
+| `Memory_long_term_memory` | 长期记忆 - 智能体启用长期记忆功能 |
 
 #### 请求示例
+
+**启用长期记忆：**
 
 ```http
 PUT /xiaozhi/agent/AGT_1750667902769
@@ -949,16 +946,16 @@ Authorization: Bearer <token>
 {
     "agent_code": "AGT_1750667902769",
     "agent_name": "智能助手小智",
-    "mem_model_id": "Memory_longterm",
-    "system_prompt": "你是一个智能助手，能够记住用户的偏好和历史对话，提供个性化服务。",
-    "extra": {
-        "memory": {
-            "enabled": true,
-            "auto_infer": true,
-            "recall_limit": 15,
-            "retention_days": 365
-        }
-    }
+    "mem_model_id": "Memory_long_term_memory",
+    "system_prompt": "你是一个智能助手，能够记住用户的偏好和历史对话，提供个性化服务。"
+}
+```
+
+**禁用记忆（无记忆模式）：**
+
+```json
+{
+    "mem_model_id": "Memory_nomem"
 }
 ```
 
@@ -993,19 +990,6 @@ Authorization: Bearer <token>
 2. **清晰的名称和描述**：便于LLM理解和推理
 3. **避免过于细粒度**：将相关信息合并到同一变量中
 4. **单值与多值模式**：`is_single_value` 为 true 时，每个用户在该变量上只能有一个值
-
-### 性能优化建议
-
-1. **适当设置召回限制**：避免一次性召回过多记忆内容
-2. **定期清理无用片段**：删除过时或无价值的记忆片段
-3. **合理使用自动推理**：在对话量大的场景下可考虑降低推理频率
-4. **注意时间范围**：记忆片段查询默认只返回最近7天内的记录
-
-### 数据隐私保护
-
-1. **用户身份匿名化**：使用设备MAC地址等匿名标识
-2. **敏感信息处理**：避免存储用户隐私敏感信息
-3. **数据保留期限**：根据业务需求设置合理的数据保留时间
 
 ## 相关文档
 

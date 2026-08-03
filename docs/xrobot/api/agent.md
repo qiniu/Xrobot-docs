@@ -972,6 +972,10 @@ GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
 `extra.llm` 下的标准参数（temperature、top_p 等）越界会被自动夹取、不报错；`extra.llm.custom_params.body` 下的自定义参数会按所选模型的 schema 校验，非法参数直接拒绝。支持哪些自定义参数取决于所选模型、且会随模型调整而变化，具体 key/类型请以模型 schema 查询结果为准，详见 [大语言模型 API](./llm.md) 的「大模型自定义参数（custom_params）」一节。
 :::
 
+::: tip 记忆模型说明
+`memModelId` 用于配置智能体的记忆模式。详细说明及系统行为请参见 [长期记忆 API](./longterm-memory.md)。
+:::
+
 ### 删除智能体
 
 <ApiEndpoint
