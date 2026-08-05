@@ -302,7 +302,6 @@ curl -X POST "https://xrobo.qiniu.com/v1/voiceprint/voices/create" \
 
 ### 8.3 进阶学习资源
 
-- [声纹识别API文档](../api/voice.md) - 完整的API接口说明
 - [长期记忆最佳实践](./longterm-memory-start.md) - 用户身份与记忆关联
 
 ---
