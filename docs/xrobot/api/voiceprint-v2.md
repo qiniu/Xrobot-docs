@@ -210,7 +210,7 @@ title: 声纹识别 V2 API
 ```
 
 ::: info 绑定说明
-`speaker_ids` 会按用户权限校验并自动去重。`voice_chat_only_enabled` 是只读的对话模式开关，如需修改请通过 [智能体 API](./agent.md) 更新智能体配置。
+`speaker_ids` 会按用户权限校验并自动去重。`voice_chat_only_enabled` 是只读开关：开启后，智能体只在识别到已绑定说话人时响应。如需修改请通过 [智能体 API](./agent.md) 更新智能体配置。
 :::
 
 ## 五、最近语音样本
