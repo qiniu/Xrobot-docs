@@ -6,37 +6,25 @@ title: 声纹识别 API
 
 ## 接口概述
 
-本文档介绍灵矽 AI 平台声纹识别 V2 相关的公开 API。V2 以“说话人”为核心管理身份信息：说话人保存可读名称和身份描述，声纹保存音频提取出的特征，智能体配置决定哪些说话人会参与当前智能体的声纹识别。
+本文档介绍灵矽AI平台声纹识别（Voiceprint Recognition）相关的API接口，基于3D-Speaker模型提供高精度声纹识别与特征提取服务。通过这些API，您可以：
 
-通过这些 API，您可以：
-
-- **管理说话人**：创建、查询、更新和删除可识别的说话人。
-- **维护说话人声纹**：为每个说话人设置一个默认声纹样本。
-- **配置智能体识别人群**：将说话人列表绑定到指定智能体。
-- **选择声纹样本**：查询带音频的智能体聊天记录，用作声纹创建来源。
+- **声纹特征提取**：从音频数据中提取192维声纹特征向量
+- **设备声纹注册**：为设备注册多个说话者的声纹特征
+- **声纹匹配识别**：进行实时声纹匹配和身份识别
+- **设备数据管理**：管理设备的声纹数据和统计信息
 
 ::: tip 使用说明
-V2 推荐使用清晰、干净的语音样本创建声纹。音频建议使用 WAV 格式、16kHz 采样率；接口当前通过 `audio_url` 下载音频并调用后端声纹提取服务，公开响应不会返回声纹特征向量。
+声纹识别服务支持WAV格式音频文件，建议使用16kHz采样率。
 :::
 
-::: warning 兼容说明
-旧版 `/v1/voiceprint/...` 角色、设备绑定接口仍保留兼容。新接入和新配置流程推荐使用本文档的 `/v1/speakers`、`/v1/speakers/{speakerId}/voiceprint` 和 `/v1/agents/{agentId}/speaker-config`。
-:::
+## 一、统一响应格式
 
-## 一、API 基本信息
-
-**Base URL**: `https://xrobo.qiniu.com`
-
-**认证方式**: `Authorization: Bearer <token>`
-
-所有接口均需要用户认证。接口统一返回 HTTP 200，业务状态通过响应体 `code` 判断。
-
-### 统一响应格式
+所有API接口均采用统一的响应格式：
 
 ```json
 {
   "code": 0,
-  "reqid": "req_12345678",
+  "msg": "",
   "data": {}
 }
 ```
@@ -45,41 +33,74 @@ V2 推荐使用清晰、干净的语音样本创建声纹。音频建议使用 W
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `code` | integer | 业务状态码，0 表示成功，非 0 表示失败 |
-| `msg` | string | 错误信息。成功时通常省略 |
-| `reqid` | string | 请求 ID，用于问题排查 |
-| `data` | object | 业务数据，随接口变化 |
+| `code` | integer | 业务状态码，0表示成功，非0表示失败 |
+| `msg` | string | 错误信息，成功时为空字符串 |
+| `data` | object | 业务数据，成功时包含具体数据，失败时为null |
 
-## 二、说话人管理
+::: info HTTP状态码说明
+所有API接口统一返回HTTP状态码200 OK，具体的业务状态通过响应体中的code字段表示。
+:::
 
-说话人表示一个可识别的人，例如“妈妈”“客服小王”“会议主持人”。同一用户下允许创建同名说话人，系统以 `speaker_id` 作为唯一身份标识。
+## 二、声纹管理
 
-### 2.1 创建说话人
+### 2.1 创建声纹并绑定设备和角色
 
-创建新的说话人。创建成功后可继续调用声纹接口为其设置默认声纹。
+在创建声纹的基础上，增加设备和角色绑定功能。
 
 #### 接口信息
 
-**请求方式：** `POST /v1/speakers`
+**请求方式：** `POST /v1/voiceprint/voices/create`
 
 #### 参数说明
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `name` | string | 是 | 说话人名称。前后空格会被忽略，不能为空 |
-| `desc` | string | 否 | 说话人描述，可用于提示智能体识别该说话人的身份或偏好 |
+| `device_id` | string | 是 | 设备ID，设备必须存在 |
+| `role_id` | string | 否 | 角色ID，未提供则绑定到默认角色 |
+| `threshold` | float | 否 | 声纹识别阈值，范围0-1 |
+| `audio_url` | string | 否 | 音频文件下载链接（URL方式） |
 
-#### 请求示例
+::: info 音频要求和限制
+
+支持两种音频传递方式：
+
+裸数据方式：直接在请求体中传递音频二进制数据，deviceId、roleId、threshold参数放在请求头中
+URL方式：通过JSON格式请求体传递参数，包括deviceId、roleId、threshold和audio_url参数
+当同时提供两种方式时，优先使用URL方式。
+
+裸数据方式限制：音频文件大小不超过512KB
+URL方式限制：音频文件大小不超过10MB
+格式：WAV格式
+:::
+
+#### 请求示例（裸数据方式）
 
 ```http
-POST /v1/speakers HTTP/1.1
+POST /v1/voiceprint/voices/create HTTP/1.1
+Host: https://xrobo.qiniu.com
+Authorization: Bearer <token>
+Content-Type: audio/wav
+X-Device-ID: device_001
+X-Role-ID: role_001
+X-Threshold: 0.2
+Content-Length: 7724
+
+[Binary audio data]
+```
+
+#### 请求示例（URL方式）
+
+```http
+POST /v1/voiceprint/voices/create HTTP/1.1
 Host: https://xrobo.qiniu.com
 Authorization: Bearer <token>
 Content-Type: application/json
 
 {
-  "name": "妈妈",
-  "desc": "家庭成员，喜欢被称呼为妈妈"
+  "device_id": "device_001",
+  "role_id": "role_001",
+  "threshold": 0.2,
+  "audio_url": "https://example.com/audio.wav"
 }
 ```
 
@@ -88,76 +109,36 @@ Content-Type: application/json
 ```json
 {
   "code": 0,
-  "reqid": "req_12345678",
+  "msg": "",
   "data": {
-    "speaker_id": "2f6c9f1f4d0f4a8ca3d9a7f6b8e2a123",
-    "name": "妈妈",
-    "desc": "家庭成员，喜欢被称呼为妈妈",
-    "created_at": "2026-08-05T10:00:00+08:00"
+    "voice_id": "00001",
+    "voice_name": "妈妈的声音",
+    "voice_url": "https://example.com/voice/00001.wav",
+    "status": "activate",
+    "threshold": 0.2,
+    "created_at": "2023-01-01T12:00:00Z"
   }
 }
 ```
 
-### 2.2 获取说话人列表
+### 2.2 删除声纹
 
-获取当前用户的说话人列表，按创建时间倒序返回。
-
-#### 接口信息
-
-**请求方式：** `GET /v1/speakers`
-
-#### 请求示例
-
-```http
-GET /v1/speakers HTTP/1.1
-Host: https://xrobo.qiniu.com
-Authorization: Bearer <token>
-```
-
-#### 响应示例
-
-```json
-{
-  "code": 0,
-  "reqid": "req_12345678",
-  "data": {
-    "speakers": [
-      {
-        "speaker_id": "2f6c9f1f4d0f4a8ca3d9a7f6b8e2a123",
-        "name": "妈妈",
-        "desc": "家庭成员，喜欢被称呼为妈妈",
-        "voiceprint_ids": [
-          "9e2b47d8f40945268f8a7b6e5d4c3b21"
-        ],
-        "created_at": "2026-08-05T10:00:00+08:00"
-      }
-    ]
-  }
-}
-```
-
-::: info 字段说明
-`voiceprint_ids` 表示该说话人已绑定的声纹 ID。当前 V2 公开流程每个说话人只维护一个默认声纹；没有声纹时该字段可能省略或为空数组。
-:::
-
-### 2.3 获取指定说话人
-
-根据 `speaker_id` 获取说话人详情。
+删除指定的声纹记录。
 
 #### 接口信息
 
-**请求方式：** `GET /v1/speakers/{speakerId}`
+**请求方式：** `DELETE /v1/voiceprint/voices/{voiceId}`
 
 #### 参数说明
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `speakerId` | string | 是 | 说话人 ID |
+| `voiceId` | string | 是 | 声纹ID |
 
 #### 请求示例
 
 ```http
-GET /v1/speakers/2f6c9f1f4d0f4a8ca3d9a7f6b8e2a123 HTTP/1.1
+DELETE /v1/voiceprint/voices/0001 HTTP/1.1
 Host: https://xrobo.qiniu.com
 Authorization: Bearer <token>
 ```
@@ -167,82 +148,23 @@ Authorization: Bearer <token>
 ```json
 {
   "code": 0,
-  "reqid": "req_12345678",
-  "data": {
-    "speaker_id": "2f6c9f1f4d0f4a8ca3d9a7f6b8e2a123",
-    "name": "妈妈",
-    "desc": "家庭成员，喜欢被称呼为妈妈",
-    "voiceprint_ids": [
-      "9e2b47d8f40945268f8a7b6e5d4c3b21"
-    ],
-    "created_at": "2026-08-05T10:00:00+08:00"
-  }
+  "msg": "",
+  "data": null
 }
 ```
 
-### 2.4 更新说话人
+### 2.3 获取声纹列表
 
-更新说话人的名称和描述。
+获取当前用户的所有声纹记录。
 
 #### 接口信息
 
-**请求方式：** `PUT /v1/speakers/{speakerId}`
-
-#### 参数说明
-
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `speakerId` | string | 是 | 说话人 ID |
-| `name` | string | 是 | 说话人名称。前后空格会被忽略，不能为空 |
-| `desc` | string | 否 | 说话人描述。传空字符串可清空描述 |
+**请求方式：** `GET /v1/voiceprint/voices`
 
 #### 请求示例
 
 ```http
-PUT /v1/speakers/2f6c9f1f4d0f4a8ca3d9a7f6b8e2a123 HTTP/1.1
-Host: https://xrobo.qiniu.com
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "name": "妈妈",
-  "desc": "家庭成员，回答家庭日程时优先使用温和语气"
-}
-```
-
-#### 响应示例
-
-```json
-{
-  "code": 0,
-  "reqid": "req_12345678",
-  "data": {
-    "speaker_id": "2f6c9f1f4d0f4a8ca3d9a7f6b8e2a123",
-    "name": "妈妈",
-    "desc": "家庭成员，回答家庭日程时优先使用温和语气",
-    "created_at": "2026-08-05T10:00:00+08:00"
-  }
-}
-```
-
-### 2.5 删除说话人
-
-删除指定说话人。删除说话人时会同步删除该说话人下的默认声纹。
-
-#### 接口信息
-
-**请求方式：** `DELETE /v1/speakers/{speakerId}`
-
-#### 参数说明
-
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `speakerId` | string | 是 | 说话人 ID |
-
-#### 请求示例
-
-```http
-DELETE /v1/speakers/2f6c9f1f4d0f4a8ca3d9a7f6b8e2a123 HTTP/1.1
+GET /v1/voiceprint/voices HTTP/1.1
 Host: https://xrobo.qiniu.com
 Authorization: Bearer <token>
 ```
@@ -252,129 +174,54 @@ Authorization: Bearer <token>
 ```json
 {
   "code": 0,
-  "reqid": "req_12345678",
-  "data": {}
-}
-```
-
-::: warning 删除限制
-如果说话人仍被任一智能体的 `speaker_ids` 引用，删除会失败并返回 `speaker is used by agent`。请先更新相关智能体的说话人配置，再删除说话人。
-:::
-
-## 三、说话人声纹管理
-
-每个说话人当前维护一个默认声纹。创建新的声纹时会替换旧声纹，并同步更新说话人的 `voiceprint_ids`。
-
-### 3.1 创建或替换说话人声纹
-
-根据音频 URL 下载样本，提取声纹特征，并设置为该说话人的默认声纹。
-
-#### 接口信息
-
-**请求方式：** `POST /v1/speakers/{speakerId}/voiceprint`
-
-#### 参数说明
-
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `speakerId` | string | 是 | 说话人 ID |
-| `audio_url` | string | 是 | 音频文件 URL，仅支持 `http` 或 `https` |
-| `source_device_id` | string | 否 | 采样来源设备 ID，用于记录声纹样本来自哪个设备 |
-
-#### 请求示例
-
-```http
-POST /v1/speakers/2f6c9f1f4d0f4a8ca3d9a7f6b8e2a123/voiceprint HTTP/1.1
-Host: https://xrobo.qiniu.com
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "audio_url": "https://xrobot-obj.qnlinx.com/chat-history/2026/08/05/sample.wav",
-  "source_device_id": "AA:BB:CC:DD:EE:FF"
-}
-```
-
-#### 响应示例
-
-```json
-{
-  "code": 0,
-  "reqid": "req_12345678",
-  "data": {
-    "voiceprint_id": "9e2b47d8f40945268f8a7b6e5d4c3b21",
-    "audio_url": "https://xrobot-obj.qnlinx.com/chat-history/2026/08/05/sample.wav",
-    "source_device_id": "AA:BB:CC:DD:EE:FF"
-  }
-}
-```
-
-::: info 音频 URL 处理规则
-- 后端会下载 `audio_url` 指向的音频，最大支持 10MB。
-- 仅支持 `http` 和 `https` URL。
-- 为避免服务端请求风险，`localhost`、内网地址、回环地址、链路本地地址等不可作为音频 URL。
-- 如果 URL 属于平台私有对象存储域名，后端会自动生成签名 URL 后再下载；公开 URL 会原样下载。
-- 公开响应只返回声纹 ID 和音频来源，不返回 `voice_vector`。
-:::
-
-### 3.2 获取说话人默认声纹
-
-获取指定说话人的默认声纹信息。
-
-#### 接口信息
-
-**请求方式：** `GET /v1/speakers/{speakerId}/voiceprint`
-
-#### 参数说明
-
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `speakerId` | string | 是 | 说话人 ID |
-
-#### 请求示例
-
-```http
-GET /v1/speakers/2f6c9f1f4d0f4a8ca3d9a7f6b8e2a123/voiceprint HTTP/1.1
-Host: https://xrobo.qiniu.com
-Authorization: Bearer <token>
-```
-
-#### 响应示例
-
-```json
-{
-  "code": 0,
-  "reqid": "req_12345678",
-  "data": {
-    "voiceprint_id": "9e2b47d8f40945268f8a7b6e5d4c3b21",
-    "audio_url": "https://xrobot-obj.qnlinx.com/chat-history/2026/08/05/sample.wav",
-    "source_device_id": "AA:BB:CC:DD:EE:FF"
-  }
+  "msg": "success",
+  "data": [
+    {
+      "voice_id": "100010001",
+      "voice_name": "妈妈的声音",
+      "voice_url": "https://example.com/voice/100010001.wav",
+      "status": "activate",
+      "threshold": 0.2,
+      "role_bind": {
+        "role_id": "000100010001",
+        "role_name": "妈妈"
+      },
+      "dev_bind": [
+        {
+          "device_id": "0001",
+          "device_name": "0001"
+        }
+      ],
+      "created_at": "2023-01-01T12:00:00Z",
+      "updated_at": "2023-01-01T12:00:00Z"
+    }
+  ]
 }
 ```
 
 ::: warning 特殊说明
-如果说话人不存在，或该说话人还没有默认声纹，接口会返回非 0 业务码，并在 `msg` 中返回 `speaker not found` 或 `voiceprint not found`。
+- 当声纹没有绑定角色时，`role_bind`字段返回空对象`{}`
+- 当声纹绑定了一个不存在的角色时，`role_bind`字段也返回空对象`{}`
 :::
 
-### 3.3 删除说话人默认声纹
+### 2.4 获取特定声纹
 
-删除指定说话人的默认声纹，并清空该说话人的 `voiceprint_ids`。
+获取指定声纹的详细信息。
 
 #### 接口信息
 
-**请求方式：** `DELETE /v1/speakers/{speakerId}/voiceprint`
+**请求方式：** `GET /v1/voiceprint/voices/{voiceId}`
 
 #### 参数说明
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `speakerId` | string | 是 | 说话人 ID |
+| `voiceId` | string | 是 | 声纹ID |
 
 #### 请求示例
 
 ```http
-DELETE /v1/speakers/2f6c9f1f4d0f4a8ca3d9a7f6b8e2a123/voiceprint HTTP/1.1
+GET /v1/voiceprint/voices/100010001 HTTP/1.1
 Host: https://xrobo.qiniu.com
 Authorization: Bearer <token>
 ```
@@ -384,79 +231,63 @@ Authorization: Bearer <token>
 ```json
 {
   "code": 0,
-  "reqid": "req_12345678",
-  "data": {}
-}
-```
-
-## 四、智能体说话人配置
-
-智能体说话人配置用于声明某个智能体当前认识哪些说话人。运行时会根据这里保存的 `speaker_ids` 下发说话人和声纹信息。
-
-### 4.1 获取智能体说话人配置
-
-获取指定智能体当前关联的说话人列表和声纹对话模式开关。
-
-#### 接口信息
-
-**请求方式：** `GET /v1/agents/{agentId}/speaker-config`
-
-#### 参数说明
-
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `agentId` | string | 是 | 智能体 ID |
-
-#### 请求示例
-
-```http
-GET /v1/agents/31dad2a8042a40ec879ef92a7bc240ae/speaker-config HTTP/1.1
-Host: https://xrobo.qiniu.com
-Authorization: Bearer <token>
-```
-
-#### 响应示例
-
-```json
-{
-  "code": 0,
-  "reqid": "req_12345678",
+  "msg": "",
   "data": {
-    "speaker_ids": [
-      "2f6c9f1f4d0f4a8ca3d9a7f6b8e2a123"
+    "voice_id": "100010001",
+    "voice_name": "妈妈的声音",
+    "voice_url": "https://example.com/voice/100010001.wav",
+    "status": "activate",
+    "threshold": 0.2,
+    "role_bind": {
+      "role_id": "000100010001",
+      "role_name": "妈妈"
+    },
+    "dev_bind": [
+      {
+        "device_id": "0001",
+        "device_name": "0001"
+      }
     ],
-    "voice_chat_only_enabled": false
+    "created_at": "2023-01-01T12:00:00Z",
+    "updated_at": "2023-01-01T12:00:00Z"
   }
 }
 ```
 
-### 4.2 更新智能体说话人配置
+### 2.5 更新声纹绑定信息
 
-全量更新指定智能体关联的说话人列表。
+更新指定声纹的绑定信息。一个声纹可以绑定多个设备，一个声纹也可以绑定到不同角色。声纹绑定信息声纹识别阈值、角色绑定、设备绑定信息。
 
 #### 接口信息
 
-**请求方式：** `PUT /v1/agents/{agentId}/speaker-config`
+**请求方式：** `PUT /v1/voiceprint/voicesbind/{voiceId}`
 
 #### 参数说明
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `agentId` | string | 是 | 智能体 ID |
-| `speaker_ids` | array | 否 | 说话人 ID 列表。省略或传空数组表示清空配置 |
+| `threshold` | float | 否 | 识别阈值 |
+| `role_bind` | object | 否 | 角色绑定信息 |
+| `dev_bind` | object | 否 | 设备绑定信息 |
 
 #### 请求示例
 
 ```http
-PUT /v1/agents/31dad2a8042a40ec879ef92a7bc240ae/speaker-config HTTP/1.1
+PUT /v1/voiceprint/voices/100010001 HTTP/1.1
 Host: https://xrobo.qiniu.com
 Authorization: Bearer <token>
 Content-Type: application/json
 
 {
-  "speaker_ids": [
-    "2f6c9f1f4d0f4a8ca3d9a7f6b8e2a123",
-    "7f4c2c9f8b1d42c0b4ef0e68a2a4b789"
+  "threshold": 0.2,
+  "role_bind": {
+    "role_id": "000100010001"
+  }
+  "dev_bind": [
+    {
+      "device_id": "11:22:33:44:55:66",
+      "device_id": "11:22:33:44:55:88",
+    }
   ]
 }
 ```
@@ -466,48 +297,66 @@ Content-Type: application/json
 ```json
 {
   "code": 0,
-  "reqid": "req_12345678",
-  "data": {
-    "speaker_ids": [
-      "2f6c9f1f4d0f4a8ca3d9a7f6b8e2a123",
-      "7f4c2c9f8b1d42c0b4ef0e68a2a4b789"
-    ],
-    "voice_chat_only_enabled": false
-  }
+  "msg": "",
+  "data": null
 }
 ```
 
-::: info 配置规则
-- `speaker_ids` 会自动去重，并忽略空字符串。
-- 单个智能体最多可关联 20 个说话人。
-- 所有 `speaker_ids` 必须属于当前用户；不存在或无权限访问时返回 `speaker not found`。
-- `voice_chat_only_enabled` 是响应字段，表示当前智能体是否开启“仅响应已识别说话人”的声纹对话模式。该字段读取自智能体 `extra.voiceprint.chat_only_enabled`，本接口的 PUT 请求不会更新这个开关。需要修改时，请通过 [智能体 API](./agent.md) 更新智能体 `extra.voiceprint.chat_only_enabled`。
-:::
+## 三、角色管理
 
-## 五、智能体带音频聊天记录
+有了声纹，对话的一端可以真的对应到人，而不是设备，因此角色管理也变得重要。可以在智能体交互屏蔽其他角色的干扰、打断，也可以针对角色做个人性化设置，让对话更人性化。
 
-该接口用于查询指定智能体下带 `audio_url` 的聊天记录，常用于从历史语音中选择一段音频作为声纹样本。
+### 3.1 创建角色
 
-### 5.1 获取带音频聊天记录
+创建新的用户角色。
 
 #### 接口信息
 
-**请求方式：** `GET /v1/agents/{agentId}/chat-history`
+**请求方式：** `POST /v1/voiceprint/roles`
 
 #### 参数说明
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `agentId` | string | 是 | 智能体 ID |
-| `limit` | integer | 否 | 返回数量，默认 20，最大 100。小于等于 0 或非法值会使用默认值 |
-| `device_id` | string | 否 | 设备 ID，对应聊天记录中的设备 MAC 地址 |
-| `chat_type` | integer | 否 | 消息类型：1 表示用户消息，2 表示智能体消息，3 表示工具消息 |
-| `session_id` | string | 否 | 会话 ID |
+| `role_name` | string | 是 | 角色名称 |
 
 #### 请求示例
 
 ```http
-GET /v1/agents/31dad2a8042a40ec879ef92a7bc240ae/chat-history?limit=20&device_id=AA:BB:CC:DD:EE:FF&chat_type=1 HTTP/1.1
+POST /v1/voiceprint/roles HTTP/1.1
+Host: https://xrobo.qiniu.com
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "role_name": "妈妈"
+}
+```
+
+#### 响应示例
+
+```json
+{
+  "code": 0,
+  "msg": "",
+  "data": {
+    "role_id": "000100010001"
+  }
+}
+```
+
+### 3.2 获取角色列表
+
+获取所有角色的列表。
+
+#### 接口信息
+
+**请求方式：** `GET /v1/voiceprint/roles`
+
+#### 请求示例
+
+```http
+GET /v1/voiceprint/roles HTTP/1.1
 Host: https://xrobo.qiniu.com
 Authorization: Bearer <token>
 ```
@@ -517,82 +366,203 @@ Authorization: Bearer <token>
 ```json
 {
   "code": 0,
-  "reqid": "req_12345678",
+  "msg": "",
+  "data": [
+    {
+      "role_id": "000100010001",
+      "role_name": "妈妈",
+      "created_at": "2023-01-01T12:00:00Z",
+      "updated_at": "2023-01-01T12:00:00Z"
+    }
+  ]
+}
+```
+
+### 3.3 获取特定角色
+
+获取指定角色的详细信息。
+
+#### 接口信息
+
+**请求方式：** `GET /v1/voiceprint/roles/{roleId}`
+
+#### 参数说明
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `roleId` | string | 是 | 角色ID |
+
+#### 请求示例
+
+```http
+GET /v1/voiceprint/roles/000100010001 HTTP/1.1
+Host: https://xrobo.qiniu.com
+Authorization: Bearer <token>
+```
+
+#### 响应示例
+
+```json
+{
+  "code": 0,
+  "msg": "",
   "data": {
-    "records": [
+    "role_id": "000100010001",
+    "role_name": "妈妈",
+    "created_at": "2023-01-01T12:00:00Z",
+    "updated_at": "2023-01-01T12:00:00Z"
+  }
+}
+```
+
+### 3.4 删除角色
+
+删除指定的角色。
+
+#### 接口信息
+
+**请求方式：** `DELETE /v1/voiceprint/roles/{roleId}`
+
+#### 参数说明
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `roleId` | string | 是 | 角色ID |
+
+#### 请求示例
+
+```http
+DELETE /v1/voiceprint/roles/000100010001 HTTP/1.1
+Host: https://xrobo.qiniu.com
+Authorization: Bearer <token>
+```
+
+#### 响应示例
+
+```json
+{
+  "code": 0,
+  "msg": "",
+  "data": null
+}
+```
+
+## 四、角色打断配置管理
+
+设置了角色打断配置后，当智能体收到新的消息时，会根据配置判断是否打断当前正在说话的声纹。
+
+### 4.1 获取角色打断配置
+
+获取指定智能体的角色打断配置。
+
+#### 接口信息
+
+**请求方式：** `GET /v1/voiceprint/roleinterrupt/{agent_id}`
+
+#### 参数说明
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `agent_id` | string | 是 | 智能体ID |
+
+#### 请求示例
+
+```http
+GET /v1/voiceprint/roleinterrupt/agent_001 HTTP/1.1
+Host: https://xrobo.qiniu.com
+Authorization: Bearer <token>
+```
+
+#### 响应示例
+
+```json
+{
+  "code": 0,
+  "msg": "",
+  "data": {
+    "roleinterrupt": [
       {
-        "session_id": "7465966b-4582-4dae-99be-420364d422d7",
-        "device_id": "AA:BB:CC:DD:EE:FF",
-        "chat_type": 1,
-        "audio_url": "https://xrobot-obj.qnlinx.com/chat-history/2026/08/05/sample.wav",
-        "content": "你好，请问我是谁？",
-        "created_at": "2026-08-05T10:10:00+08:00"
+        "role_id": "000100010001",
+        "role_name": "妈妈",
+        "interrupt": "true"
+      },
+      {
+        "role_id": "000100010002",
+        "role_name": "爸爸",
+        "interrupt": "false"
       }
     ]
   }
 }
 ```
 
-::: info 查询规则
-- 仅返回 `audio_url` 不为空的聊天记录。
-- 结果按 `created_at` 倒序排列。
-- `limit` 超过 100 时会裁剪为 100。
-- `device_id` 和 `session_id` 如果传入 `undefined` 或 `null` 字符串，会按未传处理。
-- `chat_type` 非数字时返回 `invalid chat_type`。
+### 4.2 更新角色打断配置
+
+更新指定智能体的角色打断配置。
+
+#### 接口信息
+
+**请求方式：** `PUT /v1/voiceprint/roleinterrupt/{agent_id}`
+
+#### 参数说明
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `agent_id` | string | 是 | 智能体ID |
+| `roleinterrupt` | array | 是 | 角色打断配置列表 |
+
+#### 请求示例
+
+```http
+PUT /v1/voiceprint/roleinterrupt/agent_001 HTTP/1.1
+Host: https://xrobo.qiniu.com
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "roleinterrupt": [
+    {
+      "role_id": "000100010001",
+      "role_name": "妈妈",
+      "interrupt": "true"
+    },
+    {
+      "role_id": "000100010002",
+      "role_name": "爸爸",
+      "interrupt": "false"
+    }
+  ]
+}
+```
+
+#### 响应示例
+
+```json
+{
+  "code": 0,
+  "msg": "",
+  "data": null
+}
+```
+
+::: info 特殊说明
+请求体中包含`role_name`字段以保持与获取配置API响应字段一致，但后端实际仅使用`role_id`和`interrupt`字段进行更新操作，`role_name`字段会被忽略。
 :::
 
-## 六、推荐接入流程
-
-### 6.1 从历史语音创建声纹并绑定智能体
-
-1. 调用 `POST /v1/speakers` 创建说话人。
-2. 调用 `GET /v1/agents/{agentId}/chat-history` 查询带音频的用户消息。
-3. 选择一条清晰的用户语音，将其 `audio_url` 传给 `POST /v1/speakers/{speakerId}/voiceprint`。
-4. 调用 `PUT /v1/agents/{agentId}/speaker-config` 将 `speaker_id` 保存到智能体。
-5. 如需只响应已识别说话人，通过智能体 API 设置 `extra.voiceprint.chat_only_enabled=true`。
-
-### 6.2 运行时说明
-
-公开 API 不返回声纹特征向量。智能体运行时会通过内部配置读取 `speaker_config` 和对应说话人的声纹向量，用于在设备会话中注册和匹配说话人。外部客户端只需要维护说话人、声纹样本和智能体关联关系。
-
-## 七、常见错误
-
-| code | msg | 说明 |
-|------|-----|------|
-| `400` | `invalid request body` | 请求体格式错误 |
-| `400` | `name is required` | 创建或更新说话人时名称为空 |
-| `400` | `invalid speaker id` | 路径中的说话人 ID 为空 |
-| `400` | `audio_url is required` | 创建声纹时未提供音频 URL |
-| `400` | `failed to download audio from URL` | 音频 URL 无法下载、超过大小限制或不符合安全规则 |
-| `400` | `speaker is used by agent` | 删除仍被智能体引用的说话人 |
-| `400` | `speaker_ids exceeds max count 20` | 智能体关联的说话人超过数量上限 |
-| `400` | `speaker not found` | 更新智能体说话人配置时包含不存在或无权限访问的说话人 |
-| `400` | `invalid chat_type` | 查询聊天记录时 `chat_type` 不是数字 |
-| `404` | `speaker not found` | 说话人不存在或不属于当前用户 |
-| `404` | `voiceprint not found` | 说话人未设置默认声纹 |
-| `404` | `agent not found` | 智能体不存在或不属于当前用户 |
-| `599` | `failed to extract voiceprint feature` | 后端声纹提取失败 |
-| `599` | `failed to process voiceprint feature` | 声纹特征处理失败 |
 
 ## 最佳实践
 
-### 声纹样本
+### 声纹数据管理
 
-1. **选择清晰样本**：优先选择无明显背景噪音、说话人单一的用户语音。
-2. **控制样本长度**：避免过短或过长，建议选择自然说话的一小段音频。
-3. **保留来源设备**：创建声纹时传入 `source_device_id`，便于后续排查不同设备采样差异。
-4. **及时替换**：同一说话人创建新声纹会替换默认声纹，可用于重新采样和优化识别效果。
+1. **声纹数量控制**：建议每个设备注册不超过4个声纹，保证识别准确率
+2. **音频质量**：使用16kHz采样率、WAV格式、干净无噪音的音频
+3. **阈值设置**：根据安全要求调整，高安全场景使用0.2+，便民场景使用0.1-0.2
+4. **定期维护**：建议每6个月更新一次声纹数据，应对声音变化
 
-### 说话人配置
-
-1. **名称用于展示，ID 用于绑定**：同名说话人是允许的，业务侧应保存和传递 `speaker_id`。
-2. **描述保持简短准确**：`desc` 会参与运行时说话人信息表达，建议写身份或交互偏好，不要写无关信息。
-3. **控制识别范围**：只把当前智能体需要识别的人加入 `speaker_ids`，避免候选说话人过多影响使用体验。
-4. **删除前解除绑定**：删除说话人前先从所有相关智能体的 `speaker_ids` 中移除。
 
 ## 相关文档
 
-- [**智能体 API**](./agent.md) - 查看智能体管理与 `extra.voiceprint.chat_only_enabled` 配置
-- [**聊天记录 API**](./chat-history.md) - 查看完整聊天记录查询和音频签名能力
-- [**声纹识别最佳实践**](../guide/voice-start.md) - 了解声纹录制与使用建议
-- [**API 概览**](./index.md) - 查看所有可用 API
+- [**智能体 API**](./agent.md) - 查看智能体管理接口
+- [**大语言模型 API**](./llm.md) - 了解LLM模型配置  
+- [**声纹识别最佳实践**](../guide/voice-start.md) - 声纹识别使用指南
+- [**API 概览**](./index.md) - 查看所有可用的API接口资源监控
