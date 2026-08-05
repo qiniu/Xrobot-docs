@@ -6,7 +6,7 @@ title: 声纹识别 V2 API
 
 ## 接口概述
 
-声纹识别 V2 以 **说话人（Speaker）** 为核心管理身份信息。一个说话人可以设置一条默认声纹，智能体通过 `speaker_ids` 选择本智能体需要识别的说话人。
+声纹识别 V2 以 **说话人（Speaker）** 为核心管理身份信息。一个说话人可以设置一条默认声纹；智能体需要绑定 `speaker_id` 后，才会识别该说话人。
 
 ::: warning 版本说明
 旧版 [声纹识别 API](./voice.md) 仍保留兼容，后续会逐步废弃。新接入和新配置流程建议使用本文档的 V2 接口。
@@ -115,7 +115,7 @@ title: 声纹识别 V2 API
 **请求方式：** `DELETE /v1/speakers/{speakerId}`
 
 ::: warning 删除限制
-如果说话人仍被智能体引用，需要先从对应智能体的说话人配置中移除。
+如果说话人仍被智能体引用，需要先从对应智能体的说话人绑定中移除。
 :::
 
 ## 三、声纹管理
@@ -166,11 +166,11 @@ title: 声纹识别 V2 API
 
 **请求方式：** `DELETE /v1/speakers/{speakerId}/voiceprint`
 
-## 四、智能体说话人配置
+## 四、智能体说话人绑定
 
-智能体说话人配置用于声明当前智能体需要识别哪些说话人。
+智能体说话人绑定用于维护当前智能体可识别的说话人。未绑定到智能体的说话人，不会参与该智能体的声纹识别。
 
-### 4.1 获取配置
+### 4.1 获取绑定
 
 **请求方式：** `GET /v1/agents/{agentId}/speaker-config`
 
@@ -189,7 +189,7 @@ title: 声纹识别 V2 API
 }
 ```
 
-### 4.2 更新配置
+### 4.2 更新绑定
 
 **请求方式：** `PUT /v1/agents/{agentId}/speaker-config`
 
@@ -197,7 +197,7 @@ title: 声纹识别 V2 API
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `speaker_ids` | array | 否 | 说话人 ID 列表，传空数组表示清空 |
+| `speaker_ids` | array | 否 | 要绑定的说话人 ID 列表，传空数组表示清空绑定 |
 
 #### 请求示例
 
@@ -209,8 +209,8 @@ title: 声纹识别 V2 API
 }
 ```
 
-::: info 配置说明
-`speaker_ids` 会按用户权限校验并自动去重。`voice_chat_only_enabled` 是只读字段，如需修改请通过 [智能体 API](./agent.md) 更新智能体配置。
+::: info 绑定说明
+`speaker_ids` 会按用户权限校验并自动去重。`voice_chat_only_enabled` 是只读的对话模式开关，如需修改请通过 [智能体 API](./agent.md) 更新智能体配置。
 :::
 
 ## 五、最近语音样本
@@ -239,10 +239,10 @@ title: 声纹识别 V2 API
 
 ## 六、推荐接入流程
 
-1. 创建说话人。
-2. 从最近语音样本中选择一段清晰音频。
-3. 为说话人创建默认声纹。
-4. 将说话人绑定到智能体的 `speaker_ids`。
+1. 调用 `POST /v1/speakers` 创建说话人，保存返回的 `speaker_id`。
+2. 调用 `GET /v1/agents/{agentId}/chat-history`，从最近语音样本中选择一段清晰音频。
+3. 调用 `POST /v1/speakers/{speakerId}/voiceprint`，为说话人创建默认声纹。
+4. 调用 `PUT /v1/agents/{agentId}/speaker-config`，将 `speaker_id` 写入 `speaker_ids`。完成绑定后，该智能体才会识别该说话人。
 
 ## 相关文档
 
