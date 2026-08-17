@@ -602,7 +602,7 @@ const updateAgentParameters = [
                 name: 'chat_only_enabled',
                 type: 'boolean',
                 required: false,
-                description: '是否仅在对话模式启用声纹识别',
+                description: '开启后，智能体只在识别到已绑定说话人时响应',
                 example: false
               }
             ]
