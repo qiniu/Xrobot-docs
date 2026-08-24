@@ -210,7 +210,7 @@ title: 声纹识别 V2 API
 ```
 
 ::: info 绑定说明
-`speaker_ids` 会按用户权限校验并自动去重。`voice_chat_only_enabled` 是只读开关：开启后，智能体只在识别到已绑定说话人时响应。如需修改请通过 [智能体 API](./agent.md) 更新智能体配置。
+`speaker-config` 只维护智能体和说话人的绑定关系，`speaker_ids` 会按用户权限校验并自动去重。`voice_chat_only_enabled` 是只读开关：开启后，智能体只在识别到已绑定说话人时响应；如需修改，请通过 [智能体 API](./agent.md) 更新 `extra.voiceprint.chat_only_enabled`。
 :::
 
 ## 五、最近语音样本
@@ -243,6 +243,7 @@ title: 声纹识别 V2 API
 2. 调用 `GET /v1/agents/{agentId}/chat-history`，从最近语音样本中选择一段清晰音频。
 3. 调用 `POST /v1/speakers/{speakerId}/voiceprint`，为说话人创建默认声纹。
 4. 调用 `PUT /v1/agents/{agentId}/speaker-config`，将 `speaker_id` 写入 `speaker_ids`。完成绑定后，该智能体才会识别该说话人。
+5. 如需“只和认识的人说话”，通过 [智能体 API](./agent.md) 将 `extra.voiceprint.chat_only_enabled` 设为 `true`。
 
 ## 相关文档
 
