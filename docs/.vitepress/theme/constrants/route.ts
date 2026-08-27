@@ -100,6 +100,7 @@ const items_xrobot_api = [
       { text: "设备工具描述API", link: "device-tool" },
       { text: "音色克隆API", link: "voice-clone" },
       { text: "长期记忆API", link: "longterm-memory" },
+      { text: "固件管理API", link: "firmware" },
       { text: "声纹识别V2 API", link: "voiceprint-v2" },
       { text: "获取语言列表API", link: "language" },
       { text: "其他API", link: "others" },
@@ -113,7 +114,7 @@ const items_xrobot_mcp = [
     collapsed: true,
     link: Chapters.xrobot_mcp,
     items: [
-     
+
       { text: "端侧MCP", link: "hardware-mcp" },
       { text: "云端MCP", link: "software-mcp" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_mcp)),
