@@ -68,29 +68,24 @@ const searchAgentParameters = [
     type: 'string',
     required: true,
     description: '搜索关键词',
-    example: '小智'
+    example: 'AA:BB:CC:DD:EE:FF'
   },
   {
     name: 'type',
     in: 'query',
     type: 'string',
-    required: false,
-    description: '搜索类型，支持 name（智能体名称）、mac（设备 MAC 地址）、agent_id（智能体 ID）。缺省默认为 name',
+    required: true,
+    description: '搜索类型，支持 mac（设备 MAC 地址）、agent_id（智能体 ID）',
     example: 'mac'
   }
 ]
 
-const searchAgentRequest = `// 示例 1：按名称前缀搜索（默认）
-GET /xiaozhi/agent/search?q=小智&type=name HTTP/1.1
-Host: https://xrobo.qiniu.com
-Authorization: Bearer <token>
-
-// 示例 2：按设备 MAC 地址精确搜索
+const searchAgentRequest = `// 示例 1：按设备 MAC 地址精确搜索
 GET /xiaozhi/agent/search?q=AA:BB:CC:DD:EE:FF&type=mac HTTP/1.1
 Host: https://xrobo.qiniu.com
 Authorization: Bearer <token>
 
-// 示例 3：按智能体 ID 精确搜索
+// 示例 2：按智能体 ID 精确搜索
 GET /xiaozhi/agent/search?q=4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d&type=agent_id HTTP/1.1
 Host: https://xrobo.qiniu.com
 Authorization: Bearer <token>`
@@ -602,7 +597,7 @@ const updateAgentParameters = [
                 name: 'chat_only_enabled',
                 type: 'boolean',
                 required: false,
-                description: '是否仅在对话模式启用声纹识别',
+                description: '开启后，智能体只在识别到已绑定说话人时响应',
                 example: false
               }
             ]
@@ -912,7 +907,7 @@ GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
   endpoint="/agent/search"
   method="get"
   title="搜索智能体"
-  description="支持按名称前缀、设备 MAC 地址或智能体 ID 搜索智能体"
+  description="支持按设备 MAC 地址或智能体 ID 搜索智能体"
   :parameters="searchAgentParameters"
   :headers="getListHeaders"
   :requestExample="searchAgentRequest"
@@ -921,7 +916,6 @@ GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
 />
 
 ::: tip 搜索类型与匹配规则
-- **name（智能体名称，默认）**：采用**前缀匹配**方式（SQL 逻辑等价于 `agent_name LIKE 'q%'`，例如搜索 `"小智"` 可命中 `"小智助手"`）
 - **mac（设备 MAC 地址）**：采用**精确匹配**，查询绑定该 MAC 设备且归属于当前用户的智能体
 - **agent_id（智能体 ID）**：采用**精确匹配**，按智能体 ID 查询归属于当前用户的智能体
 
@@ -970,6 +964,10 @@ GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
 
 ::: tip LLM 参数说明
 `extra.llm` 下的标准参数（temperature、top_p 等）越界会被自动夹取、不报错；`extra.llm.custom_params.body` 下的自定义参数会按所选模型的 schema 校验，非法参数直接拒绝。支持哪些自定义参数取决于所选模型、且会随模型调整而变化，具体 key/类型请以模型 schema 查询结果为准，详见 [大语言模型 API](./llm.md) 的「大模型自定义参数（custom_params）」一节。
+:::
+
+::: tip 记忆模型说明
+`memModelId` 用于配置智能体的记忆模式。详细说明及系统行为请参见 [长期记忆 API](./longterm-memory.md)。
 :::
 
 ### 删除智能体
