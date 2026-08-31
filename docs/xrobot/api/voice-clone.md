@@ -10,16 +10,16 @@ const createVoiceCloneBodyParams = [
     type: 'string',
     required: false,
     location: 'body',
-    description: '音色语言，默认为 "zh"。免费版仅支持 zh(中文) 和 en(英语)，其他语言需使用 pro(付费) 版本：ja(日语), ko(韩语), es(西班牙语), pt(葡萄牙语), id(印尼语), de(德语), fr(法语), ar(阿拉伯语), hi(印地语), it(意大利语), tr(土耳其语), yue(粤语)',
+    description: '音色语言，默认为 "zh"。免费版仅支持 zh(中文) 和 en(英语)；付费版支持 zh、en、fr(法语)、de(德语)、ja(日语)、ko(韩语)、ru(俄语)、pt(葡萄牙语)、th(泰语)、id(印尼语)、vi(越南语)；付费（商务版）支持 es(西班牙语)、ar(阿拉伯语)、hi(印地语)、it(意大利语)、tr(土耳其语)、yue(粤语)、ms(马来语)、he(希伯来语)',
     example: 'zh'
   },
   {
     name: 'tier',
     type: 'string',
-    required: false,
+    required: true,
     location: 'body',
-    description: '付费等级，默认为 "free"，支持以下等级：free(免费), pro(付费)',
-    example: 'free'
+    description: '资源包档位，字符串枚举，默认为 "free"。支持：free(免费)、lite(付费)、pro(付费商务版)。使用对应资源包时必须传入对应的tier，接口不会根据账户资源包自动推断档位。',
+    example: 'lite'
   }
 ]
 
@@ -42,7 +42,7 @@ const createVoiceCloneHeaders = [
 
 const createVoiceCloneRequest = `{
   "language": "zh",
-  "tier": "free"
+  "tier": "lite"
 }`
 
 const createVoiceCloneResponse = `{
@@ -54,7 +54,7 @@ const createVoiceCloneResponse = `{
         "language": "zh",
         "demo_url": "",
         "state": "Init",
-        "tier": "free"
+        "tier": "lite"
     }
 }`
 
@@ -62,6 +62,7 @@ const createVoiceCloneStatusCodes = [
   { code: 0, description: '创建成功' },
   { code: 400, description: '请求参数错误' },
   { code: 401, description: '未授权访问' },
+  { code: 403, description: '指定档位没有可用额度' },
   { code: 500, description: '服务器内部错误' }
 ]
 
@@ -97,7 +98,8 @@ const trainVoiceCloneBodyParams = [
 ]
 
 const trainVoiceCloneDesc = `使用音频文件训练指定的音色，或仅更新音色名称。
-如果提供音频URL，系统将根据音频进行训练；如果仅提供名称，则只更新音色名称。`
+如果提供音频URL，系统将根据音频进行训练；如果仅提供名称，则只更新音色名称。
+更新请求不需要也不能修改 tier，系统会沿用创建音色栏位时确定的档位。`
 
 const trainVoiceCloneHeaders = [
   {
@@ -130,7 +132,7 @@ const trainVoiceCloneResponse = `{
         "language": "zh",
         "demo_url": "https://example.com/demo.wav",
         "state": "Training",
-        "tier": "free"
+        "tier": "lite"
     }
 }`
 
@@ -139,6 +141,7 @@ const trainVoiceCloneStatusCodes = [
   { code: 400, description: '请求参数错误' },
   { code: 401, description: '未授权访问' },
   { code: 404, description: '音色不存在' },
+  { code: 403, description: '指定档位没有可用额度' },
   { code: 500, description: '服务器内部错误' }
 ]
 
@@ -309,10 +312,12 @@ const deleteVoiceCloneStatusCodes = [
 
 ::: info
 
-1. **付费复刻**: 付费音色栏位在进行音色复刻时，会消耗复刻音色额度！（仅更新名称时不会消耗）
-2. **音色名称限制**: 音色名称最多20个字符，汉字、字母、数字都算作一个字符
-3. **音频文件要求**: 训练音频建议时长在10-60秒之间，音质清晰，无背景噪音
-4. **训练时间**: 音色训练通常需要几分钟到十几分钟，请耐心等待
+1. **档位与额度**: 创建接口的 `tier` 必须传字符串 `free`、`lite` 或 `pro`。不传时默认为 `free`，不会自动匹配账户已购买的资源包。
+2. **更新接口不修改档位**: `PUT /v1/voice-clones/{id}` 不接收 `tier`，音色会沿用创建时的档位。
+3. **额度扣减规则**: 更新请求包含音频 URL 时会执行复刻并扣减对应档位额度；仅更新名称（不传 `key`）不会扣减额度。
+4. **音色名称限制**: 音色名称最多20个字符，汉字、字母、数字都算作一个字符
+5. **音频文件要求**: 训练音频建议时长在20-30秒之间，音质清晰，无背景噪音
+6. **训练时间**: 音色训练通常需要几分钟到十几分钟，请耐心等待
 :::
 
 ## 3. 获取音色信息
