@@ -16,9 +16,9 @@ const createVoiceCloneBodyParams = [
   {
     name: 'tier',
     type: 'string',
-    required: true,
+    required: false,
     location: 'body',
-    description: '资源包档位，字符串枚举，默认为 "free"。支持：free(免费)、lite(付费)、pro(付费商务版)。使用对应资源包时必须传入对应的tier，接口不会根据账户资源包自动推断档位。',
+    description: '资源包档位，非必填，字符串枚举。不传时，默认使用 "free"。支持：free(免费)、lite(付费)、pro(付费商务版)。使用购买的资源包时，需要显式指定传入该字段。',
     example: 'lite'
   }
 ]
@@ -312,7 +312,7 @@ const deleteVoiceCloneStatusCodes = [
 
 ::: info
 
-1. **档位与额度**: 创建接口的 `tier` 必须传字符串 `free`、`lite` 或 `pro`。不传时默认为 `free`，不会自动匹配账户已购买的资源包。
+1. **档位与额度**: 创建接口的 `tier` 为非必填字段，不传时，默认使用 `free`；不会自动匹配账户已购买的资源包。使用购买的资源包时，请显式传入对应的 `tier`。
 2. **更新接口不修改档位**: `PUT /v1/voice-clones/{id}` 不接收 `tier`，音色会沿用创建时的档位。
 3. **额度扣减规则**: 更新请求包含音频 URL 时会执行复刻并扣减对应档位额度；仅更新名称（不传 `key`）不会扣减额度。
 4. **音色名称限制**: 音色名称最多20个字符，汉字、字母、数字都算作一个字符
