@@ -271,7 +271,7 @@ const listVoiceCloneQuotaParameters = [
     type: 'number',
     required: true,
     location: 'query',
-    description: '资源类型，固定传 1，表示音色克隆资源 linxi:api:voice_clone',
+    description: '资源类型枚举：0 全部资源，1 音色克隆，2 设备资源池，3 设备资源包，4 系统免费资源池。不传时查询全部资源。',
     example: '1'
   },
   {
@@ -417,28 +417,9 @@ const listVoiceCloneQuotaStatusCodes = [
   :statusCodes="listVoiceClonesStatusCodes"
 />
 
-## 5. 查询音色克隆资源包额度
+## 5. 资源包额度
 
-<ApiEndpoint
-  host="https://xrobo.qiniu.com"
-  basePath=""
-  endpoint="/v1/quotas"
-  method="get"
-  title="查询音色克隆资源包额度"
-  description="查询当前用户账户下的音色克隆资源包。必须传入 resource_type=1，设备资源包不会包含在结果中。"
-  :parameters="listVoiceCloneQuotaParameters"
-  :headers="listVoiceCloneQuotaHeaders"
-  :responseExample="listVoiceCloneQuotaResponse"
-  :statusCodes="listVoiceCloneQuotaStatusCodes"
-/>
-
-::: info
-
-- 资源包档位由 `data.quotas[].resource_package.type` 表示，仅支持 `free`、`lite`、`pro`。调用方需根据该字段筛选目标档位。
-- 额度汇总：`usage_count` 和 `total_count` 分别按档位求和，`available_count = total_count - usage_count`。当前可用额度只统计 `status=0` 且未过期的资源包。
-- 分页：`next_cursor` 不为空时，将其作为下一次请求的 `cursor`；为空表示查询完成。
-
-:::
+资源包额度查询请参见[资源包与额度 API](/xrobot/api/quota)。
 
 ## 6. 删除音色
 
