@@ -434,7 +434,7 @@ const listVoiceCloneQuotaStatusCodes = [
 
 ::: info
 
-- 调用方需根据tier字段筛选档位。
+- 资源包档位由 `data.quotas[].resource_package.type` 表示，仅支持 `free`、`lite`、`pro`。调用方需根据该字段筛选目标档位。
 - 额度汇总：`usage_count` 和 `total_count` 分别按档位求和，`available_count = total_count - usage_count`。当前可用额度只统计 `status=0` 且未过期的资源包。
 - 分页：`next_cursor` 不为空时，将其作为下一次请求的 `cursor`；为空表示查询完成。
 
