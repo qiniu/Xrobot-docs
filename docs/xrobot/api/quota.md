@@ -5,6 +5,8 @@ title: 资源包与额度 API
 <script setup>
 const quotaParameters = [
   { name: 'resource_type', type: 'number', required: false, location: 'query', description: '资源类型：0 全部资源，1 音色克隆，2 设备资源池，3 设备资源包，4 系统免费资源池。不传时查询全部资源。', example: '1' },
+  { name: 'start_time', type: 'string', required: false, location: 'query', description: '资源包创建时间范围起点；与 end_time 同时传入，暂不支持跨年查询', example: '2026-01-01T00:00:00+08:00' },
+  { name: 'end_time', type: 'string', required: false, location: 'query', description: '资源包创建时间范围终点；与 start_time 同时传入，暂不支持跨年查询', example: '2026-12-31T23:59:59+08:00' },
   { name: 'limit', type: 'number', required: false, location: 'query', description: '每页返回条数，默认值和最大值均为 100', example: '100' },
   { name: 'cursor', type: 'string', required: false, location: 'query', description: '上一页响应中的 next_cursor，首次请求不传', example: 'quota_abc123_2026-08-01T10:00:00Z' }
 ]
