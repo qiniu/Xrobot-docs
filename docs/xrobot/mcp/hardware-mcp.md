@@ -398,30 +398,6 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
 }
 ```
 
-**📨 设备端 → 灵矽平台（系统调用响应，含 structuredContent）**
-
-当响应中需要附带结构化指令（可被调用方解析执行）时，可在 `result` 中增加 `structuredContent` 字段：
-
-```json
-{
-  "type": "mcp",
-  "payload": {
-    "jsonrpc": "2.0",
-    "id": 5,
-    "result": {
-      "content": [{ "type": "text", "text": "..." }],
-      "structuredContent": {},
-      "isError": false
-    }
-  }
-}
-```
-
-**说明**：
-
-- `content.text` 给人/模型阅读（可包含格式化 JSON 字符串）
-- `structuredContent` 供对方程序化解析，是一个任意 JSON 对象，具体结构和字段含义由双方协议约定
-
 ## 设备端工具注册方法
 
 ### AddTool方法说明

@@ -192,21 +192,6 @@ MCP（Model Context Protocol）是新一代AI应用集成协议，基于标准 J
 - `content.text` 是**格式化的 JSON 字符串**（带 `\n` 换行和缩进），用于展示给用户/模型
 - `structuredContent` 是**原始 JSON 对象**，供设备程序化解析，按 `funcs` 数组执行系统调用
 
-**AppResponseV2 结构说明**：
-
-| 字段      | 类型   | 说明               |
-| --------- | ------ | ------------------ |
-| `code`    | int    | 状态码，0 表示成功 |
-| `funcs`   | array  | 系统调用列表       |
-| `message` | string | 响应消息（可为空） |
-
-**Func 结构说明**：
-
-| 字段        | 类型   | 说明       |
-| ----------- | ------ | ---------- |
-| `name`      | string | 系统函数名 |
-| `arguments` | object | 函数参数   |
-
 #### 内置系统函数
 
 | 函数名        | 参数                 | 说明     |
