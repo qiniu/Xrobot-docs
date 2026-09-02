@@ -410,9 +410,7 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
     "id": 5,
     "result": {
       "content": [{ "type": "text", "text": "..." }],
-      "structuredContent": {
-        /* 任意 JSON 对象，由双方协议约定 */
-      },
+      "structuredContent": {},
       "isError": false
     }
   }
@@ -422,7 +420,7 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
 **说明**：
 
 - `content.text` 给人/模型阅读（可包含格式化 JSON 字符串）
-- `structuredContent` 供对方程序化解析（任意 JSON 结构，语义由双方协议约定）
+- `structuredContent` 供对方程序化解析，是一个任意 JSON 对象，具体结构和字段含义由双方协议约定
 
 ## 设备端工具注册方法
 
