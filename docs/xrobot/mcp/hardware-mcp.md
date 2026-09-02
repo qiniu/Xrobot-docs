@@ -1,6 +1,6 @@
 ---
 title: 灵矽AI平台与设备端MCP协议交互指南
----   
+---
 
 ## 概述
 
@@ -27,6 +27,7 @@ MCP（Model Context Protocol）是新一代推荐用于物联网控制的协议�
 - [设备端工具注册方法](#设备端工具注册方法)
   - [AddTool方法说明](#addtool方法说明)
   - [典型注册示例](#典型注册示例)
+
 ## 典型使用流程
 
 MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备上的"工具"（Tool）进行：
@@ -87,22 +88,22 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
 
 ### JSON-RPC 2.0字段说明
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `jsonrpc` | string | 固定的字符串 "2.0" |
-| `method` | string | 要调用的方法名称（对于 Request） |
-| `params` | object | 方法的参数，一个结构化值，通常为对象（对于 Request） |
-| `id` | number/string | 请求的标识符，客户端发送请求时提供，服务器响应时原样返回。用于匹配请求和响应 |
-| `result` | any | 方法成功执行时的结果（对于 Success Response） |
-| `error` | object | 方法执行失败时的错误信息（对于 Error Response） |
+| 字段      | 类型          | 说明                                                                         |
+| --------- | ------------- | ---------------------------------------------------------------------------- |
+| `jsonrpc` | string        | 固定的字符串 "2.0"                                                           |
+| `method`  | string        | 要调用的方法名称（对于 Request）                                             |
+| `params`  | object        | 方法的参数，一个结构化值，通常为对象（对于 Request）                         |
+| `id`      | number/string | 请求的标识符，客户端发送请求时提供，服务器响应时原样返回。用于匹配请求和响应 |
+| `result`  | any           | 方法成功执行时的结果（对于 Success Response）                                |
+| `error`   | object        | 方法执行失败时的错误信息（对于 Error Response）                              |
 
 ## 详细交互流程
 
 ### 步骤1：连接建立与能力通告
 
-> **⏰ 时机**：设备启动并成功连接到灵矽AI平台后  
-> **📤 发送方**：设备端  
-> **📋 消息类型**：基础协议的 "hello" 消息  
+> **⏰ 时机**：设备启动并成功连接到灵矽AI平台后
+> **📤 发送方**：设备端
+> **📋 消息类型**：基础协议的 "hello" 消息
 > **🎯 目的**：声明设备支持的能力列表，包括 MCP 协议支持
 
 ```
@@ -122,15 +123,15 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
     "mcp": true
   },
   "transport": "websocket",
-  "audio_params": { }
+  "audio_params": {}
 }
 ```
 
 ### 步骤2：初始化MCP会话
 
-> **⏰ 时机**：灵矽AI平台收到设备 "hello" 消息，确认设备支持 MCP 后  
-> **📤 发送方**：灵矽AI平台（客户端）  
-> **🔧 方法**：`initialize`  
+> **⏰ 时机**：灵矽AI平台收到设备 "hello" 消息，确认设备支持 MCP 后
+> **📤 发送方**：灵矽AI平台（客户端）
+> **🔧 方法**：`initialize`
 > **🎯 目的**：建立 MCP 会话，交换客户端和服务器能力信息
 
 ```
@@ -161,8 +162,8 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
         "sampling": {},
         // 摄像头视觉相关（可选）
         "vision": {
-          "url": "<视觉分析接口地址>",  // 图片处理地址，设备端从此字段读取
-          "token": "vision_token_123"                     // url token（可选）
+          "url": "<视觉分析接口地址>", // 图片处理地址，设备端从此字段读取
+          "token": "vision_token_123" // url token（可选）
         }
       }
     },
@@ -188,7 +189,7 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
       },
       "serverInfo": {
         "name": "智能音箱设备", // 设备名称 (BOARD_NAME)
-        "version": "1.2.3"     // 设备固件版本
+        "version": "1.2.3" // 设备固件版本
       }
     }
   }
@@ -197,9 +198,9 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
 
 ### 步骤3：发现设备工具列表
 
-> **⏰ 时机**：灵矽AI平台需要获取设备当前支持的具体功能（工具）列表时  
-> **📤 发送方**：灵矽AI平台（客户端）  
-> **🔧 方法**：`tools/list`  
+> **⏰ 时机**：灵矽AI平台需要获取设备当前支持的具体功能（工具）列表时
+> **📤 发送方**：灵矽AI平台（客户端）
+> **🔧 方法**：`tools/list`
 > **🎯 目的**：获取设备支持的所有工具及其参数说明
 
 ```
@@ -327,9 +328,9 @@ MCP协议的交互主要围绕客户端（灵矽AI平台）发现和调用设备
 
 ### 步骤4：调用设备工具
 
-> **⏰ 时机**：灵矽AI平台需要执行设备上的某个具体功能时  
-> **📤 发送方**：灵矽AI平台（客户端）  
-> **🔧 方法**：`tools/call`  
+> **⏰ 时机**：灵矽AI平台需要执行设备上的某个具体功能时
+> **📤 发送方**：灵矽AI平台（客户端）
+> **🔧 方法**：`tools/call`
 > **🎯 目的**：调用设备上的具体工具，执行实际的控制操作
 
 ```
@@ -426,14 +427,14 @@ void AddTool(
 ```cpp
 void InitializeTools() {
     auto& mcp_server = McpServer::GetInstance();
-    
+
     // 例1：无参数，控制机器人前进
-    mcp_server.AddTool("self.dog.forward", "机器人向前移动", PropertyList(), 
+    mcp_server.AddTool("self.dog.forward", "机器人向前移动", PropertyList(),
         [this](const PropertyList&) -> ReturnValue {
             servo_dog_ctrl_send(DOG_STATE_FORWARD, NULL);
             return true;
         });
-    
+
     // 例2：带参数，设置灯光 RGB 颜色
     mcp_server.AddTool("self.light.set_rgb", "设置RGB颜色", PropertyList({
         Property("r", kPropertyTypeInteger, 0, 255),

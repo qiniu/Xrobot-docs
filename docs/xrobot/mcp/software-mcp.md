@@ -21,8 +21,11 @@ MCP（Model Context Protocol）是新一代AI应用集成协议，基于标准 J
 - [概述](#概述)
 - [典型使用场景](#典型使用场景)
 - [环境要求](#环境要求)
+- [接入协议说明](#接入协议说明)
+  - [HTTP Header 参数](#http-header-参数)
+  - [工具调用响应格式](#工具调用响应格式)
+  - [系统调用响应格式](#系统调用响应格式)
 - [快速开始](#快速开始)
-
 
 ## 典型使用场景
 
@@ -49,26 +52,31 @@ MCP（Model Context Protocol）是新一代AI应用集成协议，基于标准 J
 ### 核心应用场景
 
 #### 🎵 音乐娱乐服务
+
 - **音乐播放控制**：播放、暂停、切换歌曲、调节音量
 - **歌单管理**：创建播放列表、收藏歌曲、推荐音乐
 - **多平台支持**：Spotify、网易云音乐、QQ音乐等
 
 #### 🌤️ 生活信息服务
+
 - **天气查询**：实时天气、7天预报、空气质量指数
 - **出行建议**：交通状况、路线规划、公交查询
 - **生活指数**：紫外线、穿衣、运动指数
 
 #### 📅 效率办公服务
+
 - **日程管理**：查看安排、添加提醒、会议通知
 - **任务管理**：待办事项、项目跟踪、进度提醒
 - **文档处理**：文件搜索、格式转换、内容摘要
 
 #### 📱 智能家居控制
+
 - **设备控制**：灯光、空调、窗帘、音响等
 - **场景模式**：回家模式、睡眠模式、离家模式
 - **安全监控**：门锁状态、摄像头查看、报警通知
 
 #### 📰 信息获取服务
+
 - **新闻资讯**：热点新闻、行业动态、个性化推荐
 - **金融信息**：股票行情、汇率查询、投资建议
 - **知识问答**：百科查询、翻译服务、计算工具
@@ -82,92 +90,185 @@ MCP（Model Context Protocol）是新一代AI应用集成协议，基于标准 J
 
 ## 环境要求
 
-### 系统要求
+云端 MCP 服务需实现标准 MCP 协议（基于 JSON-RPC 2.0），可使用任意语言/框架实现。
 
-- **操作系统**：Linux、macOS、Windows
-- **Go+ 版本**：>= 1.2.0
-- **内存**：最低 512MB，推荐 2GB+
-- **存储**：最低 1GB 可用空间
-- **网络**：支持 HTTPS 和 WebSocket 连接
+### 网络要求
 
-### 开发环境
+- 支持 HTTPS 和 WebSocket/SSE 连接
+- 接收端点：
+  - `GET /mcp`：SSE 长连接
+  - `POST /mcp/message`：接收 MCP 请求
 
-```bash
-# 安装 Go+
-curl -sSL https://goplus.org/install.sh | sh
+## 接入协议说明
 
-# 验证安装
-gop version
+### HTTP Header 参数
 
-# 配置环境变量
-export GOPLUS_ROOT=/usr/local/goplus
-export PATH=$GOPLUS_ROOT/bin:$PATH
+云端 MCP 服务可以读取以下 Header：
+
+| Header 名称         | 说明           |
+| ------------------- | -------------- |
+| `X-Linx-Device-Id`  | 设备唯一标识符 |
+| `X-Linx-Session-Id` | 会话标识符     |
+
+### 工具调用响应格式
+
+**成功响应示例**：
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "查询成功，北京今天晴，25℃"
+      }
+    ],
+    "isError": false
+  }
+}
 ```
 
-### 依赖服务
+**说明**：
 
-- **数据库**：MySQL 8.0+ / PostgreSQL 12+ / Redis 6.0+（可选）
-- **消息队列**：RabbitMQ / Apache Kafka（可选）
-- **监控工具**：Prometheus + Grafana（推荐）
+- `content` 是数组，每个元素对应一段内容（`text` / `image` / `audio` 等），设备端会按顺序处理
+- 涉及系统调用指令（需驱动设备执行操作，如播放音乐、切换角色等）时，应同时返回 `structuredContent`，结构与字段含义详见[系统调用响应格式](#系统调用响应格式)
+- `isError: true` 表示工具执行失败
+
+**错误响应示例**：
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "工具执行失败：参数错误"
+      }
+    ],
+    "isError": true
+  }
+}
+```
+
+### 系统调用响应格式
+
+当工具执行结果需要驱动设备执行具体操作（播放音频、停止播放、切换角色等）时，除 `content.text` 外还应同时返回 `structuredContent`：
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"code\": 0,\n  \"funcs\": [\n    {\n      \"name\": \"linx_play\",\n      \"arguments\": {\n        \"audio_url\": \"http://music-storage.xrobo-io.qiniuapi.com/夜上海.mp3\",\n        \"title\": \"夜上海\"\n      }\n    }\n  ],\n  \"message\": \"\"}"
+      }
+    ],
+    "structuredContent": {
+      "code": 0,
+      "funcs": [
+        {
+          "name": "linx_play",
+          "arguments": {
+            "audio_url": "http://music-storage.xrobo-io.qiniuapi.com/夜上海.mp3",
+            "title": "夜上海"
+          }
+        }
+      ],
+      "message": ""
+    },
+    "isError": false
+  }
+}
+```
+
+**说明**：
+
+- `content.text` 是**格式化的 JSON 字符串**（带 `\n` 换行和缩进），用于展示给用户/模型
+- `structuredContent` 是**原始 JSON 对象**，供设备程序化解析，按 `funcs` 数组执行系统调用
+
+**Func 结构说明**：
+
+| 字段        | 类型   | 说明       |
+| ----------- | ------ | ---------- |
+| `name`      | string | 系统函数名 |
+| `arguments` | object | 函数参数   |
+
+#### 内置系统函数
+
+| 函数名        | 参数                 | 说明     |
+| ------------- | -------------------- | -------- |
+| `linx_play`   | `audio_url`, `title` | 播放音频 |
+| `linx_stop`   | 无                   | 停止播放 |
+| `change_role` | `role_prompt`        | 切换角色 |
+
+**调用示例 - 播放音频**：
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "funcs": [
+    {
+      "name": "linx_play",
+      "arguments": {
+        "audio_url": "https://example.com/music.mp3",
+        "title": "音乐名称"
+      }
+    }
+  ]
+}
+```
+
+**调用示例 - 停止播放**：
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "funcs": [{ "name": "linx_stop", "arguments": {} }]
+}
+```
+
+**调用示例 - 切换角色**：
+
+```json
+{
+  "code": 0,
+  "message": "切换角色成功",
+  "funcs": [
+    {
+      "name": "change_role",
+      "arguments": {
+        "role_prompt": "你是一个友善的助手"
+      }
+    }
+  ]
+}
+```
 
 ## 快速开始
 
-### 1. 创建基础MCP服务
+### 1. 在灵矽AI平台注册服务
 
-```bash
-# 创建项目目录
-mkdir my-personal-assistant
-cd my-personal-assistant
+在灵矽AI平台的 MCP 服务管理页面，添加您的服务端点：
 
-# 初始化Go+项目
-gop mod init my-personal-assistant
-
-# 添加MCP依赖
-gop get github.com/goplus/mcp@latest
-```
-
-### 2. 创建基础MCP服务器
-
-```go
-// main_mcp.gox
-server "个人助手MCP服务 🤖", "1.0.0"
-```
-
-```go
-// weather_tool.gox
-tool "weather.get", => {
-	description "获取指定城市的天气信息"
-	string "city", => {
-		required
-		description "城市名称，如：北京、上海、深圳"
-	}
-}
-
-city, ok := ${city}.(string)
-if !ok {
-	return newError("城市名称必须是字符串")
-}
-
-// 模拟天气API调用
-weatherInfo := getWeatherInfo(city)
-return text("📍 ${city}\n🌤️ 天气：${weatherInfo.condition}\n🌡️ 温度：${weatherInfo.temperature}°C\n💨 风力：${weatherInfo.wind}")
-```
-
-### 3. 运行和测试服务
-
-```bash
-# 整理依赖
-gop mod tidy
-
-# 运行MCP服务
-gop run .
-```
-
-### 4. 在灵矽AI平台注册服务
-
-在灵矽AI平台的MCP服务管理页面，添加您的服务端点：
-
-- **服务名称**：个人助手MCP服务
+- **服务名称**：个人助手 MCP 服务
 - **SSE URL**：`https://your-domain.com/mcp`
 - **描述**：提供天气查询、音乐播放等个人助手功能
 
+### 2. 接收 MCP 连接
+
+您的云端 MCP 服务需要实现标准的 MCP 协议，支持以下端点：
+
+- **SSE 端点**：`GET /mcp` - 接收设备端的 SSE 连接
+- **POST 端点**：`POST /mcp/message` - 接收 MCP 消息
+
+### 3. 处理工具调用
+
+当收到 `tools/call` 请求时，返回符合规范的响应格式。
