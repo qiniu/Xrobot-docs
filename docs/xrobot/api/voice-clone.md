@@ -386,7 +386,7 @@ const voiceCloneQuotaStatusCodes = [
   :statusCodes="listVoiceClonesStatusCodes"
 />
 
-## 5. 资源包额度
+## 5. 音色克隆额度
 
 查询指定档位的音色复刻资源包可用数量。
 
