@@ -267,6 +267,44 @@ const deleteVoiceCloneStatusCodes = [
   { code: 404, description: '音色不存在' },
   { code: 500, description: '服务器内部错误' }
 ]
+
+// 音色复刻额度查询 API
+const voiceCloneQuotaParams = [
+  {
+    name: 'tier',
+    type: 'string',
+    required: true,
+    location: 'query',
+    description: '音色复刻档位，仅支持 free、lite、pro',
+    example: 'lite'
+  }
+]
+
+const voiceCloneQuotaHeaders = [
+  {
+    name: 'Authorization',
+    type: 'string',
+    required: true,
+    description: 'Bearer token认证',
+    example: 'Bearer your_token_here'
+  }
+]
+
+const voiceCloneQuotaResponse = `{
+  "code": 0,
+  "msg": "",
+  "data": {
+    "available_count": 8
+  }
+}`
+
+const voiceCloneQuotaStatusCodes = [
+  { code: 0, description: '查询成功' },
+  { code: 400, description: 'tier 参数错误' },
+  { code: 401, description: '未授权访问' },
+  { code: 500, description: '服务器内部错误' }
+]
+
 </script>
 
 ## 音色状态说明
@@ -353,7 +391,32 @@ const deleteVoiceCloneStatusCodes = [
   :statusCodes="listVoiceClonesStatusCodes"
 />
 
-## 5. 删除音色
+## 5. 音色克隆额度
+
+查询指定档位的音色复刻资源包可用数量。
+
+<ApiEndpoint
+  host="https://xrobo.qiniu.com"
+  basePath=""
+  endpoint="/v1/voice-clones/quota"
+  method="get"
+  title="查询音色复刻额度"
+  description="查询当前用户指定档位的音色复刻资源包可用数量。"
+  :parameters="voiceCloneQuotaParams"
+  :headers="voiceCloneQuotaHeaders"
+  :responseExample="voiceCloneQuotaResponse"
+  :statusCodes="voiceCloneQuotaStatusCodes"
+/>
+
+::: info
+
+- `tier` 为必填查询参数，仅支持 `free`、`lite`、`pro`。
+- `available_count` 表示该档位当前可用的音色复刻次数汇总。
+- 该接口不返回资源包明细、`usage_count`、`total_count` 或用户使用记录。
+
+:::
+
+## 6. 删除音色
 
 <ApiEndpoint
   host="https://xrobo.qiniu.com"
