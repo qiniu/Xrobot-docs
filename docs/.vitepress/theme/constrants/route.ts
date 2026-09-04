@@ -98,7 +98,6 @@ const items_xrobot_api = [
       { text: "聊天记录API", link: "chat-history" },
       { text: "设备API", link: "device" },
       { text: "设备工具描述API", link: "device-tool" },
-      { text: "资源包与额度API", link: "quota" },
       { text: "音色克隆API", link: "voice-clone" },
       { text: "长期记忆API", link: "longterm-memory" },
       { text: "固件管理API", link: "firmware" },
