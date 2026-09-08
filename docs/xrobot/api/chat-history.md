@@ -95,18 +95,18 @@ const getSignedUrlResponse = `{
 }`
 
 // 删除聊天记录 - 请求示例
-const deleteChatHistoryRequest = `DELETE /v1/devices/AA:C8:BD:B8:00:77/chat-history HTTP/1.1
+const deleteChatHistoryRequest = `DELETE /v1/devices/AA:C8:BD:B8:00:77/chat-history?agent_id=4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d HTTP/1.1
 Host: xrobo.qiniu.com
 Authorization: Bearer <token>`
 
 // 删除聊天记录 - curl 示例
-const deleteChatHistoryCurl = `curl -X DELETE "https://xrobo.qiniu.com/v1/devices/AA:C8:BD:B8:00:77/chat-history" \\
+const deleteChatHistoryCurl = `curl -X DELETE "https://xrobo.qiniu.com/v1/devices/AA:C8:BD:B8:00:77/chat-history?agent_id=4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d" \\
   -H "Authorization: Bearer f9b859fa515af888cfdf53d03dc0d561"`
 
 // 删除聊天记录 - 响应示例
 const deleteChatHistoryResponse = `{
   "code": 0,
-  "reqid": "v8ghAP2OBo4QVQYA",
+  "msg": "success",
   "data": {
     "deleted_count": 55
   }
@@ -179,8 +179,16 @@ const deleteChatHistoryParameters = [
     type: 'string',
     in: 'path',
     required: true,
-    description: '设备MAC地址，格式: 1a:2b:3c:4d:5e:6f',
+    description: '设备 MAC 地址，格式: 1a:2b:3c:4d:5e:6f',
     example: 'AA:C8:BD:B8:00:77'
+  },
+  {
+    name: 'agent_id',
+    type: 'string',
+    in: 'query',
+    required: false,
+    description: '智能体 ID；不传或传空值时删除该设备全部智能体的聊天记录，传值时仅删除该智能体的聊天记录',
+    example: '4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d'
   }
 ]
 
@@ -285,10 +293,12 @@ const unauthorizedResponse = `{
 
 ### 删除聊天记录
 
-按设备 MAC 地址删除聊天记录。
+按设备 MAC 地址删除聊天记录；可通过 `agent_id` 查询参数仅删除指定智能体的记录。
 
 ::: info
-目前只删除数据库记录，OSS 上的音频文件由 60 天自动清理机制处理。
+- 未传 `agent_id` 或传空值时，删除该设备下全部智能体的聊天记录。
+- 传入 `agent_id` 时，仅删除该设备下对应智能体的聊天记录。
+- 目前只删除数据库记录，OSS 上的音频文件由 60 天自动清理机制处理。
 :::
 
 <ApiEndpoint
@@ -297,7 +307,7 @@ const unauthorizedResponse = `{
   endpoint="/devices/{mac_address}/chat-history"
   method="delete"
   title="删除聊天记录"
-  description="按设备 MAC 地址删除聊天记录（隐私保护功能）"
+  description="按设备 MAC 地址删除聊天记录；可选按智能体 ID 筛选（隐私保护功能）"
   :parameters="deleteChatHistoryParameters"
   :headers="getListHeaders"
   :requestExample="deleteChatHistoryRequest"
