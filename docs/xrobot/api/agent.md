@@ -751,49 +751,65 @@ const unauthorizedResponse = `{
 }`
 
 // 更新设备智能体 - 参数定义
+const updateDeviceAgentHeaders = [
+  { name: 'Authorization', value: 'Bearer <用户登录 Token 或 API Key>', required: true, description: '用户认证凭证' },
+  { name: 'Content-Type', value: 'application/json', required: true, description: '请求体格式' }
+]
+
 const updateDeviceAgentParameters = [
   {
     name: 'mac_address',
     type: 'string',
     in: 'path',
     required: true,
-    description: '设备 MAC 地址',
-    example: 'AA:BB:CC:DD:EE:FF'
+    description: '设备 MAC 地址，格式为 00:1A:2B:3C:4D:5E，大小写均可',
+    example: 'AB:CA:A9:60:D8:48'
   },
   {
     name: 'agent_id',
     type: 'string',
     in: 'path',
     required: true,
-    description: '智能体 ID（32位小写hex，对应 /agent/list、/agent/search 返回的 id 字段）',
-    example: '4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d'
+    description: '目标智能体 ID（32 位小写 hex，必须归属当前认证用户）',
+    example: '03fe2c47ec8c47a28c7f382a47b4f838'
+  },
+  {
+    name: 'disable_chat_history_migration',
+    type: 'boolean',
+    in: 'body',
+    required: false,
+    description: '是否禁止迁移聊天历史；`false` 或省略时迁移，`true` 时仅切换设备绑定',
+    example: false
   }
 ]
 
-const updateDeviceAgentRequest = `PUT /v1/devices/AA:BB:CC:DD:EE:FF/agent/4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d HTTP/1.1
-Host: https://xrobo.qiniu.com
-Authorization: Bearer <token>
+const updateDeviceAgentRequest = `PUT /v1/devices/AB:CA:A9:60:D8:48/agent/03fe2c47ec8c47a28c7f382a47b4f838 HTTP/1.1
+Host: xrobo.qiniu.com
+Authorization: Bearer <用户登录 Token 或 API Key>
 Content-Type: application/json
 
 {}`
 
 const updateDeviceAgentResponse = `{
   "code": 0,
-  "msg": "success",
+  "reqid": "request-id",
   "data": {}
 }`
 
 const updateDeviceAgentErrorResponse = `{
-  "code": 403,
-  "msg": "无权限操作该设备",
+  "code": 400,
+  "msg": "invalid request body",
+  "reqid": "request-id",
   "data": null
 }`
 
 const updateDeviceAgentStatusCodes = [
-  { code: 0, description: 'OK - 操作成功', schema: 'ResultVoid' },
-  { code: 401, description: 'Unauthorized - 未登录或token无效', schema: 'ErrorResponse' },
-  { code: 403, description: 'Forbidden - 无权限操作该设备', schema: 'ErrorResponse' },
-  { code: 500, description: 'Internal Server Error - 服务端异常', schema: 'ErrorResponse' }
+  { code: 0, description: '成功', schema: 'ResultVoid' },
+  { code: 400, description: 'MAC 地址或智能体 ID 不合法；请求体缺失或 JSON 格式错误', schema: 'ErrorResponse' },
+  { code: 401, description: '未携带认证凭证或认证凭证无效', schema: 'ErrorResponse' },
+  { code: 403, description: 'Token 已过期或无设备操作权限', schema: 'ErrorResponse' },
+  { code: 404, description: '已注册和预注册记录中均不存在该设备', schema: 'ErrorResponse' },
+  { code: 599, description: '服务端内部异常', schema: 'ErrorResponse' }
 ]
 </script>
 
@@ -990,25 +1006,97 @@ GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
 删除操作不可逆，请确认后再执行
 :::
 
-### 更新设备智能体
+### 切换设备关联智能体
+
+**Base URL：** `https://xrobo.qiniu.com/v1`
+
+将设备切换到目标智能体。对于已正式注册的设备，默认会把该设备的**全部聊天历史**迁移至目标智能体；可通过请求体禁止迁移。若设备尚未注册、但存在预注册记录，则仅更新预注册设备绑定的智能体，不涉及聊天记录迁移。
+
+响应 HTTP 状态码当前统一为 `200 OK`；请以响应体的 `code` 判断业务是否成功。`code = 0` 表示成功，非 `0` 表示失败。
 
 <ApiEndpoint
   host="https://xrobo.qiniu.com"
   basePath="/v1"
   endpoint="/devices/{mac_address}/agent/{agent_id}"
   method="put"
-  title="更新设备智能体"
-  description="切换指定设备绑定的智能体。接口在更新设备表 ai_device.agent_id 的同时，会将该设备在 ai_agent_chat_history 中的 agent_id 一并更新为新的智能体 ID，保证历史聊天记录与当前智能体保持一致"
+  title="切换设备关联智能体"
+  description="切换设备到目标智能体；已注册设备默认迁移该 MAC 下全部聊天历史，预注册设备仅更新绑定关系"
   :parameters="updateDeviceAgentParameters"
-  :headers="commonHeaders"
+  :headers="updateDeviceAgentHeaders"
   :requestExample="updateDeviceAgentRequest"
   :responseExample="updateDeviceAgentResponse"
   :statusCodes="updateDeviceAgentStatusCodes"
 />
 
-::: info
-此接口用于将设备切换绑定到不同的智能体
+::: warning 请求体必填
+请求体**必须存在**，即使使用默认行为也必须传递 `{}`。请求体缺失或不是合法 JSON 时，接口返回业务错误 `code: 400`。
 :::
+
+#### 请求体
+
+```json
+{
+  "disable_chat_history_migration": false
+}
+```
+
+`disable_chat_history_migration` 为可选布尔值，默认 `false`：
+
+| 值 | 已注册设备行为 | 预注册设备行为 |
+|---|---|---|
+| `false` 或省略 | 切换设备绑定，并将该 MAC 下全部聊天记录迁移至目标智能体。 | 仅更新预注册设备绑定，不迁移聊天记录。 |
+| `true` | 仅切换设备绑定，原聊天记录保留在原智能体名下。 | 仅更新预注册设备绑定，不迁移聊天记录。 |
+
+#### 切换且迁移聊天历史（默认）
+
+```bash
+curl -X PUT 'https://xrobo.qiniu.com/v1/devices/AB:CA:A9:60:D8:48/agent/03fe2c47ec8c47a28c7f382a47b4f838' \
+  -H 'Authorization: Bearer <TOKEN>' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
+#### 切换但保留原聊天历史归属
+
+```bash
+curl -X PUT 'https://xrobo.qiniu.com/v1/devices/AB:CA:A9:60:D8:48/agent/03fe2c47ec8c47a28c7f382a47b4f838' \
+  -H 'Authorization: Bearer <TOKEN>' \
+  -H 'Content-Type: application/json' \
+  -d '{"disable_chat_history_migration":true}'
+```
+
+#### 权限和行为说明
+
+| 情况 | 行为 |
+|---|---|
+| 目标智能体不属于当前用户 | 拒绝切换。 |
+| 已注册设备不属于当前用户 | 拒绝切换。 |
+| 已注册设备的原智能体不属于当前用户 | 拒绝切换。 |
+| 预注册设备不属于当前用户 | 拒绝切换。 |
+| 已注册和预注册表中均找不到设备 | 返回设备不存在。 |
+
+#### 常见失败响应
+
+```json
+{
+  "code": 400,
+  "msg": "invalid request body",
+  "reqid": "request-id",
+  "data": null
+}
+```
+
+| `code` | `msg` | 场景 |
+|---:|---|---|
+| `400` | `invalid mac address` / `invalid mac address. format: ...` | MAC 地址为空或格式不合法。 |
+| `400` | `invalid agent id` | 目标智能体 ID 为空。 |
+| `400` | `invalid request body` | 没有请求体或 JSON 格式不正确。 |
+| `401` | `authorization header required` / `invalid token` | 未认证或认证凭证无效。 |
+| `403` | `token is expired` | 登录 Token 已过期。 |
+| `403` | `permission denied` | 当前用户无该设备或预注册设备的操作权限。 |
+| `404` | `device not found` | 已注册和预注册记录中均不存在该 MAC。 |
+| 非 `0` | 智能体不存在或无智能体权限 | 目标智能体不存在、不归属当前用户，或原智能体归属校验失败。 |
+| `599` | 具体错误信息 | 服务端内部异常。 |
 
 ### 获取智能体详情
 

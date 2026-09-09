@@ -95,20 +95,16 @@ const getSignedUrlResponse = `{
 }`
 
 // 删除聊天记录 - 请求示例
-const deleteChatHistoryRequest = `DELETE /v1/devices/AA:C8:BD:B8:00:77/chat-history HTTP/1.1
+const deleteChatHistoryRequest = `DELETE /v1/devices/AB:CA:A9:60:D8:48/chat-history?agent_id=03fe2c47ec8c47a28c7f382a47b4f838 HTTP/1.1
 Host: xrobo.qiniu.com
-Authorization: Bearer <token>`
-
-// 删除聊天记录 - curl 示例
-const deleteChatHistoryCurl = `curl -X DELETE "https://xrobo.qiniu.com/v1/devices/AA:C8:BD:B8:00:77/chat-history" \\
-  -H "Authorization: Bearer f9b859fa515af888cfdf53d03dc0d561"`
+Authorization: Bearer <用户登录 Token 或 API Key>`
 
 // 删除聊天记录 - 响应示例
 const deleteChatHistoryResponse = `{
   "code": 0,
-  "reqid": "v8ghAP2OBo4QVQYA",
+  "reqid": "request-id",
   "data": {
-    "deleted_count": 55
+    "deleted_count": 3
   }
 }`
 
@@ -172,6 +168,10 @@ const getSignedUrlParameters = [
   }
 ]
 
+const deviceApiHeaders = [
+  { name: 'Authorization', value: 'Bearer <用户登录 Token 或 API Key>', required: true, description: '用户认证凭证' }
+]
+
 // 删除聊天记录 - 参数定义
 const deleteChatHistoryParameters = [
   {
@@ -179,8 +179,16 @@ const deleteChatHistoryParameters = [
     type: 'string',
     in: 'path',
     required: true,
-    description: '设备MAC地址，格式: 1a:2b:3c:4d:5e:6f',
-    example: 'AA:C8:BD:B8:00:77'
+    description: '设备 MAC 地址，格式必须为 00:1A:2B:3C:4D:5E，大小写均可',
+    example: 'AB:CA:A9:60:D8:48'
+  },
+  {
+    name: 'agent_id',
+    type: 'string',
+    in: 'query',
+    required: false,
+    description: '指定时仅删除该设备关联此智能体的聊天历史；省略时删除该设备的全部聊天历史',
+    example: '03fe2c47ec8c47a28c7f382a47b4f838'
   }
 ]
 
@@ -191,12 +199,12 @@ const commonStatusCodes = [
 ]
 
 const deleteChatHistoryStatusCodes = [
-  { code: 0, description: 'OK - 成功删除聊天记录', schema: 'ResultDeleteChatHistory' },
-  { code: 400, description: 'Bad Request - MAC 地址格式不合法', schema: 'ErrorResponse' },
-  { code: 401, description: 'Unauthorized - 未登录或token无效', schema: 'ErrorResponse' },
-  { code: 403, description: 'Forbidden - 当前用户不是设备拥有者', schema: 'ErrorResponse' },
-  { code: 404, description: 'Not Found - 设备不存在', schema: 'ErrorResponse' },
-  { code: 599, description: 'Internal Server Error - 数据库或其他服务端内部错误', schema: 'ErrorResponse' }
+  { code: 0, description: '成功', schema: 'ResultDeleteChatHistory' },
+  { code: 400, description: 'MAC 地址格式不合法', schema: 'ErrorResponse' },
+  { code: 401, description: '未携带认证凭证或认证凭证无效', schema: 'ErrorResponse' },
+  { code: 403, description: 'Token 已过期或当前用户不是设备拥有者', schema: 'ErrorResponse' },
+  { code: 404, description: '设备及当前用户的预注册设备记录均不存在', schema: 'ErrorResponse' },
+  { code: 599, description: '服务端数据库等内部异常', schema: 'ErrorResponse' }
 ]
 
 const getListStatusCodes = [
@@ -283,12 +291,20 @@ const unauthorizedResponse = `{
 - **自动兼容**：旧 bucket URL 会直接返回原 URL，无需二次处理
 :::
 
-### 删除聊天记录
+### 删除设备聊天历史
 
-按设备 MAC 地址删除聊天记录。
+**Base URL：** `https://xrobo.qiniu.com/v1`
+
+```http
+Authorization: Bearer <用户登录 Token 或 API Key>
+```
+
+响应 HTTP 状态码当前统一为 `200 OK`；请以响应体的 `code` 判断业务是否成功。`code = 0` 表示成功，非 `0` 表示失败。
+
+删除指定设备的聊天历史。可通过 `agent_id` 限定删除某一个智能体的历史；不传时删除该设备下所有智能体的历史记录。
 
 ::: info
-目前只删除数据库记录，OSS 上的音频文件由 60 天自动清理机制处理。
+该操作只删除数据库聊天记录；已上传的 OSS 音频文件仍按既有生命周期策略自动清理（当前为 60 天），不会立即删除。
 :::
 
 <ApiEndpoint
@@ -296,11 +312,49 @@ const unauthorizedResponse = `{
   basePath="/v1"
   endpoint="/devices/{mac_address}/chat-history"
   method="delete"
-  title="删除聊天记录"
-  description="按设备 MAC 地址删除聊天记录（隐私保护功能）"
+  title="删除设备聊天历史"
+  description="删除指定设备的聊天历史；可选按智能体 ID 限定删除范围"
   :parameters="deleteChatHistoryParameters"
-  :headers="getListHeaders"
+  :headers="deviceApiHeaders"
   :requestExample="deleteChatHistoryRequest"
   :responseExample="deleteChatHistoryResponse"
   :statusCodes="deleteChatHistoryStatusCodes"
 />
+
+| 响应字段 | 类型 | 说明 |
+|---|---:|---|
+| `deleted_count` | integer | 实际删除的聊天记录数量；没有匹配记录时为 `0`，仍视为成功。 |
+
+#### 删除指定智能体的历史
+
+```bash
+curl -X DELETE 'https://xrobo.qiniu.com/v1/devices/AB:CA:A9:60:D8:48/chat-history?agent_id=03fe2c47ec8c47a28c7f382a47b4f838' \
+  -H 'Authorization: Bearer <TOKEN>'
+```
+
+#### 删除该设备全部历史
+
+```bash
+curl -X DELETE 'https://xrobo.qiniu.com/v1/devices/AB:CA:A9:60:D8:48/chat-history' \
+  -H 'Authorization: Bearer <TOKEN>'
+```
+
+#### 常见失败响应
+
+```json
+{
+  "code": 400,
+  "msg": "invalid mac address. format: 1a:2b:3c:4d:5e:6f",
+  "reqid": "request-id",
+  "data": null
+}
+```
+
+| `code` | `msg` | 场景 |
+|---:|---|---|
+| `400` | `invalid mac address. format: 1a:2b:3c:4d:5e:6f` | MAC 地址格式不合法。 |
+| `401` | `authorization header required` / `invalid token` / `get token failed` | 未携带、格式错误或无效的认证凭证。 |
+| `403` | `token is expired` | 登录 Token 已过期。 |
+| `403` | `permission denied` | 当前用户不是该已注册设备的拥有者。 |
+| `404` | `device not found` | 设备及当前用户的预注册设备记录均不存在。 |
+| `599` | 具体错误信息 | 服务端数据库等内部异常。 |
