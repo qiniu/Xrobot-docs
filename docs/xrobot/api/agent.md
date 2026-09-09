@@ -767,6 +767,14 @@ const updateDeviceAgentParameters = [
     required: true,
     description: '智能体 ID（32位小写hex，对应 /agent/list、/agent/search 返回的 id 字段）',
     example: '4f3a8c7e0b6f4b5c9d3d0b8a2a1f0c9d'
+  },
+  {
+    name: 'disable_chat_history_migration',
+    type: 'boolean',
+    in: 'body',
+    required: false,
+    description: '是否禁用聊天记录迁移；`true` 表示不迁移，`false` 或不传表示迁移该设备的全部历史记录',
+    example: true
   }
 ]
 
@@ -775,7 +783,9 @@ Host: https://xrobo.qiniu.com
 Authorization: Bearer <token>
 Content-Type: application/json
 
-{}`
+{
+  "disable_chat_history_migration": true
+}`
 
 const updateDeviceAgentResponse = `{
   "code": 0,
@@ -791,6 +801,7 @@ const updateDeviceAgentErrorResponse = `{
 
 const updateDeviceAgentStatusCodes = [
   { code: 0, description: 'OK - 操作成功', schema: 'ResultVoid' },
+  { code: 400, description: 'Bad Request - 请求体 JSON 格式错误或字段类型错误', schema: 'ErrorResponse' },
   { code: 401, description: 'Unauthorized - 未登录或token无效', schema: 'ErrorResponse' },
   { code: 403, description: 'Forbidden - 无权限操作该设备', schema: 'ErrorResponse' },
   { code: 500, description: 'Internal Server Error - 服务端异常', schema: 'ErrorResponse' }
@@ -998,7 +1009,7 @@ GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
   endpoint="/devices/{mac_address}/agent/{agent_id}"
   method="put"
   title="更新设备智能体"
-  description="切换指定设备绑定的智能体。接口在更新设备表 ai_device.agent_id 的同时，会将该设备在 ai_agent_chat_history 中的 agent_id 一并更新为新的智能体 ID，保证历史聊天记录与当前智能体保持一致"
+  description="切换指定设备绑定的智能体。默认会将该设备在 ai_agent_chat_history 中的全部 agent_id 更新为新智能体 ID；传入 disable_chat_history_migration=true 时仅切换绑定，不迁移聊天记录"
   :parameters="updateDeviceAgentParameters"
   :headers="commonHeaders"
   :requestExample="updateDeviceAgentRequest"
@@ -1007,7 +1018,13 @@ GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
 />
 
 ::: info
-此接口用于将设备切换绑定到不同的智能体
+此接口用于将设备切换绑定到不同的智能体。请求体可以省略或传空对象，此时 `disable_chat_history_migration` 默认为 `false`，会迁移该设备的全部聊天记录。
+:::
+
+::: tip 聊天记录迁移
+- 传入 `{ "disable_chat_history_migration": true }` 时，仅切换设备绑定，不修改已有聊天记录的 `agent_id`。
+- 传入 `false`、省略该字段，或不传请求体时，会将该设备下全部聊天记录的 `agent_id` 更新为目标智能体 ID。
+- 请求体不是合法 JSON，或 `disable_chat_history_migration` 不是布尔值时，接口返回 HTTP `400`。
 :::
 
 ### 获取智能体详情
