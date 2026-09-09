@@ -788,7 +788,9 @@ Host: xrobo.qiniu.com
 Authorization: Bearer <用户登录 Token 或 API Key>
 Content-Type: application/json
 
-{}`
+{
+  "disable_chat_history_migration": true
+}`
 
 const updateDeviceAgentResponse = `{
   "code": 0,
