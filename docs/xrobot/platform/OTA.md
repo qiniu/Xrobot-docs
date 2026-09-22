@@ -46,6 +46,50 @@ POST https://xrobo.qiniuapi.com/v1/ota/
   - `ssid`：设备接入的 Wi-Fi 名称
   - `rssi`：设备接入的 Wi-Fi 信号强度
 
+#### 请求示例
+
+```http
+POST https://xrobo.qiniuapi.com/v1/ota/
+Host: xrobo.qiniuapi.com
+Activation-Version: 1
+Accept-Language: zh-CN
+Content-Type: application/json
+Device-Id: D4:06:06:B6:A9:FA
+Client-Id: 550e8400-e29b-41d4-a716-446655440000
+User-Agent: xiaoling-web-test/1.0.0
+```
+
+```json
+{
+  "version": 0,
+  "uuid": "550e8400-e29b-41d4-a716-446655440000",
+  "application": {
+    "name": "xiaoling-web-test",
+    "version": "1.0.0",
+    "compile_time": "2025-04-16 10:00:00",
+    "idf_version": "4.4.3",
+    "elf_sha256": "1234567890abcdef1234567890abcdef1234567890abcdef"
+  },
+  "ota": { "label": "xiaoling-web-test" },
+  "board": {
+    "type": "xiaoling-web-test",
+    "ssid": "xxxxxx",
+    "rssi": 0,
+    "channel": 0,
+    "ip": "192.168.1.1",
+    "mac": "D4:06:06:B6:A9:FA"
+  },
+  "flash_size": 0,
+  "minimum_free_heap_size": 0,
+  "mac_address": "D4:06:06:B6:A9:FA",
+  "chip_model_name": "",
+  "chip_info": { "model": 0, "cores": 0, "revision": 0, "features": 0 },
+  "partition_table": [
+    { "label": "", "type": 0, "subtype": 0, "address": 0, "size": 0 }
+  ]
+}
+```
+
 ### 成功响应
 
 HTTP 状态码为 `200 OK` 时，响应体为 JSON。字段是否出现取决于设备绑定状态和固件配置：
@@ -69,6 +113,46 @@ HTTP 状态码为 `200 OK` 时，响应体为 JSON。字段是否出现取决于
   - `url`：固件下载地址（如果有更新）
 
 `timezone` 和 `timezone_offset` 表示服务器时区及其相对 UTC 的偏移。
+
+#### 未绑定设备响应示例
+
+```json
+{
+  "server_time": {
+    "timestamp": 1752119934489,
+    "timezone": "Asia/Shanghai",
+    "timezone_offset": 480
+  },
+  "activation": {
+    "code": "608303",
+    "message": "http://60.205.58.18:8002\n608303",
+    "challenge": "D4:06:06:B6:A9:FA"
+  },
+  "firmware": {
+    "version": "1.0.0",
+    "url": "https://xrobo.qiniuapi.com/v1/ota/INVALID_FIRMWARE_FOR_TEST"
+  },
+  "websocket": {
+    "url": "ws://xrobo-io.qiniuapi.com/v1/ws/"
+  }
+}
+```
+
+#### 已绑定设备响应示例
+
+```json
+{
+  "server_time": {
+    "timestamp": 1752119934489,
+    "timezone": "Asia/Shanghai",
+    "timezone_offset": 480
+  },
+  "websocket": {
+    "url": "ws://xrobo-io.qiniuapi.com/v1/ws/",
+    "token": "设备鉴权令牌"
+  }
+}
+```
 
 ### 错误响应
 
@@ -117,111 +201,38 @@ POST https://xrobo.qiniuapi.com/v1/ota/activate
 
 ### 响应
 
-- 设备已绑定：HTTP `200 OK`，响应体为文本 `success`
-- 设备不存在、尚未绑定，或 `Device-Id` 为空：HTTP `202 Accepted`，响应体为空
-- 完全缺少 `Device-Id` 或查询失败：HTTP `200 OK`，响应体为业务错误对象，业务码为 `500`
-
-错误响应示例：
-
-```http
-HTTP/1.1 200 OK
-Content-Type: application/json
-```
-
-```json
-{
-  "code": 500,
-  "msg": "Server internal exception"
-}
-```
-
-设备收到 `200 OK` 和文本 `success` 后，应重新调用 `POST https://xrobo.qiniuapi.com/v1/ota/`。重新上报后，服务端会按已绑定设备返回 WebSocket `url` 和 `token`。
-
-## 请求示例
-
-```http
-POST https://xrobo.qiniuapi.com/v1/ota/
-Host: xrobo.qiniuapi.com
-Activation-Version: 1
-Accept-Language: zh-CN
-Content-Type: application/json
-Device-Id: D4:06:06:B6:A9:FA
-Client-Id: 550e8400-e29b-41d4-a716-446655440000
-User-Agent: xiaoling-web-test/1.0.0
-```
-
-```json
-{
-  "version": 0,
-  "uuid": "550e8400-e29b-41d4-a716-446655440000",
-  "application": {
-    "name": "xiaoling-web-test",
-    "version": "1.0.0",
-    "compile_time": "2025-04-16 10:00:00",
-    "idf_version": "4.4.3",
-    "elf_sha256": "1234567890abcdef1234567890abcdef1234567890abcdef"
-  },
-  "ota": { "label": "xiaoling-web-test" },
-  "board": {
-    "type": "xiaoling-web-test",
-    "ssid": "xxxxxx",
-    "rssi": 0,
-    "channel": 0,
-    "ip": "192.168.1.1",
-    "mac": "D4:06:06:B6:A9:FA"
-  },
-  "flash_size": 0,
-  "minimum_free_heap_size": 0,
-  "mac_address": "D4:06:06:B6:A9:FA",
-  "chip_model_name": "",
-  "chip_info": { "model": 0, "cores": 0, "revision": 0, "features": 0 },
-  "partition_table": [
-    { "label": "", "type": 0, "subtype": 0, "address": 0, "size": 0 }
-  ]
-}
-```
-
-## 响应示例
-
-```json
-{
-  "server_time": {
-    "timestamp": 1752119934489,
-    "timezone": "Asia/Shanghai",
-    "timezone_offset": 480
-  },
-  "activation": {
-    "code": "608303",
-    "message": "http://60.205.58.18:8002\n608303",
-    "challenge": "D4:06:06:B6:A9:FA"
-  },
-  "firmware": {
-    "version": "1.0.0",
-    "url": "https://xrobo.qiniuapi.com/v1/ota/INVALID_FIRMWARE_FOR_TEST"
-  },
-  "websocket": {
-    "url": "ws://xrobo-io.qiniuapi.com/v1/ws/"
-  }
-}
-```
-
-## 快速激活响应示例
-
-已绑定设备：
+#### 设备已绑定
 
 ```http
 HTTP/1.1 200 OK
 Content-Type: text/plain; charset=utf-8
-```
 
-```text
 success
 ```
 
-未绑定设备：
+设备收到该响应后，应重新调用 `POST https://xrobo.qiniuapi.com/v1/ota/`。重新上报后，服务端会按已绑定设备返回 WebSocket `url` 和 `token`。
+
+#### 设备未绑定
+
+设备不存在、尚未绑定，或者 `Device-Id` 的值为空时，返回：
 
 ```http
 HTTP/1.1 202 Accepted
 ```
 
 响应体为空。
+
+#### 请求或服务异常
+
+请求未携带 `Device-Id`，或者服务端查询失败时，返回：
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "code": 500,
+  "msg": "Server internal exception",
+  "data": null
+}
+```
