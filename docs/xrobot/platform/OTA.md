@@ -35,7 +35,7 @@ POST https://xrobo.qiniuapi.com/v1/ota/
 
 - `application`：设备当前固件版本信息（必需）
   - `version`：当前固件版本号
-  - `elf_sha256`：设备上报的固件 Hash 信息，当前不用于固件完整性校验
+  - `elf_sha256`：设备上报的固件 Hash 信息
 - `mac_address`：MAC 地址（必需）。该值必须与请求头 `Device-Id` 完全一致
 - `uuid`：Client-Id（可选），与 HTTP Header 中的 `Client-Id` 一致
 - `chip_model_name`：设备芯片型号，例如 `esp32s3`（可选）
