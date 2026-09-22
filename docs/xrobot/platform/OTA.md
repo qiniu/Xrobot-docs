@@ -20,8 +20,6 @@ OTA（Over-The-Air）更新是一种通过无线网络将软件更新直接推�
 POST https://xrobo.qiniuapi.com/v1/ota/
 ```
 
-生产网关的对外路径是 `/v1/ota/`。Manager 内部实现使用 `/xiaozhi/ota/`，该路径不作为设备接入地址。
-
 #### 请求头
 
 - `Activation-Version`：激活版本（必需，设备芯片 efuse 区是否存储了有效的序列号，有则为 `2`，无则为 `1`）
@@ -55,26 +53,22 @@ HTTP 状态码为 `200 OK` 时，响应体为 JSON。字段是否出现取决于
 - `activation`：激活信息。仅在设备未绑定且未通过预注册自动绑定时返回
   - `code`：设备激活码。当前为 6 位数字；同一设备在缓存有效期内重复上报会复用激活码
   - `message`：设备展示用的激活提示，当前由智控台地址、换行符和激活码组成
-  - `challenge`：历史兼容的设备标识回显，当前等于本次请求的 `Device-Id`，通常也等于请求体中的 `mac_address`
-
-    `challenge` 不是随机数或一次性 nonce，不参与签名、挑战应答或 WebSocket 鉴权，设备不需要回传。服务端当前不会再次读取、校验或消费该字段。
+  - `challenge`：设备的 `Device-Id`
 - `mqtt`：MQTT 协议服务器配置（协议预留字段）
 - `websocket`：WebSocket 协议服务器配置
   - `url`：设备建立 WebSocket 连接的地址
   - `token`：WebSocket 鉴权凭证。仅在设备已经绑定后返回；未绑定设备不返回该字段
-- `server_time`：Manager 服务器时间信息
-  - `timestamp`：Unix 毫秒时间戳，表示从 Unix Epoch 开始计算的绝对时间，不是 UTC+0 的格式化本地时间
-  - `timezone`：Manager 服务进程使用的 IANA 时区名称
-  - `timezone_offset`：Manager 服务进程时区相对 UTC 的偏移量，单位为分钟；正数表示快于 UTC，负数表示慢于 UTC，例如 `480` 表示 UTC+8
+- `server_time`：服务器时间信息
+  - `timestamp`：当前时间的 Unix 毫秒时间戳
+  - `timezone`：服务器时区名称
+  - `timezone_offset`：服务器时区相对 UTC 的偏移量，单位为分钟；正数表示快于 UTC，负数表示慢于 UTC，例如 `480` 表示 UTC+8
 - `firmware`：固件信息，不是每次成功响应都必然存在
   - 未绑定设备会收到当前版本和兼容用的无效升级地址
   - 已绑定设备根据自动更新开关、开发板类型和可用固件决定是否返回及返回内容
   - `version`：固件版本号
   - `url`：固件下载地址（如果有更新）
 
-`timezone` 和 `timezone_offset` 表示 Manager 服务器时区，不是设备所在地时区，也不会根据设备销售国家自动变化。设备不能仅根据 `timezone_offset` 推断具体 IANA 时区，因为相同偏移量可能对应多个国家和地区，部分地区还存在夏令时。
-
-国内部署的 Manager 应配置具名时区 `TZ=Asia/Shanghai`。如果未配置，Go Manager 可能返回 `timezone: "Local"`，即使 `timezone_offset` 已正确计算为 `480`。
+`timezone` 和 `timezone_offset` 表示服务器时区及其相对 UTC 的偏移。
 
 ### 错误响应
 
@@ -82,7 +76,7 @@ OTA 上报接口当前按以下规则返回错误：
 
 - 缺少 `Device-Id`，或请求体不是合法 JSON：HTTP `400 Bad Request`
 - 请求体业务校验失败（例如 `mac_address` 与 `Device-Id` 不一致、缺少 `application`）：HTTP `200 OK`，响应体包含 `error`
-- 服务端内部错误：HTTP `500 Internal Server Error`，只返回通用错误信息；具体数据库、Redis 或内部实现错误仅记录在服务端日志中
+- 服务端内部错误：HTTP `500 Internal Server Error`，只返回通用错误信息
 
 业务校验失败示例：
 
@@ -121,15 +115,13 @@ POST https://xrobo.qiniuapi.com/v1/ota/activate
 
 请求体：无请求体。
 
-生产网关会将该请求转发到 Manager 内部的 `POST /xiaozhi/ota/activate` 路径；设备不需要直接访问内部路径。
-
 ### 响应
 
 - 设备已绑定：HTTP `200 OK`，响应体为文本 `success`
 - 设备不存在、尚未绑定，或 `Device-Id` 为空：HTTP `202 Accepted`，响应体为空
-- 完全缺少 `Device-Id`，或服务端数据库查询失败：当前为了兼容 Java Manager，返回 HTTP `200 OK`，响应体为业务错误对象，业务码为 `500`
+- 完全缺少 `Device-Id` 或查询失败：HTTP `200 OK`，响应体为业务错误对象，业务码为 `500`
 
-兼容错误响应示例：
+错误响应示例：
 
 ```http
 HTTP/1.1 200 OK
