@@ -154,14 +154,14 @@ Activation-Version: 1
 Accept-Language: zh-CN
 Content-Type: application/json
 Device-Id: D4:06:06:B6:A9:FA
-Client-Id: web_test_client
+Client-Id: 550e8400-e29b-41d4-a716-446655440000
 User-Agent: xiaoling-web-test/1.0.0
 ```
 
 ```json
 {
   "version": 0,
-  "uuid": "",
+  "uuid": "550e8400-e29b-41d4-a716-446655440000",
   "application": {
     "name": "xiaoling-web-test",
     "version": "1.0.0",
