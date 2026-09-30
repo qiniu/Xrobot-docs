@@ -129,6 +129,7 @@ const items_xrobot_guide = [
     collapsed: true,
     items: [
       { text: "快速入门", link: "quick-start" },
+      { text: "资源包时长扣减规则", link: "resource-usage-billing" },
       { text: "开源小智固件接入", link: "xiaozhi-firmware" },
       { text: "开源小智硬件接入", link: "xiaozhi-hardware" },
       { text: "灵矽AI小程序+后台解决方案", link: "platform-mp" },
