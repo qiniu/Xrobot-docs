@@ -26,6 +26,8 @@ export enum Chapters {
   xrobot_mcp = "/xrobot/mcp/",
   // guide
   xrobot_guide = "/xrobot/guide/",
+  // billing
+  xrobot_billing = "/xrobot/billing/",
   // faq
   xrobot_faq = "/xrobot/faq/",
 }
@@ -129,7 +131,6 @@ const items_xrobot_guide = [
     collapsed: true,
     items: [
       { text: "快速入门", link: "quick-start" },
-      { text: "资源包时长扣减规则", link: "resource-usage-billing" },
       { text: "开源小智固件接入", link: "xiaozhi-firmware" },
       { text: "开源小智硬件接入", link: "xiaozhi-hardware" },
       { text: "灵矽AI小程序+后台解决方案", link: "platform-mp" },
@@ -142,6 +143,17 @@ const items_xrobot_guide = [
       { text: "客户端demo", link: "client-demo" },
       { text: "接入linxclaw", link: "linxclaw-best-practice" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_guide)),
+  },
+];
+
+const items_xrobot_billing = [
+  {
+    text: "计费详情",
+    link: Chapters.xrobot_billing,
+    collapsed: true,
+    items: [
+      { text: "资源包时长扣减规则", link: "resource-usage-billing" },
+    ].map((item) => apply_prefix(item, Chapters.xrobot_billing)),
   },
 ];
 
@@ -167,6 +179,7 @@ const items_xrobot = [
       ...items_xrobot_api,
       ...items_xrobot_mcp,
       ...items_xrobot_guide,
+      ...items_xrobot_billing,
       ...items_xrobot_faq,
     ],
   },
@@ -194,6 +207,11 @@ export const ChapterItems: Record<Chapters, ChapterItem[]> = {
   [Chapters.xrobot_mcp]: [gobackItem(Chapters.xrobot), ...items_xrobot_mcp],
   // guide
   [Chapters.xrobot_guide]: [gobackItem(Chapters.xrobot), ...items_xrobot_guide],
+  // billing
+  [Chapters.xrobot_billing]: [
+    gobackItem(Chapters.xrobot),
+    ...items_xrobot_billing,
+  ],
   // platform - others END
   // faq
   [Chapters.xrobot_faq]: [gobackItem(Chapters.xrobot), ...items_xrobot_faq],

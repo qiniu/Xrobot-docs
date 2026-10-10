@@ -24,6 +24,7 @@ export default withMermaid({
       { text: "API", link: Chapters.xrobot_api },
       { text: "MCP接入", link: Chapters.xrobot_mcp },
       { text: "最佳实践", link: Chapters.xrobot_guide },
+      { text: "计费详情", link: Chapters.xrobot_billing },
       { text: "FAQ", link: Chapters.xrobot_faq + "faq/" },
     ],
     sidebar: sidebarItems,
