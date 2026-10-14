@@ -10,7 +10,7 @@ const createVoiceCloneBodyParams = [
     type: 'string',
     required: false,
     location: 'body',
-    description: '音色语言，默认为 "zh"。免费版仅支持 zh(中文) 和 en(英语)；付费版支持 zh、en、fr(法语)、de(德语)、ja(日语)、ko(韩语)、ru(俄语)、pt(葡萄牙语)、th(泰语)、id(印尼语)、vi(越南语)；付费（商务版）支持 es(西班牙语)、ar(阿拉伯语)、hi(印地语)、it(意大利语)、tr(土耳其语)、yue(粤语)、ms(马来语)、he(希伯来语)',
+    description: '音色语言，默认为 "zh"。免费版仅支持 zh(中文) 和 en(英语)；付费版支持 zh(中文)、en(英语)、fr(法语)、de(德语)、ja(日语)、ko(韩语)、ru(俄语)、pt(葡萄牙语)、th(泰语)、id(印尼语)、vi(越南语)；付费（商务版）支持 zh(中文)、en(英语)、ko(韩语)、es(西班牙语)、ar(阿拉伯语)、hi(印地语)、it(意大利语)、tr(土耳其语)、yue(粤语)、ms(马来语)、he(希伯来语)',
     example: 'zh'
   },
   {
@@ -54,7 +54,8 @@ const createVoiceCloneResponse = `{
         "language": "zh",
         "demo_url": "",
         "state": "Init",
-        "tier": "lite"
+        "tier": "lite",
+        "expired_time": ""
     }
 }`
 
@@ -99,7 +100,7 @@ const trainVoiceCloneBodyParams = [
 
 const trainVoiceCloneDesc = `使用音频文件训练指定的音色，或仅更新音色名称。
 如果提供音频URL，系统将根据音频进行训练；如果仅提供名称，则只更新音色名称。
-更新请求不需要也不能修改 tier，系统会沿用创建音色栏位时确定的档位。`
+更新请求不需要也不能修改 tier，系统会沿用音色当前档位。免费版音色续期后档位变为付费版，后续重新训练使用付费版档位额度。`
 
 const trainVoiceCloneHeaders = [
   {
@@ -128,11 +129,12 @@ const trainVoiceCloneResponse = `{
     "reqid": "-qM3AFjdjsVfUgYA",
     "data": {
         "id": "f54b728eb9eb4faf960d82fdfcc6403a",
-        "name": "复刻音色-6403a",
+        "name": "我的专属音色",
         "language": "zh",
-        "demo_url": "https://example.com/demo.wav",
+        "demo_url": "",
         "state": "Training",
-        "tier": "lite"
+        "tier": "lite",
+        "expired_time": ""
     }
 }`
 
@@ -141,7 +143,7 @@ const trainVoiceCloneStatusCodes = [
   { code: 400, description: '请求参数错误' },
   { code: 401, description: '未授权访问' },
   { code: 404, description: '音色不存在' },
-  { code: 403, description: '指定档位没有可用额度' },
+  { code: 403, description: '对应档位没有可用额度' },
   { code: 500, description: '服务器内部错误' }
 ]
 
@@ -169,7 +171,6 @@ const getVoiceCloneHeaders = [
 
 const getVoiceCloneResponse = `{
   "code": 0,
-  "msg": "",
   "reqid": "req_12345678",
   "data": {
     "id": "voice_clone_abc123",
@@ -177,14 +178,14 @@ const getVoiceCloneResponse = `{
     "language": "zh",
     "demo_url": "https://example.com/demo.wav",
     "state": "Success",
-    "tier": "free"
+    "tier": "free",
+    "expired_time": "2027-10-14T12:00:00+08:00"
   }
 }`
 
 const getVoiceCloneStatusCodes = [
   { code: 0, description: '获取成功' },
   { code: 401, description: '未授权访问' },
-  { code: 404, description: '音色不存在' },
   { code: 500, description: '服务器内部错误' }
 ]
 
@@ -201,7 +202,6 @@ const listVoiceClonesHeaders = [
 
 const listVoiceClonesResponse = `{
   "code": 0,
-  "msg": "",
   "reqid": "req_12345678",
   "data": {
     "voices": [
@@ -211,15 +211,17 @@ const listVoiceClonesResponse = `{
         "language": "zh",
         "demo_url": "https://example.com/demo1.wav",
         "state": "Success",
-        "tier": "free"
+        "tier": "free",
+        "expired_time": "2027-10-14T12:00:00+08:00"
       },
       {
         "id": "voice_clone_def456",
         "name": "复刻音色-X9Y8Z",
-        "language": "",
+        "language": "ko",
         "demo_url": "",
         "state": "Training",
-        "tier": "pro"
+        "tier": "pro",
+        "expired_time": ""
       }
     ]
   }
@@ -255,7 +257,6 @@ const deleteVoiceCloneHeaders = [
 
 const deleteVoiceCloneResponse = `{
   "code": 0,
-  "msg": "",
   "reqid": "req_12345678",
   "data": {}
 }`
@@ -263,7 +264,7 @@ const deleteVoiceCloneResponse = `{
 const deleteVoiceCloneStatusCodes = [
   { code: 0, description: '删除成功' },
   { code: 401, description: '未授权访问' },
-  { code: 403, description: '付费音色栏位不可删除' },
+  { code: 403, description: '付费音色（商务版）栏位不可删除' },
   { code: 404, description: '音色不存在' },
   { code: 500, description: '服务器内部错误' }
 ]
@@ -292,7 +293,7 @@ const voiceCloneQuotaHeaders = [
 
 const voiceCloneQuotaResponse = `{
   "code": 0,
-  "msg": "",
+  "reqid": "req_12345678",
   "data": {
     "available_count": 8
   }
@@ -302,6 +303,40 @@ const voiceCloneQuotaStatusCodes = [
   { code: 0, description: '查询成功' },
   { code: 400, description: 'tier 参数错误' },
   { code: 401, description: '未授权访问' },
+  { code: 500, description: '服务器内部错误' }
+]
+
+const renewVoiceClonePathParams = [
+  {
+    name: 'id',
+    type: 'string',
+    required: true,
+    location: 'path',
+    description: '待续期的音色 ID',
+    example: 'voice_clone_abc123'
+  }
+]
+
+const renewVoiceCloneResponse = `{
+  "code": 0,
+  "reqid": "req_12345678",
+  "data": {
+    "id": "voice_clone_abc123",
+    "name": "我的专属音色",
+    "language": "zh",
+    "demo_url": "https://example.com/demo.wav",
+    "state": "Success",
+    "tier": "lite",
+    "expired_time": "2028-10-14T12:00:00+08:00"
+  }
+}`
+
+const renewVoiceCloneStatusCodes = [
+  { code: 0, description: '续期成功' },
+  { code: 401, description: '未授权访问' },
+  { code: 403, description: '没有可用的续期额度' },
+  { code: 404, description: '音色不存在' },
+  { code: 409, description: '音色不支持续期' },
   { code: 500, description: '服务器内部错误' }
 ]
 
@@ -351,10 +386,10 @@ const voiceCloneQuotaStatusCodes = [
 ::: info
 
 1. **档位与额度**: 创建接口的 `tier` 为非必填字段，不传时，默认使用 `free`；不会自动匹配账户已购买的资源包。使用购买的资源包时，请显式传入对应的 `tier`。
-2. **更新接口不修改档位**: `PUT /v1/voice-clones/{id}` 不接收 `tier`，音色会沿用创建时的档位。
-3. **额度扣减规则**: 更新请求包含音频 URL 时会执行复刻并扣减对应档位额度；仅更新名称（不传 `key`）不会扣减额度。
+2. **更新接口不修改档位**: `PUT /v1/voice-clones/{id}` 不接收 `tier`，音色会沿用当前档位。免费版音色续期后档位变为付费版，后续重新训练使用付费版档位额度。
+3. **额度扣减规则**: 更新请求包含音频 URL 时会执行复刻并扣减对应档位额度；仅更新名称不会扣减额度。
 4. **音色名称限制**: 音色名称最多20个字符，汉字、字母、数字都算作一个字符
-5. **音频文件要求**: 训练音频建议时长在20-30秒之间，音质清晰，无背景噪音
+5. **音频文件建议**: 训练音频建议时长在20-30秒之间，音质清晰，无背景噪音。
 6. **训练时间**: 音色训练通常需要几分钟到十几分钟，请耐心等待
 :::
 
@@ -385,7 +420,7 @@ const voiceCloneQuotaStatusCodes = [
   endpoint="/v1/voice-clones"
   method="get"
   title="获取音色列表"
-  description="获取当前用户账户下所有的音色克隆列表，包括各种状态的音色。"
+  description="获取当前用户账户下的音色克隆列表，包括各种状态的音色。"
   :headers="listVoiceClonesHeaders"
   :responseExample="listVoiceClonesResponse"
   :statusCodes="listVoiceClonesStatusCodes"
@@ -416,7 +451,26 @@ const voiceCloneQuotaStatusCodes = [
 
 :::
 
-## 6. 删除音色
+## 6. 续期音色
+
+`expired_time` 是音色有效期，按 RFC 3339 时间格式返回。尚未完成复刻或没有有效期时为空字符串；复刻成功后从成功时间起算一年，重新复刻成功会重新起算。
+
+对已复刻成功的私有音色续期。请求无需 body；每次续期消耗一次额度。有效期未过时从原到期时间延长一年，已过期时从续期时间起算一年。免费版音色优先使用免费额度，不足时使用付费版资源包额度，续期后档位变为付费版；其他档位使用同档位额度。
+
+<ApiEndpoint
+  host="https://xrobo.qiniu.com"
+  basePath=""
+  endpoint="/v1/voice-clones/{id}/renewals"
+  method="post"
+  title="续期音色"
+  description="续期已复刻成功且支持续期的私有音色，返回更新后的音色信息。"
+  :parameters="renewVoiceClonePathParams"
+  :headers="getVoiceCloneHeaders"
+  :responseExample="renewVoiceCloneResponse"
+  :statusCodes="renewVoiceCloneStatusCodes"
+/>
+
+## 7. 删除音色
 
 <ApiEndpoint
   host="https://xrobo.qiniu.com"
@@ -424,7 +478,7 @@ const voiceCloneQuotaStatusCodes = [
   endpoint="/v1/voice-clones/{id}"
   method="delete"
   title="删除音色"
-  description="删除指定的音色克隆。删除后该音色将无法恢复，请谨慎操作。(付费音色栏位不可删除！)"
+  description="删除指定的音色克隆。删除后该音色将无法恢复，请谨慎操作。(付费商务版音色栏位不可删除！)"
   :parameters="deleteVoiceClonePathParams"
   :headers="deleteVoiceCloneHeaders"
   :responseExample="deleteVoiceCloneResponse"
