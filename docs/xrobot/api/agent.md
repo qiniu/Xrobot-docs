@@ -976,8 +976,8 @@ GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
 更新智能体时，只需传递需要修改的字段。普通字段省略则保留原值；`datasetIds` 和 `extra.disabled_builtin_tools` 使用完整列表替换语义，传空数组会清空列表。`extra.llm.custom_params` 提供非 `null` 值时整体替换，传 `null` 清空，省略则保留。`extra.voiceprint: {}` 会将 `chat_only_enabled` 设置为 `false`。`extra.goodbye` 目前只支持 `idle_timeout_seconds`，范围为 60~3600 秒。
 :::
 
-::: tip TTS 音色与模型
-更新 `ttsVoiceId` 可选择音色，平台根据所选音色关联的模型信息生成 TTS 配置。`ttsModelId` 仅用于兼容请求接收，当前更新逻辑不会应用该字段，不能通过它独立切换 TTS 模型。
+::: tip 选择音色
+如需修改语音合成音色，请更新 `ttsVoiceId`。
 :::
 
 ::: tip 更新示例
