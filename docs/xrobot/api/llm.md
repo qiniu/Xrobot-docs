@@ -339,7 +339,6 @@ Authorization: Bearer <token>
     "vadModelId": "VAD_SileroVAD",
     "llmModelId": "954ae0e0ab9be05f90eedc43bd50aa2a",
     "vllmModelId": "VLLM_ChatGLMVLLM",
-    "ttsModelId": "TTS_AliyunDoubleStreamTTS",
     "ttsVoiceId": "220b6ca1ff2549608dfd94b74d3cabcb",
     "chatHistoryConf": 0,
     "memModelId": "Memory_nomem",
@@ -390,6 +389,7 @@ Authorization: Bearer <token>
 ::: tip 使用提示
 - 在更新智能体时，请确保传入的 `llmModelId` 是已存在且有效的模型 ID
 - `extra.llm` 配置参数将覆盖模型的默认配置
+- 如需修改语音合成音色，请更新 `ttsVoiceId`。`ttsModelId` 仅用于兼容请求接收，当前更新逻辑不会应用该字段，不能通过它独立切换 TTS 模型，详见[智能体 API](./agent.md#更新智能体)。
 - 建议在生产环境中对参数进行充分测试
 :::
 
