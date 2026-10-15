@@ -138,7 +138,6 @@ const items_xrobot_guide = [
       { text: "长期记忆最佳实践", link: "longterm-memory-start" },
       { text: "知识库最佳实践", link: "knowledge-start" },
       { text: "MCP服务最佳实践", link: "mcp-store" },
-      { text: "声纹识别最佳实践", link: "voice-start" },
       { text: "拍照功能", link: "camera-feature" },
       { text: "客户端demo", link: "client-demo" },
       { text: "接入linxclaw", link: "linxclaw-best-practice" },
