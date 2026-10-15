@@ -25,13 +25,13 @@ const registerParameters = [
   {
     name: 'captcha',
     type: 'string',
-    required: true,
+    required: false,
     location: 'body',
     description: '图形验证码',
     example: 'ABCD'
   },
   {
-    name: 'mobileCaptcha',
+    name: 'mobile_captcha',
     type: 'string',
     required: false,
     location: 'body',
@@ -39,9 +39,9 @@ const registerParameters = [
     example: '123456'
   },
   {
-    name: 'captchaId',
+    name: 'captcha_id',
     type: 'string',
-    required: true,
+    required: false,
     location: 'body',
     description: '验证码ID',
     example: 'cfa94872-48b6-425b-8e6a-17b912b6b6f4'
@@ -61,8 +61,8 @@ const registerRequestExample = `{
   "username": "example",
   "password": "password",
   "captcha": "ABCD",
-  "mobileCaptcha": "123456",
-  "captchaId": "cfa94872-48b6-425b-8e6a-17b912b6b6f4"
+  "mobile_captcha": "123456",
+  "captcha_id": "cfa94872-48b6-425b-8e6a-17b912b6b6f4"
 }`
 
 const registerResponseExample = `{
@@ -120,15 +120,6 @@ const captchaStatusCodes = [
 // 用户登录API数据
 const loginParameters = [
   {
-    name: 'areaCode',
-    type: 'string',
-    required: false,
-    location: 'body',
-    description: '区号',
-    example: '+86',
-    default: '+86'
-  },
-  {
     name: 'captcha',
     type: 'string',
     required: true,
@@ -137,20 +128,12 @@ const loginParameters = [
     example: 'ABCD'
   },
   {
-    name: 'captchaId',
+    name: 'captcha_id',
     type: 'string',
     required: true,
     location: 'body',
     description: '验证码ID',
     example: 'd4224c42-a0a2-4e38-87a5-edc3ad03c014'
-  },
-  {
-    name: 'mobile',
-    type: 'string',
-    required: false,
-    location: 'body',
-    description: '手机号码',
-    example: '13800138000'
   },
   {
     name: 'password',
@@ -180,10 +163,8 @@ const loginHeaders = [
 ]
 
 const loginRequestExample = `{
-  "areaCode": "+86",
   "captcha": "ABCD",
-  "captchaId": "d4224c42-a0a2-4e38-87a5-edc3ad03c014",
-  "mobile": "13800138000",
+  "captcha_id": "d4224c42-a0a2-4e38-87a5-edc3ad03c014",
   "password": "password123",
   "username": "john_doe"
 }`
@@ -193,8 +174,7 @@ const loginResponseExample = `{
   "msg": "success",
   "data": {
     "token": "4fxxxxxxxxxxxxxxxxxxxxxxx",
-    "expire": 43200,
-    "clientHash": "xxxxxx"
+    "expire": 43200
   }
 }`
 
@@ -230,11 +210,11 @@ const loginStatusCodes = [
 
 <ApiEndpoint
   host="https://xrobo.qiniu.com"
-  basePath="/xiaozhi"
-  endpoint="/user/register"
+  basePath="/v1"
+  endpoint="/users"
   method="post"
   title="用户注册"
-  description="创建新用户账户。需要提供用户名、密码和验证码信息。"
+  description="创建新用户账户。需要提供用户名和密码；根据平台配置使用图形验证码或手机验证码。"
   :parameters="registerParameters"
   :headers="registerHeaders"
   :requestExample="registerRequestExample"
@@ -246,11 +226,11 @@ const loginStatusCodes = [
 
 <ApiEndpoint
   host="https://xrobo.qiniu.com"
-  basePath="/xiaozhi"
-  endpoint="/user/captcha"
+  basePath="/v1"
+  endpoint="/auth/captcha"
   method="get"
   title="获取图形验证码"
-  description="获取用于注册和登录的图形验证码。返回PNG格式的验证码图片。"
+  description="获取用于注册和登录的图形验证码。返回PNG格式的验证码图片，uuid 通过 query 参数传入。"
   :parameters="captchaParameters"
   :statusCodes="captchaStatusCodes"
 />
@@ -262,9 +242,9 @@ UUID需要随机生成，建议使用标准的UUID v4格式。验证码图片为
 ## 3. 用户登录
 
 <ApiEndpoint
-  host="https://xrobo.qiniuapi.com"
-  basePath="/xiaozhi"
-  endpoint="/user/login"
+  host="https://xrobo.qiniu.com"
+  basePath="/v1"
+  endpoint="/auth/login"
   method="post"
   title="用户登录"
   description="用户登录认证。成功后返回访问令牌，该令牌用于后续API调用的身份验证。"

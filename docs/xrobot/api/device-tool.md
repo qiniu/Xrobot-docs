@@ -47,10 +47,18 @@ const deviceToolBodyParams = [
   {
     name: 'desc',
     type: 'string',
-    required: true,
+    required: false,
     location: 'body',
-    description: '自定义工具描述，最长200个字符',
+    description: '自定义工具描述，最长200个字符。与 pre_prompt_texts 至少提供一项，也可以同时提供',
     example: '设置音量。'
+  },
+  {
+    name: 'pre_prompt_texts',
+    type: 'object',
+    required: false,
+    location: 'body',
+    description: '按语言代码映射前置提示词数组。与 desc 至少提供一项；每种语言最多10条，单条最长200个字符',
+    example: '{ "zh-CN": ["请使用简洁的中文回答。"] }'
   }
 ]
 
@@ -62,7 +70,9 @@ const listDeviceToolsResponse = `{
         "id": "9f4b1d7c2e8a4f5b9c0d1e2f3a4b5c6d",
         "name": "self.audio_speaker.set_volume",
         "desc": "设置音量。",
-        "updated_at": "2026-06-10T14:30:00+08:00"
+        "pre_prompt_texts": {
+          "zh-CN": ["请使用简洁的中文回答。"]
+        }
       }
     ]
   }
@@ -70,7 +80,10 @@ const listDeviceToolsResponse = `{
 
 const createDeviceToolRequest = `{
   "name": "self.audio_speaker.set_volume",
-  "desc": "设置音量。"
+  "desc": "设置音量。",
+  "pre_prompt_texts": {
+    "zh-CN": ["请使用简洁的中文回答。"]
+  }
 }`
 
 const createDeviceToolResponse = `{
@@ -79,13 +92,18 @@ const createDeviceToolResponse = `{
     "id": "9f4b1d7c2e8a4f5b9c0d1e2f3a4b5c6d",
     "name": "self.audio_speaker.set_volume",
     "desc": "设置音量。",
-    "updated_at": "2026-06-10T14:30:00+08:00"
+    "pre_prompt_texts": {
+      "zh-CN": ["请使用简洁的中文回答。"]
+    }
   }
 }`
 
 const updateDeviceToolRequest = `{
   "name": "self.audio_speaker.set_volume",
-  "desc": "设置音量。"
+  "desc": "设置音量。",
+  "pre_prompt_texts": {
+    "zh-CN": ["请使用简洁的中文回答。"]
+  }
 }`
 
 const updateDeviceToolResponse = `{
@@ -94,7 +112,9 @@ const updateDeviceToolResponse = `{
     "id": "9f4b1d7c2e8a4f5b9c0d1e2f3a4b5c6d",
     "name": "self.audio_speaker.set_volume",
     "desc": "设置音量。",
-    "updated_at": "2026-06-10T14:30:00+08:00"
+    "pre_prompt_texts": {
+      "zh-CN": ["请使用简洁的中文回答。"]
+    }
   }
 }`
 
@@ -127,6 +147,12 @@ const deleteDeviceToolStatusCodes = [
 </script>
 
 设备工具描述API用于管理并自定义当前用户的设备工具描述。
+
+::: warning 更新语义
+`desc` 和 `pre_prompt_texts` 至少提供一项。更新接口会用请求中的两个字段整体替换已有值；字段缺省或传空值都会写入空值。若要保留已有前置提示词，请在更新请求中携带原配置。
+:::
+
+`pre_prompt_texts` 是语言代码到提示词数组的映射。语言代码必须与系统语言表中的代码完全匹配；每种语言最多10条提示词，普通用户的描述和单条提示词最长200个字符。
 
 ::: tip 使用说明
 不同设备支持的工具可能不同，请填写设备实际上报的工具名称。
