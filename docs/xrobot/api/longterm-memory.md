@@ -12,10 +12,9 @@ title: 长期记忆 API
 - **定义记忆变量**：设置智能体需要长期关注的关键信息字段
 - **管理记忆值**：为不同用户(设备、或声纹识别人)存储和更新个性化记忆信息
 - **记忆片段处理**：管理从对话中提取的事实性信息
-- **运行时召回**：在对话中智能检索相关记忆内容
 
 ::: tip 使用说明
-长期记忆功能需要先为智能体创建记忆容器，默认会有记忆片段产生，记忆变量用户可以根据业务需求创建，最后通过MCP服务在运行时召回记忆内容。
+长期记忆功能需要先为智能体创建记忆容器，默认会有记忆片段产生，记忆变量用户可以根据业务需求创建。智能体启用长期记忆后，平台会在对话过程中使用相关记忆。
 :::
 
 ## 一、记忆容器管理
@@ -798,121 +797,11 @@ Authorization: Bearer <token>
 }
 ```
 
-## 五、记忆推理与召回
-
-### 5.1 触发记忆推理更新
-
-基于最新对话内容，异步触发记忆容器的总结和推理。
-
-#### 接口信息
-
-**请求方式：** `POST /v1/agents/{agent_id}/identifiers/{identify_id}/memory/infer`
-
-#### 参数说明
-
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `agentId` | string | 是 | 智能体ID |
-| `identify_id` | string | 是 | 用户或设备的唯一标识 |
-| `dialog_content` | string | 是 | 当前对话上下文，OpenAI chat格式的JSON字符串 |
-
-#### 请求示例
-
-```http
-POST /v1/agents/AGT_1750667902769/identifiers/mac_00:1B:44:11:3A:B7/memory/infer
-Content-Type: application/json
-Authorization: Bearer <token>
-```
-
-```json
-{
-    "dialog_content": "[{\"role\":\"user\",\"content\":\"我最近开始健身了，想了解一些高蛋白低脂的食物推荐\"},{\"role\":\"assistant\",\"content\":\"很棒的决定！高蛋白低脂的食物有...\"}]"
-}
-```
-
-#### 响应示例
-
-```json
-{
-    "code": 0,
-    "msg": "success",
-    "data": {
-        "task_id": "task_abc123def456"
-    }
-}
-```
-
-### 5.2 运行时记忆召回
-
-在用户与智能体交互过程中，召回最相关的记忆内容。
-
-#### 接口信息
-
-**请求方式：** `POST /v1/agents/{agent_id}/identifiers/{identify_id}/memory/recall`
-
-#### 参数说明
-
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `agentId` | string | 是 | 智能体ID |
-| `identify_id` | string | 是 | 用户或设备的唯一标识 |
-| `attention_value_limit` | integer | 否 | 记忆变量值召回上限，默认50 |
-
-#### 请求示例
-
-```http
-POST /v1/agents/AGT_1750667902769/identifiers/mac_00:1B:44:11:3A:B7/memory/recall
-Content-Type: application/json
-Authorization: Bearer <token>
-```
-
-```json
-{
-    "attention_value_limit": 20
-}
-```
-
-#### 响应示例
-
-```json
-{
-    "code": 0,
-    "msg": "success",
-    "data": {
-        "attention_values": {
-            "用户饮食偏好": "川菜, 辣味, 不吃海鲜, 偏爱素食",
-            "兴趣爱好": "跑步, 摄影, 古典音乐"
-        },
-        "memory_nodes": [
-            {
-                "id": "node_9ea227d54b654ac5",
-                "content": "用户提到下周要去成都出差，希望了解当地的川菜餐厅推荐",
-                "updated_at": "2025-09-22T11:30:00Z"
-            },
-            {
-                "id": "node_8fb116c43a543bd4",
-                "content": "用户表示不喜欢海鲜，对虾蟹过敏",
-                "updated_at": "2025-09-21T15:20:00Z"
-            }
-        ]
-    }
-}
-```
-
-::: tip 说明
-- `attention_values` 是一个 map，key 为 attention 的 name，value 为聚合后的字符串值（多个值以 `, ` 分隔）；首次召回时若无记录则返回 default_value
-- `memory_nodes` 默认只返回最近7天内的记忆片段
-:::
-
-::: tip MCP服务集成
-记忆召回功能已集成到MCP服务中，智能体可以通过`mcp.memory.search(agent_id, identify_id, query)`接口自动调用。
-:::
-
-## 六、智能体配置集成
+## 五、智能体配置集成
 
 将长期记忆功能集成到智能体配置中。
 
-### 6.1 更新智能体记忆配置
+### 5.1 更新智能体记忆配置
 
 #### 接口信息
 
@@ -923,9 +812,9 @@ Authorization: Bearer <token>
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | string | 是 | 智能体的唯一标识符 |
-| `mem_model_id` | string | 否 | 记忆模型ID |
+| `memModelId` | string | 否 | 记忆模型ID |
 
-**mem_model_id 可选值：**
+**memModelId 可选值：**
 
 | 值 | 说明 |
 |------|------|
@@ -944,10 +833,7 @@ Authorization: Bearer <token>
 
 ```json
 {
-    "agent_code": "AGT_1750667902769",
-    "agent_name": "智能助手小智",
-    "mem_model_id": "Memory_long_term_memory",
-    "system_prompt": "你是一个智能助手，能够记住用户的偏好和历史对话，提供个性化服务。"
+    "memModelId": "Memory_long_term_memory"
 }
 ```
 
@@ -955,7 +841,7 @@ Authorization: Bearer <token>
 
 ```json
 {
-    "mem_model_id": "Memory_nomem"
+    "memModelId": "Memory_nomem"
 }
 ```
 
@@ -979,7 +865,6 @@ Authorization: Bearer <token>
 | `614` | 记忆容器已存在 | 该智能体已创建过记忆容器 |
 | `40002` | 记忆焦点不存在 | 请检查记忆焦点ID是否正确 |
 | `40003` | 用户身份标识无效 | 请提供有效的 identify_id |
-| `40004` | 记忆推理任务失败 | 请检查对话内容格式是否正确 |
 | `50001` | 记忆存储服务异常 | 请稍后重试或联系技术支持 |
 
 ## 最佳实践
