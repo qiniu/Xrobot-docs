@@ -31,11 +31,11 @@ Authorization: Bearer <token>
 
 ```json
 {
-    "name": <string>,// 知识库名称
-    "desc": <string>, // 描述信息
+    "name": "产品使用说明",
+    "desc": "产品相关文档",
     "retrieval_model": {
-      "top_k": int,
-      "score_threshold": float32
+      "top_k": 5,
+      "score_threshold": 0.7
     }
 }
 ```
@@ -45,19 +45,17 @@ Authorization: Bearer <token>
 成功创建知识库后，返回知识库的详细信息：
 
 ```json
-Response
-200
 {
     "data": {
-        "id": <string>,// 知识库 id
-        "name": <string>, // 知识库名称
-        "desc": <string>,// 描述信息
+        "id": "dataset_123456",
+        "name": "产品使用说明",
+        "desc": "产品相关文档",
         "retrieval_model": {
-          "top_k": int,
-          "score_threshold": float32
+          "top_k": 5,
+          "score_threshold": 0.7
         },
-        "created_at": <string>, // 创建时间
-        "updated_at": <string>// 更新时间
+        "created_at": "2026-10-15T10:00:00Z",
+        "updated_at": "2026-10-15T10:00:00Z"
     }
 }
 ```
@@ -79,15 +77,15 @@ Authorization: Bearer <token>
     "code": 0,
     "msg": "success",
     "data": {
-        "id": "<string>",
-        "name": "<string>",
-        "desc": "<string>",
+        "id": "dataset_123456",
+        "name": "产品使用说明",
+        "desc": "产品相关文档",
         "retrieval_model": {
             "top_k": 5,
             "score_threshold": 0.7
         },
-        "created_at": "<string>",
-        "updated_at": "<string>"
+        "created_at": "2026-10-15T10:00:00Z",
+        "updated_at": "2026-10-15T10:00:00Z"
     }
 }
 ```
@@ -124,19 +122,18 @@ Authorization: Bearer <token>
 
 ```http
 POST /v1/datasets/{dataset_id}/documents
-Content-Type: multipart/form-data
+Content-Type: application/json
 Authorization: Bearer <token>
 ```
 
 ```json
 {
-    "name": <string>,
-    "url":  <string>, // 上传文件的 url
+    "name": "产品使用说明",
+    "url": "https://example.com/docs/product-guide.pdf",
     "process_rule": {
-      "mode": "automatic",  // 模式，固定值
+      "mode": "automatic",
       "rules": {
         "segmentation": {
-          // 相当于递归分割参数
           "separator": "\n\n",
           "max_tokens": 1024
         }
@@ -151,12 +148,12 @@ Authorization: Bearer <token>
 
 ```json
 {
-
     "data": {
-        "id": <string>, // 文档ID
-        "name": <string>, // 文件名称
-        "created_at": <string>, // 创建时间
-        "updated_at": <string>, // 更新时间
+        "id": "document_123456",
+        "name": "产品使用说明",
+        "status": "completed",
+        "created_at": "2026-10-15T10:05:00Z",
+        "updated_at": "2026-10-15T10:05:00Z"
     }
 }
 ```
@@ -176,17 +173,17 @@ Authorization: Bearer <token>
 ### 请求示例
 
 ```http
-POST //v1/datasets/{dataset_id}/retrieve
+POST /v1/datasets/{dataset_id}/retrieve
 Content-Type: application/json
 Authorization: Bearer <token>
 ```
 
 ```json
 {
-  "query": <string>,  
+  "query": "如何设置设备音量？",
   "retrieval_model": {
-    "top_k": <int>, 
-    "score_threshold": <float32>  // 阈值
+    "top_k": 5,
+    "score_threshold": 0.7
   }
 }
 ```
@@ -201,13 +198,13 @@ Authorization: Bearer <token>
     "records": [
       {
         "segment": {
-          "id": "7fa6f24f-8679-48b3-bc9d-bdf28d73f218", // 片段id
-          "index": 0, // 片段序号
-          "content": "Operation guide", // 片段内容
-          "document_id": "xxx", // 文档 id
-          "document_name": "xxx"  // 文档名字
+          "id": "segment_123456",
+          "index": 0,
+          "content": "打开设备设置，选择音量后进行调节。",
+          "document_id": "document_123456",
+          "document_name": "产品使用说明"
         },
-        "score": 3.73,
+        "score": 0.93
       }
     ]
   }
@@ -236,13 +233,13 @@ Authorization: Bearer <token>
 ```json
 {
     "data": {
-      "datesets": [
+      "datasets": [
         {
-          "id": <string>,
-          "name": <string>, 
-          "description": <string>,
-          "created_at": <string>, 
-          "updated_at": <string>
+          "id": "dataset_123456",
+          "name": "产品使用说明",
+          "desc": "产品相关文档",
+          "created_at": "2026-10-15T10:00:00Z",
+          "updated_at": "2026-10-15T10:00:00Z"
         }
       ]
     }
@@ -255,23 +252,25 @@ Authorization: Bearer <token>
 
 ### 接口信息
 
-**请求方式：** `PUT /v1/datasets`
+**请求方式：** `PUT /v1/datasets/{dataset_id}`
+
+其中 `dataset_id` 是要更新的知识库 ID。
 
 ### 请求示例
 
 ```http
-PUT /v1/datasets
+PUT /v1/datasets/{dataset_id}
 Content-Type: application/json
 Authorization: Bearer <token>
 ```
 
 ```json
 {
-   "name": <string>, // 知识库名称
-    "desc": <string>, // 描述信息
+   "name": "产品使用说明（更新）",
+    "desc": "更新后的产品文档",
     "retrieval_model": {
-      "top_k": int,
-      "score_threshold": float32
+      "top_k": 5,
+      "score_threshold": 0.7
     }
 }
 ```
@@ -283,15 +282,15 @@ Authorization: Bearer <token>
 ```json
 {
     "data": {
-        "id": <string>,// 知识库 id
-        "name": <string>, // 知识库名称
-        "desc": <string>,// 描述信息
+        "id": "dataset_123456",
+        "name": "产品使用说明（更新）",
+        "desc": "更新后的产品文档",
         "retrieval_model": {
-          "top_k": int,
-          "score_threshold": float32
+          "top_k": 5,
+          "score_threshold": 0.7
         },
-        "created_at": <string>, // 创建时间
-        "updated_at": <string>// 更新时间
+        "created_at": "2026-10-15T10:00:00Z",
+        "updated_at": "2026-10-15T10:10:00Z"
     }
 }
 ```
@@ -313,7 +312,7 @@ Authorization: Bearer <token>
 **请求体：**
 ```json
 {
-    "name": "<string>"
+    "name": "产品使用说明（更新）"
 }
 ```
 
@@ -323,11 +322,11 @@ Authorization: Bearer <token>
     "code": 0,
     "msg": "success",
     "data": {
-        "id": "<string>",
-        "name": "<string>",
-        "status": "<string>",
-        "created_at": "<string>",
-        "updated_at": "<string>"
+        "id": "document_123456",
+        "name": "产品使用说明（更新）",
+        "status": "completed",
+        "created_at": "2026-10-15T10:05:00Z",
+        "updated_at": "2026-10-15T10:15:00Z"
     }
 }
 ```
@@ -371,10 +370,10 @@ Authorization: Bearer <token>
     "data": {
         "documents": [
             {
-                "id": "<string>",
-                "name": "<string>",
-                "created_at": "<string>",
-                "updated_at": "<string>"
+                "id": "document_123456",
+                "name": "产品使用说明",
+                "created_at": "2026-10-15T10:05:00Z",
+                "updated_at": "2026-10-15T10:05:00Z"
             }
         ]
     }
@@ -400,7 +399,7 @@ Authorization: Bearer <token>
     "data": {
         "segments": [
             {
-                "id": "<string>",
+                "id": "segment_123456",
                 "index": 0,
                 "content": "Operation guide"
             }

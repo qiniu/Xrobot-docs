@@ -324,11 +324,18 @@ const updateAgentParameters = [
         example: 'VLLM_QwenVLVLLM'
       },
       {
-        name: 'ttsModelId',
+        name: 'vllmPrompt',
         type: 'string',
         required: false,
-        description: '语音合成模型ID',
-        example: ''
+        description: '视觉分析提示词，最长200个字符。传空字符串清除自定义提示词，省略则保留原值',
+        example: '请识别图片中的主要物体和文字。'
+      },
+      {
+        name: 'voiceprintModelId',
+        type: 'string',
+        required: false,
+        description: '声纹模型ID，必须是 VOICEPRINT 类型；用于启用或切换声纹模型，不等同于说话人绑定',
+        example: 'VOICEPRINT_3DSPEAKER'
       },
       {
         name: 'ttsVoiceId',
@@ -394,6 +401,13 @@ const updateAgentParameters = [
         example: 0
       },
       {
+        name: 'datasetIds',
+        type: 'array<string>',
+        required: false,
+        description: '关联知识库 ID 列表。整体替换绑定列表；传空数组清空绑定，省略则保留原绑定',
+        example: []
+      },
+      {
         name: 'functions',
         type: 'array',
         required: false,
@@ -421,6 +435,13 @@ const updateAgentParameters = [
         required: false,
         description: '额外高级配置信息',
         children: [
+          {
+            name: 'disable_greeting',
+            type: 'boolean',
+            required: false,
+            description: '是否禁用唤醒问候。true 禁用，false 允许；省略则保留原值',
+            example: true
+          },
           {
             name: 'llm',
             type: 'object',
@@ -472,8 +493,8 @@ const updateAgentParameters = [
                     name: 'body',
                     type: 'object',
                     required: false,
-                    description: '自定义参数键值对，key 与类型由所选模型的 schema 决定，接入前需先查询该模型 schema 再传',
-                    example: '{ "<自定义参数key>": "<按 schema 取值>" }'
+                    description: '自定义参数键值对，提供非 null 值时整体替换，不会逐项合并；传 null 清空，省略则保留原值',
+                    example: '{}'
                   }
                 ]
               }
@@ -555,35 +576,14 @@ const updateAgentParameters = [
             name: 'goodbye',
             type: 'object',
             required: false,
-            description: '结束语配置',
+            description: '智能体空闲超时配置。idle_timeout_seconds 为60~3600秒，省略该字段则保留原值；它是主动断连时长，不等同于设备 hello 的 idle_timeout 通知订阅',
             children: [
               {
-                name: 'prompt',
-                type: 'string',
+                name: 'idle_timeout_seconds',
+                type: 'integer',
                 required: false,
-                description: '结束语提示词',
-                example: ''
-              },
-              {
-                name: 'language',
-                type: 'string',
-                required: false,
-                description: '结束语语言',
-                example: ''
-              },
-              {
-                name: 'emotion',
-                type: 'string',
-                required: false,
-                description: '结束语情绪',
-                example: ''
-              },
-              {
-                name: 'content',
-                type: 'string',
-                required: false,
-                description: '结束语内容',
-                example: ''
+                description: '智能体空闲断连时长，单位为秒，范围60~3600',
+                example: 120
               }
             ]
           },
@@ -606,7 +606,7 @@ const updateAgentParameters = [
             name: 'disabled_builtin_tools',
             type: 'array',
             required: false,
-            description: '禁用的内置工具列表。传空数组表示不清空任何工具',
+            description: '禁用的内置工具名称列表。传空数组清空禁用名单并解除相应禁用；省略则保留原名单',
             children: [
               {
                 name: 'item',
@@ -636,7 +636,8 @@ Authorization: Bearer <token>
   "vadModelId": "VAD_SileroVAD",
   "llmModelId": "LLM_AliLLM",
   "vllmModelId": "VLLM_QwenVLVLLM",
-  "ttsModelId": "",
+  "vllmPrompt": "请识别图片中的主要物体和文字。",
+  "voiceprintModelId": "VOICEPRINT_3DSPEAKER",
   "ttsVoiceId": "a5b85a7ba5b24a9a96e24aa88b500d2f",
   "chatHistoryConf": 0,
   "memModelId": "Memory_mem_local_short",
@@ -674,9 +675,7 @@ Authorization: Bearer <token>
       "max_tokens": 500,
       "enable_search": false,
       "custom_params": {
-        "body": {
-          "<自定义参数key>": "<按 schema 取值>"
-        }
+        "body": {}
       }
     },
     "voice": {
@@ -692,15 +691,12 @@ Authorization: Bearer <token>
       "enable_auto_lang": false
     },
     "goodbye": {
-      "prompt": "",
-      "language": "",
-      "emotion": "",
-      "content": ""
+      "idle_timeout_seconds": 120
     },
     "voiceprint": {
       "chat_only_enabled": false
     },
-    "disabled_builtin_tools": []
+    "disabled_builtin_tools": ["get_time"]
   }
 }`
 
@@ -977,7 +973,26 @@ GET /xiaozhi/agent/list?limit=20&cursor=invalid-cursor
 />
 
 ::: info
-更新智能体时，只需传递需要修改的字段，未传递的字段可以不传
+更新智能体时，只需传递需要修改的字段。普通字段省略则保留原值；`datasetIds` 和 `extra.disabled_builtin_tools` 使用完整列表替换语义，传空数组会清空列表。`extra.llm.custom_params` 提供非 `null` 值时整体替换，传 `null` 清空，省略则保留。`extra.voiceprint: {}` 会将 `chat_only_enabled` 设置为 `false`。`extra.goodbye` 目前只支持 `idle_timeout_seconds`，范围为 60~3600 秒。
+:::
+
+::: tip 选择音色
+如需修改语音合成音色，请更新 `ttsVoiceId`。
+:::
+
+::: tip 更新示例
+关闭唤醒问候并设置智能体空闲断连时长：
+
+```json
+{
+  "extra": {
+    "disable_greeting": true,
+    "goodbye": {
+      "idle_timeout_seconds": 120
+    }
+  }
+}
+```
 :::
 
 ::: tip LLM 参数说明
