@@ -104,7 +104,6 @@ const items_xrobot_api = [
       { text: "长期记忆API", link: "longterm-memory" },
       { text: "固件管理API", link: "firmware" },
       { text: "声纹识别V2 API", link: "voiceprint-v2" },
-      { text: "用户API", link: "user" },
       { text: "获取语言列表API", link: "language" },
       { text: "其他API", link: "others" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_api)),
