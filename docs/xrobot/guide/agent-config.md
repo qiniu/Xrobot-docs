@@ -361,7 +361,7 @@ MCP 关联在窗口中**独立保存**。点击取消或直接关闭，不提交
 
 应先完成说话人录入并确认识别正常，再开启此限制并保存配置。验证时，让已添加用户和未添加用户分别说同一句问题；文字消息不能代替声纹语音验证。需要恢复普通交流时，关闭限制、保存并重新连接。
 
-更多录音和识别建议见[声纹识别最佳实践](./voice-start.md)。
+如需通过接口管理说话人、声纹和智能体关联，参见[声纹识别 V2 API](../api/voiceprint-v2.md)。
 
 ## 8. 对话与视觉 {#conversation}
 
@@ -492,6 +492,6 @@ MCP 关联在窗口中**独立保存**。点击取消或直接关闭，不提交
 - [长期记忆最佳实践](./longterm-memory-start.md)
 - [知识库最佳实践](./knowledge-start.md)
 - [MCP 服务最佳实践](./mcp-store.md)
-- [声纹识别最佳实践](./voice-start.md)
+- [声纹识别 V2 API](../api/voiceprint-v2.md)
 - [拍照功能](./camera-feature.md)
 - [资源包时长扣减规则](../billing/resource-usage-billing.md)
