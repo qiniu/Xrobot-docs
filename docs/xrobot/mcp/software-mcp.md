@@ -103,12 +103,15 @@ MCP（Model Context Protocol）是新一代AI应用集成协议，基于标准 J
 
 ### HTTP Header 参数
 
-云端 MCP 服务可以读取以下 Header：
+在设备 WebSocket 会话中，平台调用智能体配置的云端 MCP 服务时，会自动携带以下 HTTP 请求头，无需经过大模型传值：
 
-| Header 名称         | 说明           |
-| ------------------- | -------------- |
-| `X-Linx-Device-Id`  | 设备唯一标识符 |
-| `X-Linx-Session-Id` | 会话标识符     |
+| Header 名称 | 说明 |
+| --- | --- |
+| `X-Linx-Device-Id` | 当前设备 ID |
+| `X-Linx-Agent-Id` | 当前智能体 ID |
+| `X-Linx-Session-Id` | 当前会话 ID |
+
+MCP 服务端从请求头读取上述标识，平台不会将其自动填入工具入参（`arguments`）。
 
 ### 工具调用响应格式
 
