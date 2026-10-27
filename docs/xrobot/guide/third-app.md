@@ -1,6 +1,6 @@
 # 第三方业务系统接入指南
 
-灵矽 AI 平台支持通过自定义模型接入第三方对话服务。本文说明模型配置、请求格式和能力边界。
+灵矽 AI 平台支持通过自定义模型接入第三方对话服务。本文仅说明该接入方式的模型配置、请求格式和能力边界。
 
 ## 1. 接入方式
 
@@ -129,6 +129,5 @@ data: {"error":{"message":"Service temporarily unavailable","type":"server_error
 ## 3. 相关文档
 
 - [WebSocket 协议](../platform/websocket.md)：设备通信协议。
-- [MCP 协议接入指南](../mcp/software-mcp.md)：业务工具接入。
 - [大语言模型 API](../api/llm.md)：自定义模型与生成参数配置。
 - [智能体配置指引](./agent-config.md)：模型、音色与技能设置。
