@@ -120,6 +120,7 @@ const items_xrobot_mcp = [
       { text: "端侧MCP", link: "hardware-mcp" },
       { text: "云端MCP", link: "software-mcp" },
       { text: "自定义 MCP", link: "custom-mcp" },
+      { text: "MCP 示例", link: "example-music-pan" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_mcp)),
   },
 ];
