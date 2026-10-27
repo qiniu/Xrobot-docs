@@ -14,6 +14,8 @@ export default withMermaid({
   lastUpdated: true,
   cleanUrls: true,
   base: "/docs/",
+  // 不对外发布的页面：不参与构建，URL 直接 404
+  srcExclude: ["xrobot/guide/linxclaw-best-practice.md"],
   head: [["link", { rel: "icon", href: "favicon.svg" }]],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
