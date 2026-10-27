@@ -1,6 +1,6 @@
 # 第三方业务系统接入指南
 
-灵矽 AI 平台通过自定义模型，将对话消息转发至第三方对话服务。本文说明模型配置、请求格式和返回要求。
+灵矽 AI 平台通过自定义模型，将对话消息转发至第三方对话服务。本文说明模型配置、请求格式和响应要求。
 
 ## 1. 接入方式
 
@@ -20,8 +20,8 @@ flowchart TD
 
 ### 1.3 请求链路
 
-1. 设备通过 WebSocket 发送语音。
-2. 平台完成语音识别，组织对话消息。
+1. 设备通过 WebSocket 发送语音或文本。
+2. 平台完成语音识别（语音输入时），组织对话消息。
 3. 平台以 OpenAI Chat Completions 格式向第三方对话服务发起流式请求。
 4. 第三方对话服务返回 SSE 流式文字。
 5. 平台将文字合成为语音并下发设备。
@@ -55,14 +55,14 @@ Content-Type: application/json
 Authorization: Bearer {api_key}
 ```
 
-平台调用对话模型时，如可获取设备和智能体标识，会携带以下 Header：
+主对话请求还会在可获取时携带以下 Header：
 
 | Header | 说明 |
 | --- | --- |
 | `X-Linx-Device-Id` | 当前设备 ID |
 | `X-Linx-Agent-Id` | 当前智能体 ID |
 
-业务服务应使用 `Authorization` 校验调用权限，设备和智能体标识不作为鉴权凭据。
+第三方对话服务应使用 `Authorization` 校验调用权限，设备和智能体标识不作为鉴权凭据。
 
 **请求示例**：
 
@@ -92,6 +92,8 @@ curl --no-buffer -X POST 'https://api.example.com/v1/chat/completions' \
 | `max_tokens` | integer | 输出 token 数上限 |
 | `temperature`、`top_p`、`frequency_penalty` | number | 生成参数，取值由模型与智能体配置确定 |
 
+智能体启用工具时，请求还可能包含 `tools`、`tool_choice` 等字段。不支持工具调用时，服务应忽略这些字段，避免因未知字段拒绝请求。
+
 服务应根据 `messages` 处理多轮对话。
 
 ### 2.3 流式响应
@@ -110,6 +112,7 @@ data: [DONE]
 ```
 
 - 每条 `data:` 行包含一个完整 JSON，事件之间以空行分隔。
+- 平台仅解析 `data:` 行，`event:` 等其他 SSE 字段不参与处理。
 - 回复结束后发送 `data: [DONE]`。
 - 平台将回复文字合成为语音；音色在智能体中配置，参见[语言与音色设置](./agent-config.md#language-and-voice)。
 
