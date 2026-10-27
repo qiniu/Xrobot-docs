@@ -1,9 +1,13 @@
-# MCP服务 用户接入指南
+---
+title: MCP 市场与开通
+---
+
+# MCP 市场与开通
 
 
 ## 产品概述
 
- MCP（Model Context Protocol）市场是灵矽平台为智能体（Agent）提供的一种能力扩展，允许开发者将外部工具服务接入灵矽，使智能体(Agent) 在与用户对话时能够调用第三方 API 实现丰富功能。
+MCP（Model Context Protocol）市场是灵矽平台为智能体（Agent）提供的一种能力扩展，允许开发者将外部工具服务接入灵矽，使智能体(Agent) 在与用户对话时能够调用第三方 API 实现丰富功能。
 
 通过 MCP 市场，用户可以：
 
@@ -11,19 +15,21 @@
 - **一键开通**：将心仪的 MCP 服务订阅到自己的账号下
 - **灵活配置**：根据 MCP 服务要求填写 API 密钥、接口地址等参数
 - **工具编排**：在 Agent 配置页面勾选要启用的 MCP，Agent 即具备相应能力
-- **自主发布**：开发者可将自建的 MCP 服务发布到市场，供用户使用
+- **自建服务**：开发者可创建私有 MCP 服务供自己的智能体使用；公共上架由平台管理员操作
 
 
 ## 名词解释
 
 | 术语 | 说明 |
 |------|------|
-| **MCP Server** | 包含服务名称、Logo、文档地址、以及要求用户填写的配置模板（`config_schema`）。|
-| **MCP** | 用户在市场中「开通」一个 MCP Server 后，在自己账号下创建的配置实例：包含用户填写的实际参数（`config`），如 API Key、接口地址等 |
-| **config_schema** | 市场服务定义的配置模板，规定用户开通该 MCP 时需要填写哪些参数（如 API Key 字段名、URL 格式等） |
-| **config** | 用户开通 MCP 后填写的实际配置值 |
-| **SSE Type** | MCP 通信类型。当前只支持 SSE（Server-Sent Events）。`type=0` 为普通 SSE，用户需自行提供 API 密钥；`type=1` 为应用型 SSE，灵矽平台提供 |
-| **Agent-MCP** | Agent 与 MCP 的绑定关系，存储在 `ai_agent_mcp` 表。一个 Agent 可以绑定多个 MCP，一个 MCP 也可以被多个 Agent 引用 |
+| **MCP Server** | 市场中的 MCP 服务，包含名称、Logo、文档地址和配置模板（`config_schema`）。 |
+| **MCP** | 用户在市场中开通 MCP Server 后创建的配置实例，包含用户填写的实际参数（`config`），如 API Key、服务地址等。 |
+| **config_schema** | 服务的配置模板，定义开通时需要填写的参数，以及服务的实现类型和通信方式。 |
+| **config** | 开通 MCP 后填写的实际配置值。 |
+| **实现类型** | `type=sse` 表示 MCP 服务；`type=app` 表示灵矽OS 应用。 |
+| **通信方式** | `transport_type=1`，即 Streamable HTTP。 |
+| **认证模式** | `sse.type=0` 由用户自行提供 API 密钥；`sse.type=1` 由平台提供密钥。 |
+| **Agent-MCP** | Agent 与 MCP 的绑定关系。一个 Agent 可以绑定多个 MCP，一个 MCP 也可以被多个 Agent 引用。 |
 
 
 ## 前提条件
@@ -70,10 +76,11 @@ Authorization: Bearer <token>
                 "desc": "提供地理位置查询、路径规划、地址编码等功能",
                 "content": "<p>地图服务是一款...</p>",
                 "config_schema": {
-                    "types": ["sse"],
+                    "type": "sse",
+                    "transport_type": 1,
                     "sse": {
                         "type": 0,
-                        "url": "https://api.example.com/sse",
+                        "url": "https://api.example.com/mcp",
                         "shared_key": false,
                         "params": {
                             "api_key": "placeholder"
@@ -103,7 +110,7 @@ Authorization: Bearer <token>
 | `tags` | string[] | 标签列表，用于分类筛选 |
 | `desc` | string | 服务简介 |
 | `content` | string | 详细说明（富文本 HTML） |
-| `config_schema` | object | 配置模板，定义开通时用户需填写的参数结构 |
+| `config_schema` | object | 配置模板，包含实现类型、通信方式和开通时需填写的参数结构 |
 
 ### 1.2 获取 MCP 市场服务详情
 
@@ -140,10 +147,11 @@ Authorization: Bearer <token>
         "desc": "提供地理位置查询、路径规划、地址编码等功能",
         "content": "<p>地图服务是一款专业的...</p>",
         "config_schema": {
-            "types": ["sse"],
+            "type": "sse",
+            "transport_type": 1,
             "sse": {
                 "type": 0,
-                "url": "https://api.example.com/sse",
+                "url": "https://api.example.com/mcp",
                 "shared_key": false,
                 "params": {
                     "api_key": "placeholder"
@@ -184,9 +192,10 @@ Content-Type: application/json
     "desc": "给家庭助手配置地图能力",
     "config": {
         "type": "sse",
+        "transport_type": 1,
         "sse": {
             "type": 0,
-            "url": "https://api.example.com/sse",
+            "url": "https://api.example.com/mcp",
             "params": {
                 "api_key": "your-api-key-here"
             },
@@ -205,18 +214,19 @@ Content-Type: application/json
 | `mcp_id` | string | 是 | 要开通的 MCP Server ID（从市场列表获取） |
 | `name` | string | 是 | 给这个开通的 MCP 起一个名字，方便识别 |
 | `desc` | string | 是 | 描述该 MCP 的用途 |
-| `config.type` | string | 是 | 通信类型，当前固定为 `"sse"` |
-| `config.sse.type` | int | 是 | SSE 类型。`0`=普通 SSE，`1`=应用型 SSE |
-| `config.sse.url` | string | 是 | MCP 服务的 SSE 端点地址 |
+| `config.type` | string | 否 | 实现类型，取值 `sse` 或 `app`，由服务端按 MCP Server 的配置写入 |
+| `config.transport_type` | int | 否 | 通信方式，取值为 `1`（Streamable HTTP），需与 MCP Server 的配置一致 |
+| `config.sse.type` | int | 否 | 认证模式。`0`=用户自行提供 API 密钥（默认值），`1`=平台提供密钥 |
+| `config.sse.url` | string | 是 | MCP 服务端点地址 |
 | `config.sse.params` | object | 否 | Query 参数（由 `config_schema` 定义字段） |
 | `config.sse.header` | object | 否 | HTTP Header（由 `config_schema` 定义字段） |
 
-**SSE Type 说明**
+**认证模式说明**
 
-| 值 | 类型 | 说明 |
-|------|------|------|
-| `0` | SSETypeNormal | 普通 SSE。用户自行提供 API 密钥，填入 `params` 或 `header` |
-| `1` | SSETypeApp | 应用型 SSE。灵矽平台提供，用户无需手动填 Key |
+| 值 | 说明 |
+|------|------|
+| `0` | 用户自行提供 API 密钥，填入 `params` 或 `header`。 |
+| `1` | 平台提供密钥，用户无需填写。 |
 
 **响应示例**
 
@@ -233,9 +243,10 @@ Content-Type: application/json
         "is_private": false,
         "config": {
             "type": "sse",
+            "transport_type": 1,
             "sse": {
                 "type": 0,
-                "url": "https://api.example.com/sse",
+                "url": "https://api.example.com/mcp",
                 "params": {
                     "api_key": "your-api-key-here"
                 },
@@ -243,9 +254,7 @@ Content-Type: application/json
                     "Authorization": "Bearer your-bearer-token"
                 }
             }
-        },
-        "created_at": "2026-05-06T10:00:00Z",
-        "updated_at": "2026-05-06T10:00:00Z"
+        }
     }
 }
 ```
@@ -279,9 +288,10 @@ Authorization: Bearer <token>
                 "is_private": false,
                 "config": {
                     "type": "sse",
+                    "transport_type": 1,
                     "sse": {
                         "type": 0,
-                        "url": "https://api.example.com/sse",
+                        "url": "https://api.example.com/mcp",
                         "params": {
                             "api_key": "your-api-key-here"
                         },
@@ -322,9 +332,10 @@ PUT /v1/mcps/{id}
     "desc": "给家庭助手配置地图能力",
     "config": {
         "type": "sse",
+        "transport_type": 1,
         "sse": {
             "type": 0,
-            "url": "https://api.example.com/sse",
+            "url": "https://api.example.com/mcp",
             "params": {
                 "api_key": "new-api-key-here"
             },
@@ -674,12 +685,12 @@ Authorization: Bearer <token>
 WS /v1/mcpproxy/connect?token=<token>
 ```
 
-连接建立后，客户端可使用 MCP 协议与远程 MCP 服务进行通信（stdio/sse 统一代理）。
+连接建立后，平台通过该连接转发 MCP 请求。客户端侧使用 Streamable HTTP 端点 `/v1/mcpproxy/mcp`。
 
 
 ## 六、自定义 MCP（开发者）
 
-开发者可以将自建的 MCP 服务发布到平台，供其他用户使用。
+开发者可以创建自建 MCP 服务。普通用户创建的服务为私有服务，仅自己可用；公共服务的上架由平台管理员操作。
 
 ### 6.1 创建自定义 MCP 服务
 
@@ -706,10 +717,11 @@ Content-Type: application/json
     "desc": "基于公开天气 API 的 MCP 服务",
     "content": "<p>这是一个自定义天气服务...</p>",
     "config_schema": {
-        "types": ["sse"],
+        "type": "sse",
+        "transport_type": 1,
         "sse": {
             "type": 0,
-            "url": "https://my-weather.example.com/sse",
+            "url": "https://my-weather.example.com/mcp",
             "shared_key": false,
             "params": {
                 "api_key": ""
@@ -721,12 +733,14 @@ Content-Type: application/json
 }
 ```
 
+新建服务默认使用 Streamable HTTP，无需显式传入 `transport_type`。
+
 **权限说明**
 
 | 用户类型 | `is_private` 取值 | 说明 |
 |----------|-------------------|------|
 | 普通用户 | 只能为 `true` | 私有服务仅自己可用 |
-| SuperAdmin | 只能为 `false` | 公共发布到市场供所有用户使用 |
+| 平台管理员 | 只能为 `false` | 公共发布到市场供所有用户使用 |
 
 ### 6.2 更新自定义服务
 
@@ -736,7 +750,7 @@ PUT /v1/mcp-store/servers/{id}
 
 ### 6.3 发布服务
 
-将 MCP 服务发布到公共市场（仅对 SuperAdmin 开放）。
+将 MCP 服务状态置为已发布。只有 `is_private=false` 的公共 MCP 会在市场中展示。
 
 ```
 PUT /v1/mcp-store/servers/{id}/publish
@@ -754,7 +768,7 @@ PUT /v1/mcp-store/servers/{id}/unpublish
 DELETE /v1/mcp-store/servers/{id}
 ```
 
-> **注意**：如果该 MCP 服务已被其他用户开通（存在 `mcp` 记录），则无法删除。
+> **注意**：如果该 MCP 服务已被用户开通，则无法删除。
 
 ### 6.6 获取我的自定义服务列表
 
@@ -764,23 +778,25 @@ GET /v1/mcp-store/servers
 
 ## 七、错误码
 
-| HTTP 状态码 | code | msg | 说明 |
-|-------------|------|-----|------|
-| 200 | 0 | success | 请求成功 |
-| 400 | - | invalid request body | 请求参数格式错误 |
-| 400 | - | invalid id | 缺少或无效的 ID 参数 |
-| 400 | - | invalid config type | config_schema 中包含不支持的配置类型 |
-| 400 | - | unsupported config type | 该 MCP 不支持此配置类型 |
-| 403 | - | normal user only create private mcp server | 普通用户只能创建私有服务 |
-| 403 | - | admin user only create public mcp server | 管理员只能创建公共服务 |
-| 404 | 612 | no such mcp | MCP 记录不存在 |
-| 404 | 612 | no such mcp server | MCP Server 不存在 |
-| 409 | 613 | cannot delete in use mcp | MCP 正在被 Agent 使用，无法删除 |
-| 409 | 613 | cannot delete in use mcp server | MCP Server 有用户开通，无法删除 |
-| 409 | 614 | existing mcp server | 同名 MCP Server 已存在（唯一键冲突） |
-| 409 | 614 | existing mcp | 该用户已开通同名 MCP |
-| 502 | - | fetch tools failed | SSE 工具列表获取失败，请检查 URL 和认证配置 |
-| 502 | - | tool call failed | 工具调用失败 |
+所有接口的 HTTP 状态码均为 `200`，业务状态由响应体中的 `code` 表示。
+
+| code | msg | 说明 |
+|------|-----|------|
+| `0` | success | 请求成功 |
+| `400` | invalid request body | 请求参数格式错误 |
+| `400` | invalid id | 缺少或无效的 ID 参数 |
+| `400` | invalid mcp config | 配置非法或实现类型不可修改 |
+| `403` | normal user only create private mcp server | 普通用户只能创建私有服务 |
+| `403` | admin user only create public mcp server | 管理员只能创建公共服务 |
+| `502` | fetch tools failed | 获取工具列表失败，请检查服务地址和认证配置 |
+| `502` | 具体错误信息 | 工具调用失败 |
+| `599` | 具体错误信息 | 服务内部错误 |
+| `612` | no such mcp | MCP 实例不存在 |
+| `612` | no such mcp server | MCP Server 不存在 |
+| `613` | cannot delete in use mcp | MCP 正在被 Agent 使用，无法删除 |
+| `613` | cannot delete in use mcp server | MCP Server 已有用户开通，无法删除 |
+| `614` | existing mcp server | 同名 MCP Server 已存在 |
+| `614` | existing mcp | 该用户已开通同名 MCP |
 
 ## 八、完整 API 索引
 
@@ -869,6 +885,6 @@ GET /v1/mcp-store/servers
 
 ## 相关文档
 
-- [知识库 API](https://linx.qiniu.com/docs/xrobot/api/knowledge)
-- [智能体 API](https://linx.qiniu.com/docs/xrobot/api/agent)
-- [聊天记录 API](https://linx.qiniu.com/docs/xrobot/api/chat)
+- [端侧 MCP](../mcp/hardware-mcp.md)
+- [云端 MCP](../mcp/software-mcp.md)
+- [MCP 示例](../mcp/example-music-pan.md)

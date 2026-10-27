@@ -94,10 +94,8 @@ MCP（Model Context Protocol）是新一代AI应用集成协议，基于标准 J
 
 ### 网络要求
 
-- 支持 HTTPS 和 WebSocket/SSE 连接
-- 接收端点：
-  - `GET /mcp`：SSE 长连接
-  - `POST /mcp/message`：接收 MCP 请求
+- 服务需支持 HTTPS 访问。
+- 使用 Streamable HTTP：平台向同一端点发送 `POST /mcp`；需要服务端主动推送时使用 `GET /mcp`。
 
 ## 接入协议说明
 
@@ -262,15 +260,12 @@ MCP 服务端从请求头读取上述标识，平台不会将其自动填入工�
 在灵矽AI平台的 MCP 服务管理页面，添加您的服务端点：
 
 - **服务名称**：个人助手 MCP 服务
-- **SSE URL**：`https://your-domain.com/mcp`
+- **服务地址**：`https://your-domain.com/mcp`
 - **描述**：提供天气查询、音乐播放等个人助手功能
 
 ### 2. 接收 MCP 连接
 
-您的云端 MCP 服务需要实现标准的 MCP 协议，支持以下端点：
-
-- **SSE 端点**：`GET /mcp` - 接收设备端的 SSE 连接
-- **POST 端点**：`POST /mcp/message` - 接收 MCP 消息
+云端 MCP 服务需实现标准 MCP 协议。使用 Streamable HTTP 时，平台通过 `POST /mcp` 发送请求；需要服务端推送时，平台会使用 `GET /mcp` 建立事件流。
 
 ### 3. 处理工具调用
 
