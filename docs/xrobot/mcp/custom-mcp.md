@@ -136,5 +136,4 @@ WS /v1/mcpproxy/connect?token=<token>
 - [MCP 市场与开通](./mcp-store.md)
 - [端侧MCP](./hardware-mcp.md)
 - [云端MCP](./software-mcp.md)
-- [MCP 示例](./example-music-pan.md)
 
