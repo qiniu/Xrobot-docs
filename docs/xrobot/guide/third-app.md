@@ -1,434 +1,134 @@
 # 第三方业务系统接入指南
 
-## 1. 概述
+灵矽 AI 平台支持通过自定义模型接入第三方对话服务。本文说明模型配置、请求格式和能力边界。
 
-本文档面向业务系统开发商和集成商，提供将您的业务系统与灵矽AI平台集成的完整解决方案。
+## 1. 接入方式
 
-整个系统由三个核心组件构成，通过标准化的消息协议实现无缝集成：
-
-- **设备端**：智能硬件设备（如机器狗、音箱、AI玩具等）
-- **灵矽AI平台**：智能对话中枢和消息路由中心
-- **业务服务**：您的核心业务逻辑服务
-
-### 1.1 系统架构概览
+### 1.1 系统架构
 
 ```mermaid
-graph LR
-    A[设备端] <-->|WebSocket| B[灵矽AI平台]
-    B <-->|HTTP POST + SSE| C[业务服务]
-    
-    subgraph "两种交互模式"
-        D[Chat对话模式]
-        E[透传消息模式]
-    end
-    
-    B --> D
-    B --> E
+flowchart TD
+    Device[设备端] <-->|WebSocket| Platform[灵矽 AI 平台]
+    Platform <-->|Chat Completions| Chat[第三方对话服务]
 ```
 
-### 1.2 核心组件职责
+### 1.2 职责划分
 
-| 组件 | 主要职责 | 技术特点 | 通信协议 |
-|------|---------|----------|----------|
-| **设备端** | • 用户交互界面<br/>• 音频采集播放<br/>• 控制指令执行<br/>• 状态数据上报 | 硬件设备，直接面向用户 | WebSocket连接 |
-| **灵矽AI平台** | • 语音识别(ASR)和合成(TTS)<br/>• 智能对话处理<br/>• 消息路由转发<br/>• 设备连接管理 | 双向消息路由中心 | WebSocket + SSE |
-| **业务服务** | • 业务逻辑处理<br/>• 文字对话回复<br/>• 控制命令生成<br/>• 数据存储管理 | 两种工作模式的服务提供者 | SSE协议接入 |
+- **设备端**：采集和播放音频，执行设备控制指令。
+- **灵矽 AI 平台**：管理设备连接，完成语音识别、对话调用和语音合成。
+- **第三方对话服务**：接收对话消息并返回流式文字回复。
 
-### 1.3 两种业务模式对比
+### 1.3 接入方式对比 {#_1-3-两种业务模式对比}
 
-| 模式 | 触发方式 | 灵矽AI处理方式 | 业务服务角色 | 数据流向 |
-|------|----------|---------------|-------------|----------|
-| **Chat对话** | 设备端语音输入 | ASR+TTS处理 | 类似大模型的文字问答 | 语音→文字→文字→语音 |
-| **透传消息** | 设备端主动上报 | 直接透传，不处理内容 | 设备控制和数据处理 | JSON→JSON→JSON→JSON |
+| 接入方式 | 适用场景 | 协议要求 |
+| --- | --- | --- |
+| 自定义模型 | 使用自有对话服务生成回复 | OpenAI Chat Completions 兼容接口，支持 SSE 流式响应 |
 
-## 2. Chat对话模式完整链路
+平台不提供设备自定义业务消息的通用透传接口。设备主动上报业务数据或接收业务推送，需另行对接业务系统。
 
-Chat对话模式下，灵矽AI平台将您的业务服务当作一个大模型，输入文字，等待业务服务器的文字返回。
+## 2. 对话服务接入
 
-### 2.1 完整交互流程
+第三方对话服务实现 OpenAI Chat Completions 兼容接口。平台发送对话消息，接收流式文字回复，并完成语音合成和设备播放。
 
-```mermaid
-sequenceDiagram
-    participant Device as 设备端
-    participant Platform as 灵矽AI平台
-    participant Business as 业务服务
+### 2.1 配置模型
 
-    Note over Device,Business: Chat对话模式完整链路
-    
-    Device->>Platform: 1. 语音输入（WebSocket音频流）
-    Platform->>Platform: 2. ASR语音识别处理
-    Platform->>Business: 3. HTTP POST + SSE请求
-    
-    Note over Business: 业务服务作为大模型角色
-    
-    Business-->>Platform: 4. SSE流式响应
-    Platform->>Platform: 5. TTS文字转语音
-    Platform-->>Device: 6. 返回音频（WebSocket二进制流）
+在「我的模型」中创建模型，供应器选择「OpenAI 接口」，填写以下配置，然后在目标智能体中选择该模型并保存。
+
+| 配置项 | 说明 | 示例 |
+| --- | --- | --- |
+| `type` | 供应器类型 | `openai` |
+| `base_url` | 对话服务基础地址，不含 `/chat/completions` | `https://api.example.com/v1` |
+| `model_name` | 对话服务识别的模型名称 | `business-assistant` |
+| `api_key` | 对话服务的调用密钥，必填 | 由服务方提供 |
+
+平台在 `base_url` 后追加 `/chat/completions`。以上配置对应的请求地址为 `https://api.example.com/v1/chat/completions`。
+
+通过 API 创建模型和绑定智能体，参见[大语言模型 API](../api/llm.md)与[智能体 API](../api/agent.md)。
+
+### 2.2 请求格式
+
+**调用方向：**灵矽 AI 平台 → 第三方对话服务。
+
+```http
+POST {base_url}/chat/completions
+Content-Type: application/json
+Authorization: Bearer {api_key}
 ```
 
-### 2.2 设备端到灵矽AI平台
+平台调用对话模型时，如可获取设备和智能体标识，会携带以下 Header：
 
-**设备端发送**：按照WebSocket协议发送语音数据
+| Header | 说明 |
+| --- | --- |
+| `X-Linx-Device-Id` | 当前设备 ID |
+| `X-Linx-Agent-Id` | 当前智能体 ID |
 
- 设备端WebSocket协议详见：[WebSocket协议文档](../platform/websocket.md)
+业务服务应使用 `Authorization` 校验调用权限，设备和智能体标识不作为鉴权凭据。
 
-### 2.3 灵矽AI平台到业务服务
+**请求示例：**
 
-**灵矽AI平台发送**：
 ```bash
-curl -X POST "http://your-domain.com/api/chat/stream" \
-  -H "Content-Type: application/json" \
-  -H "Accept: text/event-stream" \
-  -H "Authorization: Bearer your_api_token" \
+curl --no-buffer -X POST 'https://api.example.com/v1/chat/completions' \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer YOUR_API_KEY' \
   -d '{
-    "auth": {
-      "device_id": "669C4BDA13EA"
-    },
-    "type": "chat",
-    "details": {
-      "msg": "用户说的话（经ASR处理后的文字）",
-       "session_id": "session_12345",
-      "timestamp": 1640995200000
-    }
-  }' \
-  --no-buffer
+    "model": "business-assistant",
+    "messages": [
+      {"role": "system", "content": "你是业务助手。"},
+      {"role": "user", "content": "你好"}
+    ],
+    "stream": true,
+    "max_tokens": 1024,
+    "temperature": 0.7,
+    "top_p": 1.0,
+    "frequency_penalty": 0.0
+  }'
 ```
-
-### 2.4 业务服务响应格式
-
-**业务服务SSE响应**：
-
-::: warning Session ID协商机制
-灵矽AI平台非常需要session_id做对话隔离，因此：
-1. **灵矽AI在请求中传递session_id**：通过details.session_id字段传递
-2. **业务服务必须原样返回**：在所有SSE响应中包含session_id字段
-3. **用于对话上下文维护**：确保多设备并发对话的隔离性
-:::
-
-**纯文字回复示例：**
-```
-data: {"event": "message", "type": "chat", "session_id": "session_12345", "details": {"answer": "今天是晴天，很适合出去玩哦！", "tts_provider": "huoshan", "voice_type": "BV051_streaming", "speed_ratio": 1.0, "pitch_ratio": 1.0}}
-
-data: {"event": "message_end", "session_id": "session_12345"}
-
-```
-
-**文字+动作指令示例：**
-```
-data: {"event": "message", "type": "chat", "session_id": "session_12345", "details": {"answer": "好的，我来摇摇尾巴！", "tts_provider": "huoshan", "voice_type": "BV051_streaming", "speed_ratio": 1.0, "pitch_ratio": 1.0}}
-
-data: {"event": "message", "type": "command", "session_id": "session_12345", "details": {"actions": [{"action": "wag_tail", "params": {"duration": 3}}, {"action": "blink_eyes", "params": {}}]}}
-
-data: {"event": "message_end", "session_id": "session_12345"}
-
-```
-
-### 2.5 灵矽AI平台到设备端
-
-**灵矽AI平台处理规则**：
-- 满足条件：`event = "message" AND type = "chat"` → 进行TTS语音合成
-- 其他消息类型 → 直接透传给设备端
-
-**返回给设备端**：
-- TTS处理后的音频流（WebSocket二进制数据）
-- 控制指令（WebSocket JSON消息）
-
-## 3. 透传消息模式完整链路
-
-透传消息模式下，灵矽AI平台对消息内容不做任何处理，直接透传。一旦透传，灵矽AI是不管里面具体内容的，直接copy转发。
-
-### 3.1 完整交互流程
-
-```mermaid
-sequenceDiagram
-    participant Device as 设备端
-    participant Platform as 灵矽AI平台
-    participant Business as 业务服务
-
-    Note over Device,Business: 透传消息模式完整链路
-    
-    Device->>Platform: 1. JSON消息（WebSocket）
-    Platform->>Business: 2. HTTP POST + SSE请求（原样转发）
-    
-    Note over Business: 业务逻辑处理
-    
-    Business-->>Platform: 3. SSE流式响应
-    Platform-->>Device: 4. 直接透传响应（WebSocket JSON）
-```
-
-### 3.2 设备端到灵矽AI平台
-
-**设备端发送**：Custom类型WebSocket消息
-```json
-{
-  "session_id": "session_12345",
-  "type": "custom",
-  "payload":
-    {
-       "auth": {
-      "device_id": "669C4BDA13EA"
-    },
-    "type": "report",
-    "details": {
-      "events": [
-        {"event": "touch", "params": {"count": 1}},
-        {"event": "feed", "params": {"count": 2}}
-      ],
-      "battery_level": 85,
-      "volume_level": 80,
-      "session_id": "session_12345",
-      "timestamp": 1640995200000
-    }
-    }
-  
-}
-```
-
-### 3.3 灵矽AI平台到业务服务
-
-**灵矽AI平台原样转发**：
-
-**数据上报(report)示例：**
-```bash
-curl -X POST "http://your-domain.com/api/chat/stream" \
-  -H "Content-Type: application/json" \
-  -H "Accept: text/event-stream" \
-  -H "Authorization: Bearer your_api_token" \
-  -d '{
-    "auth": {
-      "device_id": "669C4BDA13EA"
-    },
-    "type": "report",
-    "details": {
-      "events": [
-        {"event": "touch", "params": {"count": 1}},
-        {"event": "feed", "params": {"count": 2}}
-      ],
-      "battery_level": 85,
-      "volume_level": 80,
-      "session_id": "session_12345",
-      "timestamp": 1640995200000
-    }
-  }' \
-  --no-buffer
-```
-
-**重置数据(reset)示例：**
-```bash
-curl -X POST "http://your-domain.com/api/chat/stream" \
-  -H "Content-Type: application/json" \
-  -H "Accept: text/event-stream" \
-  -H "Authorization: Bearer your_api_token" \
-  -d '{
-    "auth": {
-      "device_id": "669C4BDA13EA"
-    },
-    "type": "reset",
-    "details": {
-      "type": "count",
-      "reason": "user_request",
-      "session_id": "session_12345",
-      "timestamp": 1640995200000
-    }
-  }' \
-  --no-buffer
-```
-
-**获取资源(get)示例：**
-```bash
-curl -X POST "http://your-domain.com/api/chat/stream" \
-  -H "Content-Type: application/json" \
-  -H "Accept: text/event-stream" \
-  -H "Authorization: Bearer your_api_token" \
-  -d '{
-    "auth": {
-      "device_id": "669C4BDA13EA"
-    },
-    "type": "get",
-    "details": {
-      "events": [
-        {"event": "getCurrentTime", "params": {}},
-        {"event": "getBatteryLevel", "params": {}}
-      ],
-      "session_id": "session_12345",
-      "timestamp": 1640995200000
-    }
-  }' \
-  --no-buffer
-```
-
-### 3.4 业务服务响应格式
-
-**业务服务SSE响应**：
-
-**无响应示例（适用于report）：**
-```
-data: {"event": "message_end", "session_id": "session_12345"}
-
-```
-
-**命令响应示例（适用于reset）：**
-```
-data: {"event": "message", "type": "command", "session_id": "session_12345", "details": {"actions": [{"action": "reset_complete", "params": {"status": "success"}}]}}
-
-data: {"event": "message_end", "session_id": "session_12345"}
-
-```
-
-**数据响应示例（适用于get）：**
-```
-data: {"event": "message", "type": "command", "session_id": "session_12345", "details": {"actions": [{"action": "data_response", "params": {"current_time": "2023-12-31 10:30:00", "battery_level": 85}}]}}
-
-data: {"event": "message_end", "session_id": "session_12345"}
-
-```
-
-### 3.5 灵矽AI平台到设备端
-
-**灵矽AI平台处理规则**：
-- 不满足chat条件的所有消息 → 直接透传给设备端
-- 不对消息内容做任何解析或处理
-
-**返回给设备端**：原样透传业务服务的响应内容
-
-#### 3.5.1 Custom消息透传格式
-
-当业务服务响应后，灵矽AI平台将响应封装为WebSocket的custom消息下发给设备端：
-
-**WebSocket Custom消息格式：**
-```json
-{
-  "session_id": "session_12345",
-  "type": "custom",
-  "payload": {
-     "type": "command",
-     "details": {
-     "actions": [
-     {"action": "wag_tail", "params": {"duration": 3}}
-  }
-}
-```
-
-**字段说明：**
 
 | 字段 | 类型 | 说明 |
-|------|------|------|
-| `session_id` | string | 会话标识符，与原始请求保持一致 |
-| `type` | string | 固定为"custom"，标识自定义消息 |
-| `payload.source` | string | 消息来源，固定为"business_service" |
-| `payload.original_request_type` | string | 原始请求类型（report/reset/get） |
-| `payload.business_response` | object | 业务服务的完整SSE响应内容 |
-| `payload.timestamp` | number | 灵矽AI处理时间戳 |
+| --- | --- | --- |
+| `model` | string | 模型配置中的 `model_name` |
+| `messages` | array | 对话消息，包含角色、内容及本次请求所需的上下文 |
+| `stream` | boolean | 流式对话为 `true` |
+| `max_tokens` | integer | 输出 token 数上限 |
+| `temperature`、`top_p`、`frequency_penalty` | number | 生成参数，取值由模型与智能体配置确定 |
 
-#### 3.5.2 不同响应类型的透传示例
+服务应根据 `messages` 处理多轮对话。
 
-**Report类型无响应透传：**
-```json
-{
-  "session_id": "session_12345",
-  "type": "custom",
-  "payload": {
-    "source": "business_service",
-    "original_request_type": "report",
-    "business_response": {
-      "event": "message_end",
-      "session_id": "session_12345"
-    },
-    "timestamp": 1640995201000
-  }
-}
+### 2.3 流式响应
+
+返回 HTTP `200`，`Content-Type` 为 `text/event-stream`。文字内容放在 `choices[0].delta.content` 中：
+
+```text
+data: {"choices":[{"index":0,"delta":{"role":"assistant","content":"你好，"},"finish_reason":null}]}
+
+data: {"choices":[{"index":0,"delta":{"content":"有什么可以帮你？"},"finish_reason":null}]}
+
+data: {"choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}
+
+data: [DONE]
+
 ```
 
-**Reset类型命令响应透传：**
-```json
-{
-  "session_id": "session_12345",
-  "type": "custom",
-  "payload": {
-    "source": "business_service",
-    "original_request_type": "reset",
-    "business_response": {
-      "event": "message",
-      "type": "command",
-      "session_id": "session_12345",
-      "details": {
-        "actions": [
-          {"action": "reset_complete", "params": {"status": "success"}}
-        ]
-      }
-    },
-    "timestamp": 1640995201000
-  }
-}
+- 每条 `data:` 行包含一个完整 JSON，事件之间以空行分隔。
+- 回复结束后发送 `data: [DONE]`。
+- 平台将回复文字合成为语音；音色在智能体中配置，参见[语言与音色设置](./agent-config.md#language-and-voice)。
+
+### 2.4 错误处理
+
+开始流式响应前发生鉴权失败、服务不可用等错误时，返回相应的非 `200` HTTP 状态。
+
+流式响应开始后发生错误时，返回以下格式并结束响应流：
+
+```text
+data: {"error":{"message":"Service temporarily unavailable","type":"server_error","code":"service_unavailable"}}
+
 ```
 
-**Get类型数据响应透传：**
-```json
-{
-  "session_id": "session_12345",
-  "type": "custom",
-  "payload": {
-    "source": "business_service",
-    "original_request_type": "get",
-    "business_response": {
-      "event": "message",
-      "type": "command",
-      "session_id": "session_12345",
-      "details": {
-        "actions": [
-          {
-            "action": "data_response", 
-            "params": {
-              "current_time": "2023-12-31 10:30:00",
-              "battery_level": 85
-            }
-          }
-        ]
-      }
-    },
-    "timestamp": 1640995201000
-  }
-}
-```
+服务应处理客户端断开，及时释放请求资源。错误信息不得包含密钥或其他敏感数据。
 
-#### 3.5.3 设备端处理建议
+## 3. 相关文档
 
-设备端接收到custom消息后的处理流程：
-
-1. **解析payload.original_request_type**：确定这是对哪种请求的响应
-2. **提取payload.business_response**：获取业务服务的实际响应内容
-3. **根据响应类型执行相应操作**：
-   - `event="message" AND type="command"` → 解析actions并执行相应动作
-   - `event="message_end"` → 结束当前请求处理
-   - `event="error"` → 进行错误处理
-
-**设备端处理示例代码参考**：
-```cpp
-// 伪代码示例
-void handleCustomMessage(const json& message) {
-    string sessionId = message["session_id"];
-    json payload = message["payload"];
-    string originalType = payload["original_request_type"];
-    json businessResponse = payload["business_response"];
-    
-    if (businessResponse["event"] == "message" && 
-        businessResponse["type"] == "command") {
-        // 执行业务服务返回的命令
-        executeActions(businessResponse["details"]["actions"]);
-    } else if (businessResponse["event"] == "message_end") {
-        // 处理完成，清理会话状态
-        cleanupSession(sessionId);
-    }
-}
-```
-
-## 4. 参考文档
-
-- [WebSocket协议文档](../platform/websocket.md) - 设备端实时通信协议规范
-- [MCP协议接入指南](../mcp/software-mcp.md) - 新一代标准化接入方案
-- [LLM API文档](../api/llm.md) - 自定义大模型配置
-- [Agent API文档](../api/agent.md) - 智能体集成配置
-
----
-
-**技术支持**：如果您在接入过程中遇到问题，请参考相关API文档或联系技术支持团队。我们将为您提供专业的集成指导和解决方案。
+- [WebSocket 协议](../platform/websocket.md)：设备通信协议。
+- [MCP 协议接入指南](../mcp/software-mcp.md)：业务工具接入。
+- [大语言模型 API](../api/llm.md)：自定义模型与生成参数配置。
+- [智能体配置指引](./agent-config.md)：模型、音色与技能设置。
