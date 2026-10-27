@@ -1,13 +1,9 @@
----
-title: MCP 市场与开通
----
-
 # MCP 市场与开通
 
 
 ## 产品概述
 
-MCP（Model Context Protocol）市场是灵矽平台为智能体（Agent）提供的一种能力扩展，允许开发者将外部工具服务接入灵矽，使智能体(Agent) 在与用户对话时能够调用第三方 API 实现丰富功能。
+MCP（Model Context Protocol）市场是灵矽平台为智能体（Agent）提供的能力扩展，开发者可以将外部工具服务接入灵矽，让智能体在对话中调用第三方 API。
 
 通过 MCP 市场，用户可以：
 
@@ -15,26 +11,23 @@ MCP（Model Context Protocol）市场是灵矽平台为智能体（Agent）提�
 - **一键开通**：将心仪的 MCP 服务订阅到自己的账号下
 - **灵活配置**：根据 MCP 服务要求填写 API 密钥、接口地址等参数
 - **工具编排**：在 Agent 配置页面勾选要启用的 MCP，Agent 即具备相应能力
-- **自建服务**：开发者可创建私有 MCP 服务供自己的智能体使用；公共上架由平台管理员操作
+- **自建服务**：开发者可创建私有 MCP 服务供自己的智能体使用
 
 
 ## 名词解释
 
 | 术语 | 说明 |
 |------|------|
-| **MCP Server** | 市场中的 MCP 服务，包含名称、Logo、文档地址和配置模板（`config_schema`）。 |
-| **MCP** | 用户在市场中开通 MCP Server 后创建的配置实例，包含用户填写的实际参数（`config`），如 API Key、服务地址等。 |
-| **config_schema** | 服务的配置模板，定义开通时需要填写的参数，以及服务的实现类型和通信方式。 |
-| **config** | 开通 MCP 后填写的实际配置值。 |
-| **实现类型** | `type=sse` 表示 MCP 服务；`type=app` 表示灵矽OS 应用。 |
-| **通信方式** | `transport_type=1`，即 Streamable HTTP。 |
-| **认证模式** | `sse.type=0` 由用户自行提供 API 密钥；`sse.type=1` 由平台提供密钥。 |
-| **Agent-MCP** | Agent 与 MCP 的绑定关系。一个 Agent 可以绑定多个 MCP，一个 MCP 也可以被多个 Agent 引用。 |
+| **MCP Server** | 平台接入的 MCP 服务，包含名称、Logo、文档地址以及要求用户填写的配置模板（`config_schema`） |
+| **MCP** | 用户在市场中「开通」一个 MCP Server 后，在自己账号下创建的配置实例：包含用户填写的实际参数（`config`），如 API Key、接口地址等 |
+| **config_schema** | 市场服务定义的配置模板，规定用户开通该 MCP 时需要填写哪些参数（如 API Key 字段名、URL 格式等） |
+| **config** | 用户开通 MCP 后填写的实际配置值 |
+| **Agent-MCP** | Agent 与 MCP 的绑定关系。一个 Agent 可以绑定多个 MCP，一个 MCP 也可以被多个 Agent 引用 |
 
 
 ## 前提条件
 
-- 拥有平台灵矽账号
+- 拥有灵矽平台账号
 - 已创建至少一个 Agent（智能体）
 - 如需调用需要 API 密钥的 MCP 服务，需提前准备好第三方服务的密钥
 
@@ -81,14 +74,12 @@ Authorization: Bearer <token>
                     "sse": {
                         "type": 0,
                         "url": "https://api.example.com/mcp",
-                        "shared_key": false,
                         "params": {
                             "api_key": "placeholder"
                         },
                         "header": {
                             "Authorization": "Bearer xxx"
-                        },
-                        "reset_header_default_value": ["Authorization"]
+                        }
                     }
                 }
             }
@@ -110,7 +101,7 @@ Authorization: Bearer <token>
 | `tags` | string[] | 标签列表，用于分类筛选 |
 | `desc` | string | 服务简介 |
 | `content` | string | 详细说明（富文本 HTML） |
-| `config_schema` | object | 配置模板，包含实现类型、通信方式和开通时需填写的参数结构 |
+| `config_schema` | object | 配置模板，定义开通时用户需填写的参数结构 |
 
 ### 1.2 获取 MCP 市场服务详情
 
@@ -152,12 +143,10 @@ Authorization: Bearer <token>
             "sse": {
                 "type": 0,
                 "url": "https://api.example.com/mcp",
-                "shared_key": false,
                 "params": {
                     "api_key": "placeholder"
                 },
-                "header": {},
-                "reset_header_default_value": []
+                "header": {}
             }
         }
     }
@@ -214,9 +203,9 @@ Content-Type: application/json
 | `mcp_id` | string | 是 | 要开通的 MCP Server ID（从市场列表获取） |
 | `name` | string | 是 | 给这个开通的 MCP 起一个名字，方便识别 |
 | `desc` | string | 是 | 描述该 MCP 的用途 |
-| `config.type` | string | 否 | 实现类型，取值 `sse` 或 `app`，由服务端按 MCP Server 的配置写入 |
-| `config.transport_type` | int | 否 | 通信方式，取值为 `1`（Streamable HTTP），需与 MCP Server 的配置一致 |
-| `config.sse.type` | int | 否 | 认证模式。`0`=用户自行提供 API 密钥（默认值），`1`=平台提供密钥 |
+| `config.type` | string | 否 | 服务类型，普通 MCP 固定为 `sse`，由服务端写入 |
+| `config.transport_type` | int | 是 | 通信方式，固定填 `1`（Streamable HTTP） |
+| `config.sse.type` | int | 否 | 认证模式。`0`=用户提供 API 密钥，`1`=平台提供密钥 |
 | `config.sse.url` | string | 是 | MCP 服务端点地址 |
 | `config.sse.params` | object | 否 | Query 参数（由 `config_schema` 定义字段） |
 | `config.sse.header` | object | 否 | HTTP Header（由 `config_schema` 定义字段） |
@@ -225,8 +214,8 @@ Content-Type: application/json
 
 | 值 | 说明 |
 |------|------|
-| `0` | 用户自行提供 API 密钥，填入 `params` 或 `header`。 |
-| `1` | 平台提供密钥，用户无需填写。 |
+| `0` | 用户自行提供 API 密钥，填入 `params` 或 `header` |
+| `1` | 平台提供密钥，用户无需填写 |
 
 **响应示例**
 
@@ -436,7 +425,7 @@ GET /v1/mcps/{id}/tools
 
 ### 3.2 获取工具 Schema
 
-获取指定工具的输入参数结构定义。
+获取该 MCP 工具配置的输入参数结构定义。
 
 ```
 GET /v1/mcps/{id}/tool-schema
@@ -512,7 +501,7 @@ GET /v1/mcps/{id}/tool-config
 PUT /v1/mcps/{id}/tool-config
 ```
 
-**请求体（新版本数组结构）**
+**请求体**
 
 ```json
 {
@@ -520,7 +509,6 @@ PUT /v1/mcps/{id}/tool-config
         {
             "name": "get_weather",
             "description": "当用户询问天气预报时调用",
-            "required": ["city"],
             "value_mapping": [
                 {
                     "content": {
@@ -637,146 +625,7 @@ Content-Type: application/json
 > **注意**：`mcp_ids` 为全量替换模式。如果 Agent 原来绑定了 `[A, B]`，传入 `[B, C]`，则最终结果为 `[B, C]`（A 被解绑，C 被新增）。
 
 
-## 五、MCP Proxy（高级）
-
-MCP Proxy 为需要通过 WebSocket 通信的 MCP 服务提供代理转发能力，适用于设备端本地 MCP 或需要长连接的服务。
-
-### 5.1 获取 MCP Proxy Token
-
-获取用于连接 MCP Proxy 的认证 Token，有效期为 30 天。
-
-```
-GET /v1/mcpproxy/token
-```
-
-**请求头**
-
-```
-Authorization: Bearer <token>
-```
-
-**响应示例**
-
-```json
-{
-    "code": 0,
-    "msg": "success",
-    "data": {
-        "wss_endpoint": "wss://api.example.com/v1/mcpproxy/connect?token=xrobot_mcp_xxxx",
-        "expires_at": "2026-06-05T15:41:00+08:00",
-        "created_at": "2026-05-06T15:41:00+08:00"
-    }
-}
-```
-
-**响应字段说明**
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `wss_endpoint` | string | WebSocket 连接地址 |
-| `expires_at` | string | Token 过期时间 |
-| `created_at` | string | Token 创建时间 |
-
-### 5.2 WebSocket 连接
-
-使用获取到的 Token，通过 WebSocket 协议连接 MCP Proxy。
-
-```
-WS /v1/mcpproxy/connect?token=<token>
-```
-
-连接建立后，平台通过该连接转发 MCP 请求。客户端侧使用 Streamable HTTP 端点 `/v1/mcpproxy/mcp`。
-
-
-## 六、自定义 MCP（开发者）
-
-开发者可以创建自建 MCP 服务。普通用户创建的服务为私有服务，仅自己可用；公共服务的上架由平台管理员操作。
-
-### 6.1 创建自定义 MCP 服务
-
-```
-POST /v1/mcp-store/servers
-```
-
-**请求头**
-
-```
-Authorization: Bearer <token>
-Content-Type: application/json
-```
-
-**请求体**
-
-```json
-{
-    "name": "我的自定义天气服务",
-    "is_private": true,
-    "logo_url": "https://example.com/my-weather-logo.png",
-    "document_url": "https://example.com/my-weather-docs",
-    "tags": ["天气", "自定义"],
-    "desc": "基于公开天气 API 的 MCP 服务",
-    "content": "<p>这是一个自定义天气服务...</p>",
-    "config_schema": {
-        "type": "sse",
-        "transport_type": 1,
-        "sse": {
-            "type": 0,
-            "url": "https://my-weather.example.com/mcp",
-            "shared_key": false,
-            "params": {
-                "api_key": ""
-            },
-            "header": {},
-            "reset_header_default_value": []
-        }
-    }
-}
-```
-
-新建服务默认使用 Streamable HTTP，无需显式传入 `transport_type`。
-
-**权限说明**
-
-| 用户类型 | `is_private` 取值 | 说明 |
-|----------|-------------------|------|
-| 普通用户 | 只能为 `true` | 私有服务仅自己可用 |
-| 平台管理员 | 只能为 `false` | 公共发布到市场供所有用户使用 |
-
-### 6.2 更新自定义服务
-
-```
-PUT /v1/mcp-store/servers/{id}
-```
-
-### 6.3 发布服务
-
-将 MCP 服务状态置为已发布。只有 `is_private=false` 的公共 MCP 会在市场中展示。
-
-```
-PUT /v1/mcp-store/servers/{id}/publish
-```
-
-### 6.4 下架服务
-
-```
-PUT /v1/mcp-store/servers/{id}/unpublish
-```
-
-### 6.5 删除自定义服务
-
-```
-DELETE /v1/mcp-store/servers/{id}
-```
-
-> **注意**：如果该 MCP 服务已被用户开通，则无法删除。
-
-### 6.6 获取我的自定义服务列表
-
-```
-GET /v1/mcp-store/servers
-```
-
-## 七、错误码
+## 五、错误码
 
 所有接口的 HTTP 状态码均为 `200`，业务状态由响应体中的 `code` 表示。
 
@@ -787,7 +636,6 @@ GET /v1/mcp-store/servers
 | `400` | invalid id | 缺少或无效的 ID 参数 |
 | `400` | invalid mcp config | 配置非法或实现类型不可修改 |
 | `403` | normal user only create private mcp server | 普通用户只能创建私有服务 |
-| `403` | admin user only create public mcp server | 管理员只能创建公共服务 |
 | `502` | fetch tools failed | 获取工具列表失败，请检查服务地址和认证配置 |
 | `502` | 具体错误信息 | 工具调用失败 |
 | `599` | 具体错误信息 | 服务内部错误 |
@@ -798,7 +646,7 @@ GET /v1/mcp-store/servers
 | `614` | existing mcp server | 同名 MCP Server 已存在 |
 | `614` | existing mcp | 该用户已开通同名 MCP |
 
-## 八、完整 API 索引
+## 六、API 索引
 
 ### MCP 市场
 
@@ -806,13 +654,6 @@ GET /v1/mcp-store/servers
 |------|------|------|
 | 列取公共市场服务 | GET | `/v1/mcp-store/public/servers` |
 | 获取公共市场服务详情 | GET | `/v1/mcp-store/public/servers/{id}` |
-| 列取我的自定义服务 | GET | `/v1/mcp-store/servers` |
-| 获取我的自定义服务详情 | GET | `/v1/mcp-store/servers/{id}` |
-| 创建自定义服务 | POST | `/v1/mcp-store/servers` |
-| 更新自定义服务 | PUT | `/v1/mcp-store/servers/{id}` |
-| 发布服务 | PUT | `/v1/mcp-store/servers/{id}/publish` |
-| 下架服务 | PUT | `/v1/mcp-store/servers/{id}/unpublish` |
-| 删除服务 | DELETE | `/v1/mcp-store/servers/{id}` |
 
 ### MCP 开通
 
@@ -836,16 +677,9 @@ GET /v1/mcp-store/servers
 | 获取 Agent 的 MCP 列表 | GET | `/v1/agents/{agent_id}/mcps` |
 | 更新 Agent 的 MCP 绑定 | PUT | `/v1/agents/{agent_id}/mcps` |
 
-### MCP Proxy
-
-| 操作 | 方法 | 路径 |
-|------|------|------|
-| 获取连接 Token | GET | `/v1/mcpproxy/token` |
-| WebSocket 连接 | WS | `/v1/mcpproxy/connect?token=<token>` |
-
 ---
 
-## 九、使用流程总览
+## 七、使用流程总览
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -879,12 +713,12 @@ GET /v1/mcp-store/servers
                            ▼
 ┌──────────────────────────────────────────────────────────────┐
 │ 第五步：对话使用                                              │
-│ Agent 在与小智对话时，LLM 自动调用已绑定的 MCP 工具            │
+│ 用户与智能体对话时，智能体自动调用已绑定的 MCP 工具        │
 └──────────────────────────────────────────────────────────────┘
 ```
 
 ## 相关文档
 
-- [端侧 MCP](../mcp/hardware-mcp.md)
-- [云端 MCP](../mcp/software-mcp.md)
-- [MCP 示例](../mcp/example-music-pan.md)
+- [端侧MCP](./hardware-mcp.md)
+- [云端MCP](./software-mcp.md)
+- [自定义 MCP](./custom-mcp.md)

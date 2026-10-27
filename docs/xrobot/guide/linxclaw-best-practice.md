@@ -1,3 +1,7 @@
+---
+search: false
+---
+
 # 灵矽平台 + LinxClaw：打造具备行动力的全能AI助理
 
 ## 概述

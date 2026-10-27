@@ -22,7 +22,7 @@ export default withMermaid({
       { text: "灵矽官网", link: "https://linx.qiniu.com/" },
       { text: "设备接入协议", link: Chapters.xrobot_platform },
       { text: "API", link: Chapters.xrobot_api },
-      { text: "MCP接入", link: Chapters.xrobot_mcp },
+      { text: "MCP 服务", link: Chapters.xrobot_mcp },
       { text: "最佳实践", link: Chapters.xrobot_guide },
       { text: "计费详情", link: Chapters.xrobot_billing },
       { text: "FAQ", link: Chapters.xrobot_faq + "faq/" },
