@@ -14,13 +14,13 @@ title: 基于七牛云存储服务构建一个音乐网盘MCP
 
 ### 2.1 系统架构概览
 
-本方案基于 MCP（Model Context Protocol）协议，为智能语音对话硬件提供音乐文件管理与播放能力。系统采用分层架构设计，通过 MCP 协议建立通信通道，支持动态配置注入和会话隔离。
+本方案基于 MCP（Model Context Protocol）协议，为智能语音对话硬件提供音乐文件管理与播放能力。系统采用分层架构设计，通过 SSE（Server-Sent Events）建立实时通信通道，支持动态配置注入和会话隔离。
 
 ```mermaid
 flowchart TD
     U["用户: 语音指令"] --> NLU["意图"]
     NLU -->|"播放请求(歌曲)或查询歌曲列表"| SVR["灵矽AI平台"]
-    SVR -->|"MCP(Streamable HTTP)+Headers"| MCP["music-mcp-server（本MCP）"]
+    SVR -->|"SSE(MCP)+Headers"| MCP["music-mcp-server（本MCP）"]
     MCP --> KODO["七牛对象存储"]
     MCP -->|"get_object_url"| URL["临时可播放URL"]
     URL --> SVR
@@ -39,9 +39,9 @@ flowchart TD
 - **安全策略**：敏感信息仅在请求传递过程中存在，不在服务端持久化
 
 
-## 3. 配置与使用
+## 4. 配置与使用
 
-### 3.1 准备七牛云存储
+### 4.1 准备七牛云存储
 
 #### 空间创建
 
@@ -83,22 +83,24 @@ AK 与 SK 是重要隐私，避免泄露给不可信来源。
 如有泄露，可在密钥管理页面停用、删除。
 :::
 
-### 3.2 创建自定义MCP
+### 4.2 创建自定义MCP
 
 来到灵矽AI控制台，登录之后，点击左侧的侧边栏选项“自定义MCP”，然后点击“添加自定义MCP”。
 
-在弹出的对话框中按表单填写服务名称、简短描述、Logo、标签，以及接入配置，接入配置填写需要注意，你是以**服务提供者**的身份填写信息，不是以使用者的身份填写信息：
+在弹出的对话框中你需要按照表单填写服务名称、简短描述、LOGO、tag，以及接入配置，接入配置填写需要注意，你是以**服务提供者**的身份填写信息，不是以使用者的身份填写信息：
 
-- MCP URL：填写完整的、带 http(s) 协议的可访问 URL，即 MCP 服务的 Streamable HTTP 端点（通常以 `/mcp` 结尾）
+- SSE URL: 需要填写完整的，带有http(s)协议的、可访问的URL，通常还是以/SSE结尾
 
+<!-- todo -->
+<!-- - Query 参数：若需要多租户/不同 profile，可增加 profile/tenant 等查询参数参与服务端路由与限权。 -->
 
-- Header 参数：填写上文列出的认证信息，如 `X-Qiniu-AK`、`X-Qiniu-SK` 等。
+- Header 参数：将上文 headers 列为用户必填项，标注字段说明与示例值。API_Key之类的一般都填写在这里。
 
 填写示例：
 
 ![custom-mcp-dialog](./imgs/example-music-pan/custom-mcp-dialog.png)
 
-### 3.3 使用MCP
+### 4.3 使用MCP
 
 回到灵矽AI控制台，点击左侧的侧边栏选项“自定义MCP”，找到你刚创建的MCP，然后点击“开通”。或者，如果你想要其他人的MCP，可以点击侧边栏的“MCP市场”，然后开通你需要的MCP。
 
@@ -110,7 +112,8 @@ AK 与 SK 是重要隐私，避免泄露给不可信来源。
 
 随后，可以在智能体-角色配置页面启用新的mcp了。
 
-## 4. 相关链接
+## 5. 相关链接
 
-- [七牛云对象存储 - 开发者文档](https://developer.qiniu.com/kodo)
+<!-- [七牛云对象存储 - 开发者文档](https://developer.qiniu.com/kodo) -->
 
+当前 music-mcp-server SSE URL：`http://121.29.19.146:8000/sse`
