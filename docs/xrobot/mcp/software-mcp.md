@@ -24,7 +24,7 @@ MCP（Model Context Protocol）是新一代AI应用集成协议，基于标准 J
 - [接入协议说明](#接入协议说明)
   - [HTTP Header 参数](#http-header-参数)
   - [工具调用响应格式](#工具调用响应格式)
-  - [系统调用响应格式](#系统调用响应格式)
+  - [设备操作响应格式](#设备操作响应格式)
 - [快速开始](#快速开始)
 
 ## 典型使用场景
@@ -94,10 +94,8 @@ MCP（Model Context Protocol）是新一代AI应用集成协议，基于标准 J
 
 ### 网络要求
 
-- 支持 HTTPS 和 WebSocket/SSE 连接
-- 接收端点：
-  - `GET /mcp`：SSE 长连接
-  - `POST /mcp/message`：接收 MCP 请求
+- 服务需支持 HTTPS 访问。
+- 使用 Streamable HTTP：平台通过 `POST /mcp` 发送请求。
 
 ## 接入协议说明
 
@@ -135,142 +133,66 @@ MCP 服务端从请求头读取上述标识，平台不会将其自动填入工�
 
 **说明**：
 
-- `content` 是数组，每个元素对应一段内容（`text` / `image` / `audio` 等），设备端会按顺序处理
-- 涉及系统调用指令（需驱动设备执行操作，如播放音乐、切换角色等）时，应同时返回 `structuredContent`，结构与字段含义详见[系统调用响应格式](#系统调用响应格式)
+- `content` 是数组，平台会拼接其中的 `text` 内容用于模型回复
+- 需要让设备执行操作（如播放音乐、切换角色）时，返回 `structuredContent`，详见[设备操作响应格式](#设备操作响应格式)
 - `isError: true` 表示工具执行失败
 
-**错误响应示例**：
+### 设备操作响应格式
+
+需要让设备执行操作（播放音频、停止播放、切换角色等）时，返回 `structuredContent`：
 
 ```json
 {
   "jsonrpc": "2.0",
   "id": 5,
   "result": {
-    "content": [
-      {
-        "type": "text",
-        "text": "工具执行失败：参数错误"
-      }
-    ],
-    "isError": true
-  }
-}
-```
-
-### 系统调用响应格式
-
-当工具执行结果需要驱动设备执行具体操作（播放音频、停止播放、切换角色等）时，除 `content.text` 外还应同时返回 `structuredContent`：
-
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 5,
-  "result": {
-    "content": [
-      {
-        "type": "text",
-        "text": "{\n  \"code\": 0,\n  \"funcs\": [\n    {\n      \"name\": \"linx_play\",\n      \"arguments\": {\n        \"audio_url\": \"http://music-storage.xrobo-io.qiniuapi.com/夜上海.mp3\",\n        \"title\": \"夜上海\"\n      }\n    }\n  ],\n  \"message\": \"\"}"
-      }
-    ],
     "structuredContent": {
       "code": 0,
       "funcs": [
         {
           "name": "linx_play",
           "arguments": {
-            "audio_url": "http://music-storage.xrobo-io.qiniuapi.com/夜上海.mp3",
-            "title": "夜上海"
+            "audio_url": "https://example.com/music.mp3",
+            "title": "音乐名称"
           }
         }
       ],
       "message": ""
-    },
-    "isError": false
+    }
   }
 }
 ```
 
-**说明**：
-
-- `content.text` 是**格式化的 JSON 字符串**（带 `\n` 换行和缩进），用于展示给用户/模型
-- `structuredContent` 是**原始 JSON 对象**，供设备程序化解析，按 `funcs` 数组执行系统调用
+`content.text` 可选，仅用于给模型或用户展示结果，不参与 `structuredContent` 的解析。
 
 **Func 结构说明**：
 
-| 字段        | 类型   | 说明       |
-| ----------- | ------ | ---------- |
-| `name`      | string | 系统函数名 |
-| `arguments` | object | 函数参数   |
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `name` | string | 系统函数名 |
+| `arguments` | object | 函数参数 |
 
 #### 内置系统函数
 
-| 函数名        | 参数                 | 说明     |
-| ------------- | -------------------- | -------- |
-| `linx_play`   | `audio_url`, `title` | 播放音频 |
-| `linx_stop`   | 无                   | 停止播放 |
-| `change_role` | `role_prompt`        | 切换角色 |
-
-**调用示例 - 播放音频**：
-
-```json
-{
-  "code": 0,
-  "message": "success",
-  "funcs": [
-    {
-      "name": "linx_play",
-      "arguments": {
-        "audio_url": "https://example.com/music.mp3",
-        "title": "音乐名称"
-      }
-    }
-  ]
-}
-```
-
-**调用示例 - 停止播放**：
-
-```json
-{
-  "code": 0,
-  "message": "success",
-  "funcs": [{ "name": "linx_stop", "arguments": {} }]
-}
-```
-
-**调用示例 - 切换角色**：
-
-```json
-{
-  "code": 0,
-  "message": "切换角色成功",
-  "funcs": [
-    {
-      "name": "change_role",
-      "arguments": {
-        "role_prompt": "你是一个友善的助手"
-      }
-    }
-  ]
-}
-```
+| 函数名 | 参数 | 说明 |
+| --- | --- | --- |
+| `linx_play` | `audio_url`, `title` | 播放音频 |
+| `linx_stop` | 无 | 停止播放 |
+| `change_role` | `role_prompt` | 切换角色 |
 
 ## 快速开始
 
 ### 1. 在灵矽AI平台注册服务
 
-在灵矽AI平台的 MCP 服务管理页面，添加您的服务端点：
+在控制台「自定义MCP」页面点击「添加自定义MCP」：
 
 - **服务名称**：个人助手 MCP 服务
-- **SSE URL**：`https://your-domain.com/mcp`
+- **MCP URL**：`https://your-domain.com/mcp`
 - **描述**：提供天气查询、音乐播放等个人助手功能
 
 ### 2. 接收 MCP 连接
 
-您的云端 MCP 服务需要实现标准的 MCP 协议，支持以下端点：
-
-- **SSE 端点**：`GET /mcp` - 接收设备端的 SSE 连接
-- **POST 端点**：`POST /mcp/message` - 接收 MCP 消息
+云端 MCP 服务需实现标准 MCP 协议。平台通过 `POST /mcp` 发送请求。
 
 ### 3. 处理工具调用
 

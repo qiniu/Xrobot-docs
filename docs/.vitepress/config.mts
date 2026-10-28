@@ -14,6 +14,8 @@ export default withMermaid({
   lastUpdated: true,
   cleanUrls: true,
   base: "/docs/",
+  // 不对外发布的页面：不参与构建，URL 直接 404
+  srcExclude: ["xrobot/guide/linxclaw-best-practice.md"],
   head: [["link", { rel: "icon", href: "favicon.svg" }]],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
@@ -22,7 +24,7 @@ export default withMermaid({
       { text: "灵矽官网", link: "https://linx.qiniu.com/" },
       { text: "设备接入协议", link: Chapters.xrobot_platform },
       { text: "API", link: Chapters.xrobot_api },
-      { text: "MCP接入", link: Chapters.xrobot_mcp },
+      { text: "MCP 服务", link: Chapters.xrobot_mcp },
       { text: "最佳实践", link: Chapters.xrobot_guide },
       { text: "计费详情", link: Chapters.xrobot_billing },
       { text: "FAQ", link: Chapters.xrobot_faq + "faq/" },

@@ -112,13 +112,14 @@ const items_xrobot_api = [
 
 const items_xrobot_mcp = [
   {
-    text: "MCP接入",
+    text: "MCP 服务",
     collapsed: true,
     link: Chapters.xrobot_mcp,
     items: [
-
+      { text: "MCP 市场与开通", link: "mcp-store" },
       { text: "端侧MCP", link: "hardware-mcp" },
       { text: "云端MCP", link: "software-mcp" },
+      { text: "自定义 MCP", link: "custom-mcp" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_mcp)),
   },
 ];
@@ -135,13 +136,11 @@ const items_xrobot_guide = [
       { text: "开源小智固件接入", link: "xiaozhi-firmware" },
       { text: "开源小智硬件接入", link: "xiaozhi-hardware" },
       { text: "灵矽AI小程序+后台解决方案", link: "platform-mp" },
-      { text: "第三方应用接入", link: "third-app" },
+      { text: "自定义 LLM 接入", link: "third-app" },
       { text: "长期记忆最佳实践", link: "longterm-memory-start" },
       { text: "知识库最佳实践", link: "knowledge-start" },
-      { text: "MCP服务最佳实践", link: "mcp-store" },
       { text: "拍照功能", link: "camera-feature" },
       { text: "客户端demo", link: "client-demo" },
-      { text: "接入linxclaw", link: "linxclaw-best-practice" },
     ].map((item) => apply_prefix(item, Chapters.xrobot_guide)),
   },
 ];
