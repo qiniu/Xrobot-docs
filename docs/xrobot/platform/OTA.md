@@ -97,7 +97,6 @@ HTTP 状态码为 `200 OK` 时，响应体为 JSON。字段是否出现取决于
 - `activation`：激活信息。仅在设备未绑定且未通过预注册自动绑定时返回
   - `code`：设备激活码。当前为 6 位数字；同一设备在缓存有效期内重复上报会复用激活码
   - `message`：设备展示用的激活提示，当前由智控台地址、换行符和激活码组成
-  - `challenge`：设备的 `Device-Id`
 - `mqtt`：MQTT 协议服务器配置（协议预留字段）
 - `websocket`：WebSocket 协议服务器配置
   - `url`：设备建立 WebSocket 连接的地址
@@ -125,8 +124,7 @@ HTTP 状态码为 `200 OK` 时，响应体为 JSON。字段是否出现取决于
   },
   "activation": {
     "code": "608303",
-    "message": "http://60.205.58.18:8002\n608303",
-    "challenge": "D4:06:06:B6:A9:FA"
+    "message": "http://60.205.58.18:8002\n608303"
   },
   "firmware": {
     "version": "1.0.0",
