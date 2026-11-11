@@ -151,6 +151,6 @@ title: 开源小智硬件接入指南
 
 注：外部文档，点击之后请等待跳转。
 
-| 设备型号          | 固件下载链接                                                 | 设备图片                                                     |
-| ----------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| 4G esp32s3 集成板 | [下载](https://algorithm.qnaigc.com/xiaoling-rom/xiaoling_20250825_ESP32S3_bread-compact-ml307.bin) | <img src="./imgs/device-net-config/4g-esp32-s3.jpg" alt="4g-esp32-s3" style="zoom: 25%;" /> |
+| 设备型号 | 设备图片 |
+| --- | --- |
+| 4G ESP32-S3 集成板 | <img src="./imgs/device-net-config/4g-esp32-s3.jpg" alt="4g-esp32-s3" style="zoom: 25%;" /> |

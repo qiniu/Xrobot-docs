@@ -2,6 +2,27 @@
 title: 开源小智固件接入指南
 ---
 
+## 用 Agent 开发和烧录固件
+
+安装 `xrobot-develop` 后，可让 Agent 识别设备、编译固件、备份、烧录和验证。安装需要 Node.js。实机烧录时，请在连接开发板的电脑上运行 Agent。
+
+::: code-group
+
+```text [让 Agent 安装]
+请运行下面的命令，将 xrobot-develop Skill 安装到当前项目。
+安装后请验证安装结果，并告诉我是否需要新建会话才能使用。
+
+npx skills@1.8.1 add https://linx.qiniu.com/docs/downloads/skills/xrobot-develop-0.1.0.zip --skill xrobot-develop
+```
+
+```bash [CLI 命令安装]
+npx skills@1.8.1 add https://linx.qiniu.com/docs/downloads/skills/xrobot-develop-0.1.0.zip --skill xrobot-develop
+```
+
+:::
+
+安装后，可以在 Agent 对话中试试「使用 xrobot-develop 识别当前连接的设备，并检查烧录环境」。
+
 ## 一、固件编译
 
 参考 [小智开源固件编译流程](https://github.com/xinnan-tech/xiaozhi-esp32-server/blob/main/docs/firmware-build.md) 进行固件编译。
