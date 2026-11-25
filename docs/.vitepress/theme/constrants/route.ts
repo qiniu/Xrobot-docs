@@ -133,6 +133,7 @@ const items_xrobot_guide = [
     items: [
       { text: "快速入门", link: "quick-start" },
       { text: "智能体配置操作指引", link: "agent-config" },
+      { text: "智能体动态变量", link: "dynamic-prompt" },
       { text: "开源小智固件接入", link: "xiaozhi-firmware" },
       { text: "开源小智硬件接入", link: "xiaozhi-hardware" },
       { text: "灵矽AI小程序+后台解决方案", link: "platform-mp" },
