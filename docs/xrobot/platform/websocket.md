@@ -308,7 +308,8 @@ WebSocket 支持 **🎵 音频数据帧**（二进制方式）以及 **文本帧
 `text_response` 为可选字段，用于指定需要播放的音频文字。
 
 ##### 5. Hello 消息扩展：智能体提示词替换
-此功能通过在 `hello` 消息中添加 `agent_params` 字段，允许设备端在建立连接时传递动态参数，用于替换智能体系统提示词中的占位符。
+
+客户端在 `hello.agent_params.custom_replace_prompt` 中传入变量，用于替换当前会话的智能体提示词占位符。变量名使用小写英文字母和词间单个下划线，最长 50 个字符。每次连接最多应用 100 个有效变量，单值最多保留 200 个 UTF-8 字节。完整接入、空值和分段用法见 [智能体动态变量](../guide/dynamic-prompt.md)。
 
 **使用示例：**
 提示词配置参数:
@@ -318,14 +319,15 @@ WebSocket 支持 **🎵 音频数据帧**（二进制方式）以及 **文本帧
 今天是{{date}}，天气{{weather}}。
 请根据这些信息与用户进行个性化交互。
 ```
-hello消息（包含智能体提示词替换参数）:
+在 `hello` 中传入以下替换参数。<code v-pre>{{assistant_name}}</code> 为平台内置占位符，示例使用 `assistant_title` 作为自定义变量名。
+
 ```json
 {
   "type": "hello",
   "transport": "websocket",
   "agent_params": {
     "custom_replace_prompt": {
-      "assistant_title": "小牛牛", //备注：不要用assistant_name,这个变量已经被占用
+      "assistant_title": "小牛牛",
       "user_name": "张三",
       "location": "北京",
       "date": "2024年12月1日",
